@@ -35,6 +35,8 @@ GTDB_PATHS = [
 ]
 PROKKA_GBFF = list(PROKKA_DB_TABLE.keys())
 
+SUPER_TAXONOMY = config.get("super_taxonomy", "bacteria")
+
 ##### 3. Wildcard constraints #####
 wildcard_constraints:
     strains="|".join(STRAINS),
