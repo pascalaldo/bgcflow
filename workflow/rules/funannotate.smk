@@ -50,7 +50,7 @@ if len(STRAINS_FNA) > 0:
         log: "logs/funannotate/funannotate_setup/funannotate-setup.log"
         shell:
             """
-            funannotate setup --install -d {output.funannotate_dbs}
+            funannotate setup --install all -d {output.funannotate_dbs}
             """
 
     rule funannotate_clean:
