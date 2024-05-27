@@ -64,7 +64,7 @@ resource_mapping = {}
 
 ##### Modules #####
 include: "rules/ncbi.smk"
-include: "rules/funannotate.smk"
+include: "rules/funannotate_docker.smk"
 include: "rules/antismash.smk"
 resource_mapping["antismash_db"] = str(antismash_db_path)
 include: "rules/roary.smk"
