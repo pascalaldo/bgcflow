@@ -99,7 +99,7 @@ if len(STRAINS_FNA) > 0:
 
     rule funannotate_predict:
         input:
-            funannotate_dbs=directory("resources/funannotate/"),
+            funannotate_dbs="resources/funannotate/",
             masked_fa = "data/interim/funannotate/{strains_fna}/{strains_fna}.clean.sorted.masked.fa",
             org_info = "data/interim/prokka/{strains_fna}/organism_info.txt",
         output:
