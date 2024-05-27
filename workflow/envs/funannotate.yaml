@@ -1,0 +1,8 @@
+name: funannotate_env
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python<3.10
+  - funannotate=1.8.17
