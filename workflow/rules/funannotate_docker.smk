@@ -64,7 +64,7 @@ if len(STRAINS_FNA) > 0:
         log: "logs/funannotate/funannotate_sort/funannotate-{strains_fna}.log"
         shell:
             """
-            funannotate sort -i {input.clean_fa} -o {output.sorted_fa} 2> {log}
+            funannotate sort -i {input.clean_fa} --minlen 1000 -o {output.sorted_fa} 2> {log}
             """
     
     rule funannotate_mask:
