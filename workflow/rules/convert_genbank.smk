@@ -44,7 +44,7 @@ if len(CUSTOM_GENBANK) > 0:
             python workflow/bgcflow/bgcflow/misc/create_aa.py {input.gbk} {output.faa} 2>> {log}
             """
 
-    rule extract_meta_genbank:
+    rule extract_meta_genbank: # is prokka here correct?
         input:
             fna = "data/interim/fasta/{custom_genbank}.fna",
         output:
