@@ -11,7 +11,7 @@ min_version("7.14.0")
 __version__ = "0.9.3"
 
 
-container: "docker://matinnu/bgcflow:latest"
+# container: "docker://matinnu/bgcflow:latest"
 
 
 ##### TABLE OF CONTENTS #####
