@@ -42,6 +42,17 @@ if len(STRAINS_FNA) > 0:
     except KeyError:
         prokka_use_pfam = ""
 
+    rule funannotate_setup:
+        output:
+            funannotate_dbs=directory("resources/funannotate/"),
+        conda:
+            "../envs/funannotate.yaml"
+        log: "logs/funannotate/funannotate_setup/funannotate-setup.log"
+        shell:
+            """
+            funannotate setup --install -d {output.funannotate_dbs}
+            """
+
     rule funannotate_clean:
         input:
             fna = "data/interim/fasta/{strains_fna}.fna",
@@ -88,6 +99,7 @@ if len(STRAINS_FNA) > 0:
 
     rule funannotate_predict:
         input:
+            funannotate_dbs=directory("resources/funannotate/"),
             masked_fa = "data/interim/funannotate/{strains_fna}/{strains_fna}.clean.sorted.masked.fa",
             org_info = "data/interim/prokka/{strains_fna}/organism_info.txt",
         output:
@@ -106,7 +118,8 @@ if len(STRAINS_FNA) > 0:
         threads: 4
         shell:
             """
-            funannotate predict -i {input.masked_fa} \
+            FUNANNOTATE_DB="{input.funannotate_dbs}" funannotate predict \
+                -i {input.masked_fa} \
                 --species "`cut -d "," -f 2 {input.org_info}`" \
                 --strain "`cut -d "," -f 3 {input.org_info}`" \
                 --cpus {threads} \
