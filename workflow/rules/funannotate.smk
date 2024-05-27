@@ -110,7 +110,7 @@ if len(STRAINS_FNA) > 0:
                 --species "`cut -d "," -f 2 {input.org_info}`" \
                 --strain "`cut -d "," -f 3 {input.org_info}`" \
                 --cpus {threads} \
-                -o "data/interim/prokka/{strains_fna}/" 2> {log}
+                -o "data/interim/prokka/{wildcards.strains_fna}/" 2> {log}
             """
 
     rule format_gbk:
