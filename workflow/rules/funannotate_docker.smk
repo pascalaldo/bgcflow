@@ -48,7 +48,7 @@ if len(STRAINS_FNA) > 0:
             fna = "data/interim/fasta/{strains_fna}.fna",
         output:
             clean_fa = "data/interim/funannotate/{strains_fna}/{strains_fna}.clean.fa",
-        container: "docker://nextgenusfs/funannotate",
+        container: "docker://nextgenusfs/funannotate-slim",
         log: "logs/funannotate/funannotate_clean/funannotate-{strains_fna}.log"
         shell:
             """
@@ -64,7 +64,7 @@ if len(STRAINS_FNA) > 0:
             clean_fa = "data/interim/funannotate/{strains_fna}/{strains_fna}.clean.fa",
         output:
             sorted_fa = "data/interim/funannotate/{strains_fna}/{strains_fna}.clean.sorted.fa",
-        container: "docker://nextgenusfs/funannotate",
+        container: "docker://nextgenusfs/funannotate-slim",
         log: "logs/funannotate/funannotate_sort/funannotate-{strains_fna}.log"
         shell:
             """
@@ -76,7 +76,7 @@ if len(STRAINS_FNA) > 0:
             sorted_fa = "data/interim/funannotate/{strains_fna}/{strains_fna}.clean.sorted.fa",
         output:
             masked_fa = "data/interim/funannotate/{strains_fna}/{strains_fna}.clean.sorted.masked.fa",
-        container: "docker://nextgenusfs/funannotate",
+        container: "docker://nextgenusfs/funannotate-slim",
         log: "logs/funannotate/funannotate_mask/funannotate-{strains_fna}.log"
         threads: 12
         shell:
@@ -98,7 +98,7 @@ if len(STRAINS_FNA) > 0:
             sqn = temp("data/interim/prokka/{strains_fna}/{strains_fna}.sqn"),
             fsa = temp("data/interim/prokka/{strains_fna}/{strains_fna}.fsa"),
             tbl = temp("data/interim/prokka/{strains_fna}/{strains_fna}.tbl"),
-        container: "docker://nextgenusfs/funannotate",
+        container: "docker://nextgenusfs/funannotate-slim",
         log: "logs/funannotate/funannotate_predict/funannotate-{strains_fna}.log"
         threads: 4
         shell:
