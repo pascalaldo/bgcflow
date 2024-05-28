@@ -102,7 +102,7 @@ if len(STRAINS_FNA) > 0:
             rna_detection = prokka_params_rna,
             refgbff = lambda wildcards: get_prokka_refdb(wildcards, "params", DF_SAMPLES, PROKKA_DB_MAP),
             use_pfam = prokka_use_pfam,
-            kingdom = KINGDOM,
+            kingdom = KINGDOM.capitalize(),
         threads: 4
         shell:
             """
