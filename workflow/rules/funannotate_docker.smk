@@ -88,15 +88,15 @@ if len(STRAINS_FNA) > 0:
             gff = "data/interim/prokka/{strains_fna}/{strains_fna}.gff",
             faa = "data/interim/prokka/{strains_fna}/{strains_fna}.faa",
             gbk = "data/interim/prokka/{strains_fna}/{strains_fna}.gbk",
-            txt = "data/interim/prokka/{strains_fna}/{strains_fna}.txt",
-            tsv = "data/interim/prokka/{strains_fna}/{strains_fna}.tsv",
-            fna = temp("data/interim/prokka/{strains_fna}/{strains_fna}.fna"),
-            sqn = temp("data/interim/prokka/{strains_fna}/{strains_fna}.sqn"),
-            fsa = temp("data/interim/prokka/{strains_fna}/{strains_fna}.fsa"),
+            # txt = "data/interim/prokka/{strains_fna}/{strains_fna}.txt",
+            # tsv = "data/interim/prokka/{strains_fna}/{strains_fna}.tsv",
+            # fna = temp("data/interim/prokka/{strains_fna}/{strains_fna}.fna"),
+            # sqn = temp("data/interim/prokka/{strains_fna}/{strains_fna}.sqn"),
+            # fsa = temp("data/interim/prokka/{strains_fna}/{strains_fna}.fsa"),
             tbl = temp("data/interim/prokka/{strains_fna}/{strains_fna}.tbl"),
         container: "docker://nextgenusfs/funannotate",
         log: "logs/funannotate/funannotate_predict/funannotate-{strains_fna}.log"
-        threads: 4
+        threads: 12
         shell:
             """
             funannotate predict \
@@ -104,7 +104,12 @@ if len(STRAINS_FNA) > 0:
                 --species "`cut -d "," -f 2 {input.org_info}`" \
                 --strain "`cut -d "," -f 3 {input.org_info}`" \
                 --cpus {threads} \
-                -o "data/interim/prokka/{wildcards.strains_fna}/" 2> {log}
+                -o "data/interim/funannotate/{wildcards.strains_fna}/" 2> {log}
+            base_name=$(basename `ls data/interim/funannotate/{wildcards.strains_fna}/predict_results/*.gff3` .gff3)
+            cp data/interim/funannotate/{wildcards.strains_fna}/predict_results/$base_name.gff3 {output.gff}
+            cp data/interim/funannotate/{wildcards.strains_fna}/predict_results/$base_name.proteins.fa {output.faa}
+            cp data/interim/funannotate/{wildcards.strains_fna}/predict_results/$base_name.gbk {output.gbk}
+            cp data/interim/funannotate/{wildcards.strains_fna}/predict_results/$base_name.tbl {output.tbl}
             """
 
     rule format_gbk:
