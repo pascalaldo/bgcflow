@@ -101,8 +101,8 @@ if len(STRAINS_FNA) > 0:
             evalue = "1e-05",
             rna_detection = prokka_params_rna,
             refgbff = lambda wildcards: get_prokka_refdb(wildcards, "params", DF_SAMPLES, PROKKA_DB_MAP),
-            use_pfam = prokka_use_pfam
-            kingdom = KINGDOM
+            use_pfam = prokka_use_pfam,
+            kingdom = KINGDOM,
         threads: 4
         shell:
             """
@@ -135,7 +135,7 @@ if len(STRAINS_FNA) > 0:
         input:
             gbk = "data/interim/processed-genbank/{strains_fna}.gbk",
             summary = "data/interim/prokka/{strains_fna}/{strains_fna}.txt",
-            tsv = "data/interim/prokka/{strains_fna}/{strains_fna}.tsv"
+            tsv = "data/interim/prokka/{strains_fna}/{strains_fna}.tsv",
         output:
             gbk = report("data/processed/{name}/genbank/{strains_fna}.gbk", \
                 caption="../report/file-genbank.rst", category="{name}", subcategory="Annotated Genbanks"),
