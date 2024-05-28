@@ -102,10 +102,12 @@ if len(STRAINS_FNA) > 0:
             rna_detection = prokka_params_rna,
             refgbff = lambda wildcards: get_prokka_refdb(wildcards, "params", DF_SAMPLES, PROKKA_DB_MAP),
             use_pfam = prokka_use_pfam
+            kingdom = KINGDOM
         threads: 4
         shell:
             """
             prokka --outdir data/interim/prokka/{wildcards.strains_fna} --force \
+                --kingdom {params.kingdom} \
                 {params.refgbff} --prefix {wildcards.strains_fna} --genus "`cut -d "," -f 1 {input.org_info}`" \
                 --species "`cut -d "," -f 2 {input.org_info}`" --strain "`cut -d "," -f 3 {input.org_info}`" \
                 --cdsrnaolap --cpus {threads} {params.rna_detection} --increment {params.increment} \
