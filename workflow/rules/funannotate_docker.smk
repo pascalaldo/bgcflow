@@ -99,7 +99,7 @@ if len(STRAINS_FNA) > 0:
         threads: 4
         shell:
             """
-            FUNANNOTATE_DB="{input.funannotate_dbs}" funannotate predict \
+            funannotate predict \
                 -i {input.masked_fa} \
                 --species "`cut -d "," -f 2 {input.org_info}`" \
                 --strain "`cut -d "," -f 3 {input.org_info}`" \
