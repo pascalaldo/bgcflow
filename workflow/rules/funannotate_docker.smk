@@ -82,6 +82,7 @@ if len(STRAINS_FNA) > 0:
 
     rule funannotate_predict:
         input:
+            sorted_fa = "data/interim/funannotate/{strains_fna}/{strains_fna}.clean.sorted.fa",
             masked_fa = "data/interim/funannotate/{strains_fna}/{strains_fna}.clean.sorted.masked.fa",
             org_info = "data/interim/prokka/{strains_fna}/organism_info.txt",
         output:
@@ -107,6 +108,8 @@ if len(STRAINS_FNA) > 0:
                 -o "data/interim/funannotate/{wildcards.strains_fna}/" 2> {log}
             base_name=$(basename `ls data/interim/funannotate/{wildcards.strains_fna}/predict_results/*.gff3` .gff3)
             cp data/interim/funannotate/{wildcards.strains_fna}/predict_results/$base_name.gff3 {output.gff}
+            echo "##FASTA" >> {output.gff}
+            cat {input.sorted_fa} >> {output.gff}
             cp data/interim/funannotate/{wildcards.strains_fna}/predict_results/$base_name.proteins.fa {output.faa}
             cp data/interim/funannotate/{wildcards.strains_fna}/predict_results/$base_name.gbk {output.gbk}
             cp data/interim/funannotate/{wildcards.strains_fna}/predict_results/$base_name.tbl {output.tbl}
