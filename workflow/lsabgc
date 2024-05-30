@@ -46,7 +46,7 @@ wildcard_constraints:
 
 
 ##### Target rules #####
-
+filter_samples_qc = lambda x, y: y # No automated QC
 rule all:
     input:
         expand("data/processed/{name}/lsabgc/as_{version}/lsaBGC_AutoAnalyze_Results", name=PROJECT_IDS, version=dependency_version["antismash"]),
