@@ -98,7 +98,7 @@ include: "rules/bgc.smk"
 include: "rules/diamond.smk"
 include: "rules/deeptfactor.smk"
 include: "rules/cblaster.smk"
-include: "rules/data_warehouse.smk"
+# include: "rules/data_warehouse.smk"
 include: "rules/convert_genbank.smk"
 include: "rules/gecco.smk"
 
