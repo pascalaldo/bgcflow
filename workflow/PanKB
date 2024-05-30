@@ -58,7 +58,7 @@ def filter_samples_qc(wildcards, df_samples):
     df_samples_names = set(df_samples.index.to_list())
     qc_samples_names = set(qc.index.to_list())
     assert (df_samples_names == qc_samples_names)
-    return df_samples.loc[qc.index.loc[qc["passed"] == True], :]
+    return df_samples.loc[qc.index[qc["passed"] == True], :]
 include: "rules/qc/qc_contigs_n50.smk"
 
 rule all:
