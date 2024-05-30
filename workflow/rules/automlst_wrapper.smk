@@ -38,7 +38,7 @@ rule prep_automlst_gbk:
 
 rule automlst_wrapper:
     input:
-        gbk=lambda wildcards: get_automlst_inputs(wildcards.name, DF_SAMPLES),
+        gbk=lambda wildcards: get_automlst_inputs(wildcards.name, filter_samples_qc(wildcards, DF_SAMPLES)),
         reduced_core="resources/automlst-simplified-wrapper-main/reducedcore.hmm",
     output:
         tree="data/interim/automlst_wrapper/{name}/raxmlpart.txt.treefile",
@@ -60,11 +60,11 @@ rule automlst_wrapper_out:
     input:
         tree="data/interim/automlst_wrapper/{name}/raxmlpart.txt.treefile",
         organism_info=lambda wildcards: expand("data/interim/prokka/{strains}/organism_info.txt",
-                    strains=[s for s in list(PEP_PROJECTS[wildcards.name].sample_table.index)],
+                    strains=[s for s in list(filter_samples_qc(wildcards, PEP_PROJECTS[wildcards.name].sample_table).index)],
         ),
         gtdb=lambda wildcards: expand("data/interim/gtdb/{strains}.json",
             name=wildcards.name,
-            strains=[s for s in PEP_PROJECTS[wildcards.name].sample_table.genome_id.unique()])
+            strains=[s for s in list(filter_samples_qc(wildcards, PEP_PROJECTS[wildcards.name].sample_table).index)])
     output:
         automlst_processed=directory("data/processed/{name}/automlst_wrapper/"),
         final_tree="data/processed/{name}/automlst_wrapper/final.newick",
