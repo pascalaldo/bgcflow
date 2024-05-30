@@ -7,13 +7,13 @@ checkpoint qc:
         import pandas as pd
         df_seqfu = None
         for f in input.seqfu:
-            df_s = pd.read_csv(f, sep=",", index_col=0, header=0, usecols=["N50"])
+            df_s = pd.read_csv(f, sep=",", index_col=0, header=0)
             print(f)
             print(df_s)
             df_seqfu = pd.concat((df_seqfu, df_s))
         df_checkm = None
         for f in input.checkm:
-            df_s = pd.read_csv(f, sep=",", index_col=0, header=0, usecols=["# contigs"])
+            df_s = pd.read_csv(f, sep=",", index_col=0, header=0)
             print(f)
             print(df_s)
             df_checkm = pd.concat((df_checkm, df_s))
