@@ -13,6 +13,10 @@ checkpoint qc:
         for f in input.checkm:
             df_s = pd.read_csv(f, sep=",", index_col=0, header=0, usecols=["# contigs"])
             df_checkm = pd.concat((df_checkm, df_s))
+        print(df_seqfu)
+        print(df_checkm)
+        print("Final DF")
+        print(df)
         df = df_seqfu.merge(df_checkm, how='outer', left_index=True, right_index=True)
         df["passed"] = ((df["N50"] > 50_000) & (df["# contigs"] < 200))
         df.to_csv(output, columns=["passed"], header=True, index=True, index_label="genome_id")
