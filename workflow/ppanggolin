@@ -50,7 +50,7 @@ wildcard_constraints:
 
 
 ##### Target rules #####
-
+filter_samples_qc = lambda x, y: y # No automated QC
 final_outputs = get_final_output(DF_SAMPLES, PEP_PROJECTS, rule_dict_path="workflow/rules_ppanggolin.yaml", ignore_missing=True)
 
 rule all:

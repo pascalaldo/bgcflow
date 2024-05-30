@@ -181,7 +181,8 @@ wildcard_constraints:
     prokka_db="|".join(PROKKA_GBFF),
     bgc="|".join(BGCS),
     version="|".join(VERSIONS),
-
+    
+filter_samples_qc = lambda x, y: y # No automated QC
 ##### Target rules #####
 rule all:
     input:
