@@ -16,9 +16,10 @@ rule roary:
         roary -p {threads} -f {output.roary_dir} -i {params.i} -g {params.g} -e -n -r -v {input.gff} &>> {log}
         """
 
-rule roary_reassign_pangene_categories:
+checkpoint roary_reassign_pangene_categories:
     input:
-        roary="data/interim/roary/{name}"
+        gene_presence_binary="data/interim/roary/{name}/df_gene_presence_binary.csv",
+        pangene_summary="data/interim/roary/{name}/df_pangene_summary.csv"
     output:
         pangene="data/processed/{name}/tables/df_roary_pangene_summary_reassigned.csv",
     log:
@@ -28,7 +29,8 @@ rule roary_reassign_pangene_categories:
     shell:
         """
         python workflow/scripts/alleleome_reassign_pangene_categories.py \
-            --data-dir {input.roary} \
+            --gp_binary {input.gene_presence_binary} \
+            --summary {input.pangene_summary} \
             --output-file {output.pangene} 2>> {log}
         """
 
@@ -122,6 +124,7 @@ rule roary_out:
     output:
         roary_processed_dir=directory("data/processed/{name}/roary"),
         gene_presence="data/processed/{name}/roary/df_gene_presence_binary.csv",
+        summary="data/interim/roary/{name}/df_pangene_summary.csv",
     conda:
         "../envs/bgc_analytics.yaml"
     log:
