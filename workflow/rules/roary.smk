@@ -136,7 +136,7 @@ rule diamond_roary:
 
 rule roary_out:
     input:
-        roary_interim_dir="data/interim/roary/{name}/",
+        summary_statistics="data/interim/roary/{name}/summary_statistics.txt"
         automlst_processed_dir="data/processed/{name}/automlst_wrapper/",
     output:
         roary_processed_dir=directory("data/processed/{name}/roary"),
@@ -144,11 +144,13 @@ rule roary_out:
         summary="data/processed/{name}/roary/df_pangene_summary.csv",
         summary_interim="data/interim/roary/{name}/df_pangene_summary.csv",
         gene_presence_interim="data/interim/roary/{name}/df_gene_presence_binary.csv",
+    params:
+        roary_interim_dir="data/interim/roary/{name}/",
     conda:
         "../envs/bgc_analytics.yaml"
     log:
         "logs/roary/roary-out-{name}.log",
     shell:
         """
-        python workflow/bgcflow/bgcflow/data/make_pangenome_dataset.py {input.roary_interim_dir} {output.roary_processed_dir} {input.automlst_processed_dir} 2>> {log}
+        python workflow/bgcflow/bgcflow/data/make_pangenome_dataset.py {params.roary_interim_dir} {output.roary_processed_dir} {input.automlst_processed_dir} 2>> {log}
         """
