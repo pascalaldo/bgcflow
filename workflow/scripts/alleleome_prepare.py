@@ -154,10 +154,10 @@ def main():
     parser = argparse.ArgumentParser(description="Process some files.")
     parser.add_argument('mode', type=str, choices=["locustags", "collect"])
     parser.add_argument(
-        "--gb_binary", type=str, required=True, help="Path to gene_presence_binary csv file."
+        "--gp_binary", type=str, required=True, help="Path to gene_presence_binary csv file."
     )
     parser.add_argument(
-        "--gb_locustag", type=str, required=True, help="Path to gene_presence_locustag csv file."
+        "--gp_locustag", type=str, required=True, help="Path to gene_presence_locustag csv file."
     )
     parser.add_argument(
         "--gbk_folder", type=str, required=False, help="Folder containing GenBank files (use with mode 'locustags')"
