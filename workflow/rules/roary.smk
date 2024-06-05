@@ -4,6 +4,7 @@ rule roary:
     output:
         roary_dir=directory("data/interim/roary/{name}/"),
         summary="data/interim/roary/{name}/df_pangene_summary.csv",
+        gene_presence="data/interim/roary/{name}/df_gene_presence_binary.csv",
     conda:
         "../envs/roary.yaml"
     params:
