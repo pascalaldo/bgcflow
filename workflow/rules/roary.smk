@@ -2,7 +2,6 @@ rule roary:
     input:
         gff=lambda wildcards: get_prokka_outputs(wildcards.name, filter_samples_qc(wildcards, DF_SAMPLES)),
     output:
-        # roary_dir=directory("data/interim/roary/{name}/"),
         core_alignment_header="data/interim/roary/{name}/core_alignment_header.embl",
         pan_genome_reference="data/interim/roary/{name}/pan_genome_reference.fa",
         accessory_header="data/interim/roary/{name}/accessory.header.embl",
@@ -25,12 +24,14 @@ rule roary:
     params:
         i=80,
         g=80000,
+        roary_dir="data/interim/roary/{name}/",
     threads: 16
     log:
         "logs/roary/roary-{name}.log",
     shell:
         """
-        roary -p {threads} -f "data/interim/roary/{wildcards.name}/" -i {params.i} -g {params.g} -e -n -r -v {input.gff} &>> {log}
+        rm -rf {params.roary_dir}
+        roary -p {threads} -f {params.roary_dir} -i {params.i} -g {params.g} -e -n -r -v {input.gff} &>> {log}
         """
 
 checkpoint roary_reassign_pangene_categories:
@@ -139,18 +140,18 @@ rule roary_out:
         summary_statistics="data/interim/roary/{name}/summary_statistics.txt",
         automlst_processed_dir="data/processed/{name}/automlst_wrapper/",
     output:
-        roary_processed_dir=directory("data/processed/{name}/roary"),
         gene_presence="data/processed/{name}/roary/df_gene_presence_binary.csv",
         summary="data/processed/{name}/roary/df_pangene_summary.csv",
         summary_interim="data/interim/roary/{name}/df_pangene_summary.csv",
         gene_presence_interim="data/interim/roary/{name}/df_gene_presence_binary.csv",
     params:
         roary_interim_dir="data/interim/roary/{name}/",
+        roary_processed_dir="data/processed/{name}/roary",
     conda:
         "../envs/bgc_analytics.yaml"
     log:
         "logs/roary/roary-out-{name}.log",
     shell:
         """
-        python workflow/bgcflow/bgcflow/data/make_pangenome_dataset.py {params.roary_interim_dir} {output.roary_processed_dir} {input.automlst_processed_dir} 2>> {log}
+        python workflow/bgcflow/bgcflow/data/make_pangenome_dataset.py {params.roary_interim_dir} {params.roary_processed_dir} {input.automlst_processed_dir} 2>> {log}
         """
