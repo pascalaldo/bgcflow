@@ -49,7 +49,7 @@ rule prepare_alleleome_genes:
         #     strains=[s for s in PEP_PROJECTS[wildcards.name].sample_table.genome_id.unique()],
         # )
     output:
-        all_locustags="data/interim/{name}/df_all_locustag.csv"
+        all_locustags="data/interim/alleleome/{name}/df_all_locustag.csv"
     log:
         "logs/prepare_alleleome_fasta/{name}_locustags.log"
     conda:
@@ -67,7 +67,7 @@ rule alleleome_collect_pangene:
     input:
         gene_presence_binary="data/interim/roary/{name}/df_gene_presence_binary.csv",
         gene_presence_locustag="data/interim/roary/{name}/df_gene_presence_locustag.csv",
-        all_locustags="data/interim/{name}/df_all_locustag.csv"
+        all_locustags="data/interim/alleleome/{name}/df_all_locustag.csv"
     output:
         fna="data/processed/{name}/alleleome/pangenome_alignments/{gene}/input/pangenes.fna",
         faa="data/processed/{name}/alleleome/pangenome_alignments/{gene}/input/pangenes.faa"
