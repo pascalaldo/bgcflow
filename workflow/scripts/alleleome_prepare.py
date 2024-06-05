@@ -188,7 +188,7 @@ def main():
     if args.mode == "locustags":
         gbk_folder = Path(args.gbk_folder)
         df_all_locustag = parse_genbank_files(df_gene_presence_locustag, gbk_folder)
-        df_all_locustag.write_csv(all_locustag_path)
+        df_all_locustag.to_csv(all_locustag_path)
     else:
         df_all_locustag = load_locustag_data(all_locustag_path)
         if mode == "collect":
