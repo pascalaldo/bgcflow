@@ -2,7 +2,24 @@ rule roary:
     input:
         gff=lambda wildcards: get_prokka_outputs(wildcards.name, filter_samples_qc(wildcards, DF_SAMPLES)),
     output:
-        roary_dir=directory("data/interim/roary/{name}/"),
+        # roary_dir=directory("data/interim/roary/{name}/"),
+        core_alignment_header="data/interim/roary/{name}/core_alignment_header.embl"
+        pan_genome_reference="data/interim/roary/{name}/pan_genome_reference.fa"
+        accessory_header="data/interim/roary/{name}/accessory.header.embl"
+        clustered_proteins="data/interim/roary/{name}/clustered_proteins"
+        core_gene_alignment="data/interim/roary/{name}/core_gene_alignment.aln"
+        gene_presence_absence="data/interim/roary/{name}/gene_presence_absence.csv"
+        summary_statistics="data/interim/roary/{name}/summary_statistics.txt"
+        accessory_tab="data/interim/roary/{name}/accessory.tab"
+        accessory_binary_genes="data/interim/roary/{name}/accessory_binary_genes.fa"
+        core_accessory_header="data/interim/roary/{name}/core_accessory.header.embl"
+        numer_of_genes_in_pan_genome="data/interim/roary/{name}/number_of_genes_in_pan_genome.Rtab"
+        accessory_binary_genes_newick="data/interim/roary/{name}/accessory_binary_genes.fa.newick"
+        core_accessory="data/interim/roary/{name}/core_accessory.tab"
+        number_of_new_genes="data/interim/roary/{name}/number_of_new_genes.Rtab"
+        accessory_graph="data/interim/roary/{name}/accessory_graph.dot"
+        core_accessory_graph="data/interim/roary/{name}/core_accessory_graph.dot"
+        number_of_unique_genes="data/interim/roary/{name}/number_of_unique_genes.Rtab"
     conda:
         "../envs/roary.yaml"
     params:
@@ -13,7 +30,7 @@ rule roary:
         "logs/roary/roary-{name}.log",
     shell:
         """
-        roary -p {threads} -f {output.roary_dir} -i {params.i} -g {params.g} -e -n -r -v {input.gff} &>> {log}
+        roary -p {threads} -f "data/interim/roary/{wildcards.name}/" -i {params.i} -g {params.g} -e -n -r -v {input.gff} &>> {log}
         """
 
 checkpoint roary_reassign_pangene_categories:
