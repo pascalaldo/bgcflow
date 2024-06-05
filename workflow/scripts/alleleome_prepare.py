@@ -20,7 +20,7 @@ def remove_special_char(s):
         return s
 
 
-def load_data(roary_path):
+def load_presence_data(gene_presence_binary_path, gene_presence_locustag_path):
     """
     Load data from Roary output.
 
@@ -31,16 +31,21 @@ def load_data(roary_path):
     tuple: A tuple containing two pandas DataFrames
     """
     df_gene_presence_binary = pd.read_csv(
-        roary_path / "df_gene_presence_binary.csv", index_col="Gene", low_memory=False
+        gene_presence_binary_path, index_col="Gene", low_memory=False
     )
     df_gene_presence_locustag = pd.read_csv(
-        roary_path / "df_gene_presence_locustag.csv", index_col="Gene", low_memory=False
+        gene_presence_locustag_path, index_col="Gene", low_memory=False
     )
     df_gene_presence_locustag.index = [
         remove_special_char(str(i)) for i in list(df_gene_presence_locustag.index)
     ]
     return df_gene_presence_binary, df_gene_presence_locustag
 
+def load_locustag_data(all_locustag_path):
+    df_all_locustag = pd.read_csv(
+        all_locustag_path, index_col=0, low_memory=False
+    )
+    return df_all_locustag
 
 def parse_genbank_files(df_gene_presence_locustag, gbk_folder):
     """
@@ -98,105 +103,103 @@ def parse_genbank_files(df_gene_presence_locustag, gbk_folder):
     all_locustag_df.index = all_locustag_df["Locus_Tag"]
     return all_locustag_df
 
-
-def get_core_genes(pangene_summary_path):
-    """
-    Get list of core genes.
-
-    Parameters:
-    pangene_summary_path (Path): Path to pangenome summary file
-
-    Returns:
-    list: List of core genes
-    """
-    gene_class_table = pd.read_csv(pangene_summary_path, index_col=0)
-    Core_gene_list = list(
-        gene_class_table.loc[gene_class_table["pangenome_class_2"] == "Core", :].index
-    )
-    return Core_gene_list
-
-
-def process_genes(
-    Core_gene_list, df_gene_presence_locustag, all_locustag_df, output_folder
+def process_gene(
+    gene_id, df_gene_presence_locustag, all_locustag_df, fna_path, faa_path
 ):
     """
     Process genes and save output files.
 
     Parameters:
-    Core_gene_list (list): List of core genes
+    gene_id (str): Gene name
     df_gene_presence_locustag (DataFrame): DataFrame with gene presence information
     all_locustag_df (DataFrame): DataFrame with all locus tags
-    output_folder (Path): Path to output folder
+    fna_path (Path): .fna output file
+    faa_path (Path): .faa output file
     """
-    for gene_id in [str(i).replace("/", "") for i in Core_gene_list]:
-        logging.info(f"   Processing gene: {gene_id}")
-        alignment_dir_path = output_folder / "pangenome_alignments" / gene_id / "input"
-        alignment_dir_path.mkdir(exist_ok=True, parents=True)
-        Neu_fasta_filename = alignment_dir_path / "pangenes.fna"
-        AA_fasta_filename = alignment_dir_path / "pangenes.faa"
-        gene_locustag = []
-        for locus_tag_str in df_gene_presence_locustag.loc[gene_id, :].dropna():
-            gene_locustag.extend(
-                locus_tag_str.split("\t") if "\t" in locus_tag_str else [locus_tag_str]
-            )
-        nucleotide_records = []
-        amino_acid_records = []
-        gene_locustag_set = set(gene_locustag)
-        filtered_df = all_locustag_df[all_locustag_df.index.isin(gene_locustag_set)]
-        nucleotide_records = [
-            SeqRecord(
-                Seq(row["Nucleotide_Seq"]),
-                id=locustag,
-                description=f"{row.get('Prokka_Annotation', 'Unknown')} | {row['Genome_ID']}",
-            )
-            for locustag, row in filtered_df.iterrows()
-        ]
-        amino_acid_records = [
-            SeqRecord(
-                Seq(row["Amino_Acid_Seq"]),
-                id=locustag,
-                description=f"{row.get('Prokka_Annotation', 'Unknown')} | {row['Genome_ID']}",
-            )
-            for locustag, row in filtered_df.iterrows()
-        ]
-        with open(Neu_fasta_filename, "w") as fasta_n_file:
-            SeqIO.write(nucleotide_records, fasta_n_file, "fasta")
-        with open(AA_fasta_filename, "w") as fasta_aa_file:
-            SeqIO.write(amino_acid_records, fasta_aa_file, "fasta")
-        logging.info(f"   Finished gene: {gene_id}")
 
+    logging.info(f"   Processing gene: {gene_id}")
+    
+    gene_locustag = []
+    for locus_tag_str in df_gene_presence_locustag.loc[gene_id, :].dropna():
+        gene_locustag.extend(
+            locus_tag_str.split("\t") if "\t" in locus_tag_str else [locus_tag_str]
+        )
+    nucleotide_records = []
+    amino_acid_records = []
+    gene_locustag_set = set(gene_locustag)
+    filtered_df = all_locustag_df[all_locustag_df.index.isin(gene_locustag_set)]
+    nucleotide_records = [
+        SeqRecord(
+            Seq(row["Nucleotide_Seq"]),
+            id=locustag,
+            description=f"{row.get('Prokka_Annotation', 'Unknown')} | {row['Genome_ID']}",
+        )
+        for locustag, row in filtered_df.iterrows()
+    ]
+    amino_acid_records = [
+        SeqRecord(
+            Seq(row["Amino_Acid_Seq"]),
+            id=locustag,
+            description=f"{row.get('Prokka_Annotation', 'Unknown')} | {row['Genome_ID']}",
+        )
+        for locustag, row in filtered_df.iterrows()
+    ]
+    with open(fna_path, "w") as fasta_n_file:
+        SeqIO.write(nucleotide_records, fasta_n_file, "fasta")
+    with open(faa_path, "w") as fasta_aa_file:
+        SeqIO.write(amino_acid_records, fasta_aa_file, "fasta")
+    logging.info(f"   Finished gene: {gene_id}")
 
 def main():
     parser = argparse.ArgumentParser(description="Process some files.")
+    parser.add_argument('mode', type=str, required=True, choices=["locustags", "collect"])
     parser.add_argument(
-        "--roary_path", type=str, required=True, help="Path to Roary output"
+        "--gb_binary", type=str, required=True, help="Path to gene_presence_binary csv file."
     )
     parser.add_argument(
-        "--gbk_folder", type=str, required=True, help="Folder containing GenBank files"
+        "--gb_locustag", type=str, required=True, help="Path to gene_presence_locustag csv file."
     )
     parser.add_argument(
-        "--pangene_summary_path",
-        type=str,
-        required=True,
-        help="Path to pangenome summary file",
+        "--gbk_folder", type=str, required=False, help="Folder containing GenBank files (use with mode 'locustags')"
     )
     parser.add_argument(
-        "--output_folder", type=str, required=True, help="Folder to save output files"
+        "--all_locustag", type=str, required=True, help="Path to all_locustags csv file."
+    )
+    parser.add_argument(
+        "--fna", type=str, required=False, help="Path to pangenes.fna (use with mode 'collect')"
+    )
+    parser.add_argument(
+        "--faa", type=str, required=False, help="Path to pangenes.faa (use with mode 'collect')"
+    )
+    parser.add_argument(
+        "--gene_id", type=str, required=False, help="Gene id to process (use with mode 'collect')"
+    )
+    parser.add_argument(
+        "--which", type=str, default="Core", required=False, help="Which genes to process (Core, Accessory, Pan/All)"
     )
 
     args = parser.parse_args()
 
-    roary_path = Path(args.roary_path)
+    gp_binary_path = Path(args.gp_binary)
+    gp_locustag_path = Path(args.gp_locustag)
     gbk_folder = Path(args.gbk_folder)
+    all_locustag_path = Path(args.all_locustag)
     pangene_summary_path = Path(args.pangene_summary_path)
-    output_folder = Path(args.output_folder)
+    faa_path = Path(args.faa)
+    fna_path = Path(args.fna)
 
-    df_gene_presence_binary, df_gene_presence_locustag = load_data(roary_path)
-    all_locustag_df = parse_genbank_files(df_gene_presence_locustag, gbk_folder)
-    Core_gene_list = get_core_genes(pangene_summary_path)
-    process_genes(
-        Core_gene_list, df_gene_presence_locustag, all_locustag_df, output_folder
-    )
+    df_gene_presence_binary, df_gene_presence_locustag = load_data(gp_binary_path, gp_locustag_path)
+    if args.mode == "locustags":
+        all_locustag_df = parse_genbank_files(df_gene_presence_locustag, gbk_folder)
+        df_all_locustag.write_csv(all_locustag_path)
+    else:
+        all_locustag_df = load_locustag_data(all_locustag_path)
+        if mode == "collect":
+            process_gene(gene_id, df_gene_presence_locustag, df_all_locustag, fna_path, faa_path)
+    # gene_list = get_genes(pangene_summary_path, which=which_genes)
+    # process_genes(
+    #     gene_list, df_gene_presence_locustag, all_locustag_df, output_folder
+    # )
 
 
 if __name__ == "__main__":
