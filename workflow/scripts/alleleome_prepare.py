@@ -184,7 +184,6 @@ def main():
     gp_locustag_path = Path(args.gp_locustag)
     gbk_folder = Path(args.gbk_folder)
     all_locustag_path = Path(args.all_locustag)
-    pangene_summary_path = Path(args.pangene_summary_path)
     faa_path = Path(args.faa)
     fna_path = Path(args.fna)
 
