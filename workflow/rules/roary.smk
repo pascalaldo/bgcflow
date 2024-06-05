@@ -3,8 +3,6 @@ rule roary:
         gff=lambda wildcards: get_prokka_outputs(wildcards.name, filter_samples_qc(wildcards, DF_SAMPLES)),
     output:
         roary_dir=directory("data/interim/roary/{name}/"),
-        summary="data/interim/roary/{name}/df_pangene_summary.csv",
-        gene_presence="data/interim/roary/{name}/df_gene_presence_binary.csv",
     conda:
         "../envs/roary.yaml"
     params:
@@ -15,7 +13,6 @@ rule roary:
         "logs/roary/roary-{name}.log",
     shell:
         """
-        rm -rf {output.roary_dir}
         roary -p {threads} -f {output.roary_dir} -i {params.i} -g {params.g} -e -n -r -v {input.gff} &>> {log}
         """
 
@@ -128,6 +125,8 @@ rule roary_out:
         roary_processed_dir=directory("data/processed/{name}/roary"),
         gene_presence="data/processed/{name}/roary/df_gene_presence_binary.csv",
         summary="data/processed/{name}/roary/df_pangene_summary.csv",
+        summary_interim="data/interim/roary/{name}/df_pangene_summary.csv",
+        gene_presence_interim="data/interim/roary/{name}/df_gene_presence_binary.csv",
     conda:
         "../envs/bgc_analytics.yaml"
     log:
