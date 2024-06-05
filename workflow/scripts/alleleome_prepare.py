@@ -191,10 +191,10 @@ def main():
         df_all_locustag.to_csv(all_locustag_path)
     else:
         df_all_locustag = load_locustag_data(all_locustag_path)
-        if mode == "collect":
+        if args.mode == "collect":
             faa_path = Path(args.faa)
             fna_path = Path(args.fna)
-            process_gene(gene_id, df_gene_presence_locustag, df_all_locustag, fna_path, faa_path)
+            process_gene(args.gene_id, df_gene_presence_locustag, df_all_locustag, fna_path, faa_path)
     # gene_list = get_genes(pangene_summary_path, which=which_genes)
     # process_genes(
     #     gene_list, df_gene_presence_locustag, df_all_locustag, output_folder
