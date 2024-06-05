@@ -82,7 +82,7 @@ rule alleleome_collect_pangene:
             --gp_locustag {input.gene_presence_binary} \
             --all_locustag {input.all_locustags} \
             --fna {output.fna} \
-            --faa {output.faa} \ 
+            --faa {output.faa} \
             --gene_id {wildcards.gene} 2>> {log}
         """
 
