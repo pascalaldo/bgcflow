@@ -15,10 +15,7 @@ rule roary:
         "logs/roary/roary-{name}.log",
     shell:
         """
-        echo 'roary'
-        ls data/interim/roary/
         rm -rf {output.roary_dir}
-        ls data/interim/roary/
         roary -p {threads} -f {output.roary_dir} -i {params.i} -g {params.g} -e -n -r -v {input.gff} &>> {log}
         """
 
