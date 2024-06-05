@@ -136,7 +136,7 @@ rule diamond_roary:
 
 rule roary_out:
     input:
-        summary_statistics="data/interim/roary/{name}/summary_statistics.txt"
+        summary_statistics="data/interim/roary/{name}/summary_statistics.txt",
         automlst_processed_dir="data/processed/{name}/automlst_wrapper/",
     output:
         roary_processed_dir=directory("data/processed/{name}/roary"),
