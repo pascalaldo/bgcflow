@@ -34,8 +34,9 @@ def load_presence_data(gene_presence_binary_path, gene_presence_locustag_path):
         gene_presence_binary_path, index_col="Gene", low_memory=False
     )
     df_gene_presence_locustag = pd.read_csv(
-        gene_presence_locustag_path, index_col="Gene", low_memory=False
+        gene_presence_locustag_path, index_col="Gene", low_memory=False, dtype=str
     )
+    df_gene_presence_locustag.replace('', np.nan, inplace=True)
     df_gene_presence_locustag.index = [
         remove_special_char(str(i)) for i in list(df_gene_presence_locustag.index)
     ]
