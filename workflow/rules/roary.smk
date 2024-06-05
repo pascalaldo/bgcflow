@@ -15,6 +15,7 @@ rule roary:
         "logs/roary/roary-{name}.log",
     shell:
         """
+        rm -rf {output.roary_dir}
         roary -p {threads} -f {output.roary_dir} -i {params.i} -g {params.g} -e -n -r -v {input.gff} &>> {log}
         """
 
