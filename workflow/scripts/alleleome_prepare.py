@@ -3,6 +3,7 @@ import logging
 from pathlib import Path
 
 import pandas as pd
+import numpy as np
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
