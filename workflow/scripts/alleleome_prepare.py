@@ -187,17 +187,17 @@ def main():
     df_gene_presence_binary, df_gene_presence_locustag = load_presence_data(gp_binary_path, gp_locustag_path)
     if args.mode == "locustags":
         gbk_folder = Path(args.gbk_folder)
-        all_locustag_df = parse_genbank_files(df_gene_presence_locustag, gbk_folder)
+        df_all_locustag = parse_genbank_files(df_gene_presence_locustag, gbk_folder)
         df_all_locustag.write_csv(all_locustag_path)
     else:
-        all_locustag_df = load_locustag_data(all_locustag_path)
+        df_all_locustag = load_locustag_data(all_locustag_path)
         if mode == "collect":
             faa_path = Path(args.faa)
             fna_path = Path(args.fna)
             process_gene(gene_id, df_gene_presence_locustag, df_all_locustag, fna_path, faa_path)
     # gene_list = get_genes(pangene_summary_path, which=which_genes)
     # process_genes(
-    #     gene_list, df_gene_presence_locustag, all_locustag_df, output_folder
+    #     gene_list, df_gene_presence_locustag, df_all_locustag, output_folder
     # )
 
 
