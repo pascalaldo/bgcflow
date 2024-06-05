@@ -118,7 +118,7 @@ rule alleleome:
     conda:
         "../envs/alleleome.yaml"
     log:
-        "logs/alleleome/{name}.log"
+        "logs/alleleome/{name}_{pan_core}.log"
     shell:
         """
         Alleleome --path1 "data/processed/{wildcards.name}/alleleome/pangenome_alignments/ \
