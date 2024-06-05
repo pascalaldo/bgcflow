@@ -37,10 +37,10 @@ checkpoint prepare_alleleome_summary:
             --output-file {output.pangene_v2} 2>> {log}
         """
 
-checkpoint prepare_alleleome_genes:
+rule prepare_alleleome_genes:
     input:
-        gene_presence_binary="data/interim/roary/{name}/df_gene_presence_binary.csv"
-        gene_presence_locustag="data/interim/roary/{name}/df_gene_presence_locustag.csv"
+        gene_presence_binary="data/interim/roary/{name}/df_gene_presence_binary.csv",
+        gene_presence_locustag="data/interim/roary/{name}/df_gene_presence_locustag.csv",
         gbk_folder=directory("data/interim/processed-genbank/")
         # gbk_files=lambda wildcards: expand("data/interim/processed-genbank/{strains}.gbk",
         #     name=wildcards.name,
@@ -63,11 +63,11 @@ checkpoint prepare_alleleome_genes:
 
 rule alleleome_collect_pangene:
     input:
-        gene_presence_binary="data/interim/roary/{name}/df_gene_presence_binary.csv"
-        gene_presence_locustag="data/interim/roary/{name}/df_gene_presence_locustag.csv"
+        gene_presence_binary="data/interim/roary/{name}/df_gene_presence_binary.csv",
+        gene_presence_locustag="data/interim/roary/{name}/df_gene_presence_locustag.csv",
         all_locustags="data/interim/{name}/df_all_locustag.csv"
     output:
-        fna="data/processed/{name}/alleleome/pangenome_alignments/{gene}/input/pangenes.fna"
+        fna="data/processed/{name}/alleleome/pangenome_alignments/{gene}/input/pangenes.fna",
         faa="data/processed/{name}/alleleome/pangenome_alignments/{gene}/input/pangenes.faa"
     log:
         "logs/prepare_alleleome_fasta/{name}_collect.log"
@@ -110,8 +110,8 @@ rule alleleome_collect_pangene:
 
 rule alleleome:
     input:
-        pangenome_aligments_fna=lambda wildcards: expand("data/processed/{{name}}/alleleome/pangenome_alignments/{gene}/input/pangenes.fna", gene=get_genes(checkpoints.qc.get(name=wildcards.name).output.pangene_v2, which=wildcards.pan_core))
-        pangenome_aligments_faa=lambda wildcards: expand("data/processed/{{name}}/alleleome/pangenome_alignments/{gene}/input/pangenes.faa", gene=get_genes(checkpoints.qc.get(name=wildcards.name).output.pangene_v2, which=wildcards.pan_core))
+        pangenome_aligments_fna=lambda wildcards: expand("data/processed/{{name}}/alleleome/pangenome_alignments/{gene}/input/pangenes.fna", gene=get_genes(checkpoints.prepare_alleleome_summary.get(name=wildcards.name).output.pangene_v2, which=wildcards.pan_core)),
+        pangenome_aligments_faa=lambda wildcards: expand("data/processed/{{name}}/alleleome/pangenome_alignments/{gene}/input/pangenes.faa", gene=get_genes(checkpoints.prepare_alleleome_summary.get(name=wildcards.name).output.pangene_v2, which=wildcards.pan_core)),
         pangene_summary_path="data/processed/{name}/alleleome/pangene_v2.csv"
     output:
         alleleome_directory_path="data/processed/{name}/alleleome/{pan_core}/pan_gene_syno_non_syno_df.csv"
