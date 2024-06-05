@@ -23,7 +23,8 @@ def get_genes(pangene_summary_path, which="Core"):
 
 checkpoint prepare_alleleome_summary:
     input:
-        roary="data/interim/roary/{name}"
+        gene_presence_binary="data/interim/roary/{name}/df_gene_presence_binary.csv",
+        pangene_summary="data/interim/roary/{name}/df_pangene_summary.csv"
     output:
         pangene_v2="data/processed/{name}/alleleome/pangene_v2.csv",
     log:
@@ -33,7 +34,8 @@ checkpoint prepare_alleleome_summary:
     shell:
         """
         python workflow/scripts/alleleome_reassign_pangene_categories.py \
-            --data-dir {input.roary} \
+            --gp_binary {input.gene_presence_binary} \
+            --summary {input.pangene_summary} \
             --output-file {output.pangene_v2} 2>> {log}
         """
 
