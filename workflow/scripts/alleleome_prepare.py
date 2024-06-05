@@ -152,7 +152,7 @@ def process_gene(
 
 def main():
     parser = argparse.ArgumentParser(description="Process some files.")
-    parser.add_argument('mode', type=str, required=True, choices=["locustags", "collect"])
+    parser.add_argument('mode', type=str, choices=["locustags", "collect"])
     parser.add_argument(
         "--gb_binary", type=str, required=True, help="Path to gene_presence_binary csv file."
     )
