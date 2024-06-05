@@ -123,7 +123,7 @@ rule alleleome:
         "logs/alleleome/{name}_{pan_core}.log"
     shell:
         """
-        Alleleome --path1 "data/processed/{wildcards.name}/alleleome/pangenome_alignments/ \
+        Alleleome --path1 data/processed/{wildcards.name}/alleleome/pangenome_alignments/ \
             --path2 data/processed/{wildcards.name}/alleleome/ \
             --table {input.pangene_summary_path} \
             --log_to_terminal 2>> {log}
