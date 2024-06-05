@@ -182,18 +182,18 @@ def main():
 
     gp_binary_path = Path(args.gp_binary)
     gp_locustag_path = Path(args.gp_locustag)
-    gbk_folder = Path(args.gbk_folder)
     all_locustag_path = Path(args.all_locustag)
-    faa_path = Path(args.faa)
-    fna_path = Path(args.fna)
 
     df_gene_presence_binary, df_gene_presence_locustag = load_data(gp_binary_path, gp_locustag_path)
     if args.mode == "locustags":
+        gbk_folder = Path(args.gbk_folder)
         all_locustag_df = parse_genbank_files(df_gene_presence_locustag, gbk_folder)
         df_all_locustag.write_csv(all_locustag_path)
     else:
         all_locustag_df = load_locustag_data(all_locustag_path)
         if mode == "collect":
+            faa_path = Path(args.faa)
+            fna_path = Path(args.fna)
             process_gene(gene_id, df_gene_presence_locustag, df_all_locustag, fna_path, faa_path)
     # gene_list = get_genes(pangene_summary_path, which=which_genes)
     # process_genes(
