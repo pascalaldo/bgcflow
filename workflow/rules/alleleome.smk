@@ -124,7 +124,7 @@ rule alleleome:
     shell:
         """
         Alleleome --path1 data/processed/{wildcards.name}/alleleome/pangenome_alignments/ \
-            --path2 data/processed/{wildcards.name}/alleleome/ \
+            --path2 data/processed/{wildcards.name}/alleleome/{wildcards.pan_core}/ \
             --table {input.pangene_summary_path} \
             --log_to_terminal 2>> {log}
         """
