@@ -184,7 +184,7 @@ def main():
     gp_locustag_path = Path(args.gp_locustag)
     all_locustag_path = Path(args.all_locustag)
 
-    df_gene_presence_binary, df_gene_presence_locustag = load_data(gp_binary_path, gp_locustag_path)
+    df_gene_presence_binary, df_gene_presence_locustag = load_presence_data(gp_binary_path, gp_locustag_path)
     if args.mode == "locustags":
         gbk_folder = Path(args.gbk_folder)
         all_locustag_df = parse_genbank_files(df_gene_presence_locustag, gbk_folder)
