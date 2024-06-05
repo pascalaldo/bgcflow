@@ -41,7 +41,7 @@ rule prepare_alleleome_genes:
     input:
         gene_presence_binary="data/interim/roary/{name}/df_gene_presence_binary.csv",
         gene_presence_locustag="data/interim/roary/{name}/df_gene_presence_locustag.csv",
-        gbk_folder=directory("data/interim/processed-genbank/")
+        gbk_folder="data/interim/processed-genbank/"
         # gbk_files=lambda wildcards: expand("data/interim/processed-genbank/{strains}.gbk",
         #     name=wildcards.name,
         #     strains=[s for s in PEP_PROJECTS[wildcards.name].sample_table.genome_id.unique()],
@@ -70,7 +70,7 @@ rule alleleome_collect_pangene:
         fna="data/processed/{name}/alleleome/pangenome_alignments/{gene}/input/pangenes.fna",
         faa="data/processed/{name}/alleleome/pangenome_alignments/{gene}/input/pangenes.faa"
     log:
-        "logs/prepare_alleleome_fasta/{name}_collect.log"
+        "logs/prepare_alleleome_fasta/{name}_{gene}_collect.log"
     conda:
         "../envs/alleleome.yaml"
     shell:
