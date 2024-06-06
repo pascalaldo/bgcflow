@@ -58,7 +58,7 @@ rule prepare_alleleome_genes:
         """
         python workflow/scripts/alleleome_prepare.py locustags \
             --gp_binary {input.gene_presence_binary} \
-            --gp_locustag {input.gene_presence_binary} \
+            --gp_locustag {input.gene_presence_locustag} \
             --all_locustag {output.all_locustags} \
             --gbk_folder {input.gbk_folder} 2>> {log}
         """
@@ -79,7 +79,7 @@ rule alleleome_collect_pangene:
         """
         python workflow/scripts/alleleome_prepare.py collect \
             --gp_binary {input.gene_presence_binary} \
-            --gp_locustag {input.gene_presence_binary} \
+            --gp_locustag {input.gene_presence_locustag} \
             --all_locustag {input.all_locustags} \
             --fna {output.fna} \
             --faa {output.faa} \
