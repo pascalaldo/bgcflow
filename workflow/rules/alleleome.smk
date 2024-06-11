@@ -41,7 +41,6 @@ checkpoint alleleome_prepare:
             --sel_genes {output.sel_genes} > {log} 2>&1
         """
 
-
 rule alleleome_fasta:
     input:
         all_locustag="data/processed/{name}/alleleome/all_locustag.csv"
@@ -102,6 +101,7 @@ rule alleleome_analyze:
         sel_genes="data/processed/{name}/alleleome/sel_genes.csv"
         blast_na=lambda wildcards: expand("data/processed/{{name}}/alleleome/pangenome_alignments/{gene}/output/nucleotide_blast_out_{gene}.xml", gene=get_genes(checkpoints.alleleome_prepare.get(name=wildcards.name).output.sel_genes, which=wildcards.pan_core))
         blast_aa=lambda wildcards: expand("data/processed/{{name}}/alleleome/pangenome_alignments/{gene}/output/amino_acid_blast_out_{gene}.xml", gene=get_genes(checkpoints.alleleome_prepare.get(name=wildcards.name).output.sel_genes, which=wildcards.pan_core))
+        dummy="data/processed/{name}/alleleome/pangenome_alignments/dummy_{pan_core}"
     output:
         aa_vars="data/processed/{name}/alleleome/pan_amino_acid_vars_df.csv"
         codon_muts="data/processed/{name}/alleleome/pan_gene_syno_non_syno_df.csv"
