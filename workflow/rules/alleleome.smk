@@ -95,6 +95,7 @@ rule alleleome_process:
             --sel_locustag {input.sel_locustag} \
             --sel_genes {input.sel_genes} \
             --out_dir {params.out_dir} \
+            {params.pan_core_flag} \
             -p {threads} > {log} 2>&1
         touch {output.dummy}
         """
