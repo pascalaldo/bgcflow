@@ -18,11 +18,11 @@ checkpoint alleleome_prepare:
         summary="data/interim/roary/{name}/df_pangene_summary.csv"
         gbk_folder="data/interim/processed-genbank/"
     output:
-        summary_v2="data/processed/{name}/alleleome/pangene_v2.csv"
-        all_locustag="data/processed/{name}/alleleome/all_locustag.csv"
-        all_genes="data/processed/{name}/alleleome/all_genes.csv"
-        sel_locustag="data/processed/{name}/alleleome/sel_locustag.csv"
-        sel_genes="data/processed/{name}/alleleome/sel_genes.csv"
+        summary_v2="data/processed/{name}/alleleome/pangene_v2.csv",
+        all_locustag="data/processed/{name}/alleleome/all_locustag.csv",
+        all_genes="data/processed/{name}/alleleome/all_genes.csv",
+        sel_locustag="data/processed/{name}/alleleome/sel_locustag.csv",
+        sel_genes="data/processed/{name}/alleleome/sel_genes.csv",
     log:
         "logs/alleleome/prepare_{name}.log"
     conda:
@@ -43,17 +43,17 @@ checkpoint alleleome_prepare:
 
 rule alleleome_fasta:
     input:
-        all_locustag="data/processed/{name}/alleleome/all_locustag.csv"
-        all_genes="data/processed/{name}/alleleome/all_genes.csv"
-        sel_locustag="data/processed/{name}/alleleome/sel_locustag.csv"
-        sel_genes="data/processed/{name}/alleleome/sel_genes.csv"
+        all_locustag="data/processed/{name}/alleleome/all_locustag.csv",
+        all_genes="data/processed/{name}/alleleome/all_genes.csv",
+        sel_locustag="data/processed/{name}/alleleome/sel_locustag.csv",
+        sel_genes="data/processed/{name}/alleleome/sel_genes.csv",
     output:
-        fna=lambda wildcards: expand("data/processed/{{name}}/alleleome/pangenome_alignments/{gene}/input/pan_genes.fna", gene=get_genes(checkpoints.alleleome_prepare.get(name=wildcards.name).output.sel_genes, which=wildcards.pan_core))
-        faa=lambda wildcards: expand("data/processed/{{name}}/alleleome/pangenome_alignments/{gene}/input/pan_genes.faa", gene=get_genes(checkpoints.alleleome_prepare.get(name=wildcards.name).output.sel_genes, which=wildcards.pan_core))
-        dummy="data/processed/{name}/alleleome/pangenome_alignments/dummy_{pan_core}"
+        fna=lambda wildcards: expand("data/processed/{{name}}/alleleome/pangenome_alignments/{gene}/input/pan_genes.fna", gene=get_genes(checkpoints.alleleome_prepare.get(name=wildcards.name).output.sel_genes, which=wildcards.pan_core)),
+        faa=lambda wildcards: expand("data/processed/{{name}}/alleleome/pangenome_alignments/{gene}/input/pan_genes.faa", gene=get_genes(checkpoints.alleleome_prepare.get(name=wildcards.name).output.sel_genes, which=wildcards.pan_core)),
+        dummy="data/processed/{name}/alleleome/pangenome_alignments/dummy_{pan_core}",
     params:
-        out_dir="data/processed/{name}/alleleome/pangenome_alignments/"
-        pan_core_flag=lambda wildcards: ("--pan" if wildcards.pan_core == "Pan" else "--no-pan")
+        out_dir="data/processed/{name}/alleleome/pangenome_alignments/",
+        pan_core_flag=lambda wildcards: ("--pan" if wildcards.pan_core == "Pan" else "--no-pan"),
     log:
         "logs/alleleome/fasta_{name}.log"
     conda:
@@ -72,15 +72,15 @@ rule alleleome_fasta:
 
 rule alleleome_process:
     input:
-        fna="data/processed/{name}/alleleome/pangenome_alignments/{gene}/input/pan_genes.fna"
-        faa="data/processed/{name}/alleleome/pangenome_alignments/{gene}/input/pan_genes.faa"
+        fna="data/processed/{name}/alleleome/pangenome_alignments/{gene}/input/pan_genes.fna",
+        faa="data/processed/{name}/alleleome/pangenome_alignments/{gene}/input/pan_genes.faa",
     output:
-        mafft_na="data/processed/{name}/alleleome/pangenome_alignments/{gene}/output/mafft_nucleotide_{gene}.fasta"
-        mafft_aa="data/processed/{name}/alleleome/pangenome_alignments/{gene}/output/mafft_amino_acid_{gene}.fasta"
-        consensus_na="data/processed/{name}/alleleome/pangenome_alignments/{gene}/output/nucleotide_consensus_{gene}.fna"
-        consensus_aa="data/processed/{name}/alleleome/pangenome_alignments/{gene}/output/amino_acid_consensus_{gene}.faa"
-        blast_na="data/processed/{name}/alleleome/pangenome_alignments/{gene}/output/nucleotide_blast_out_{gene}.xml"
-        blast_aa="data/processed/{name}/alleleome/pangenome_alignments/{gene}/output/amino_acid_blast_out_{gene}.xml"
+        mafft_na="data/processed/{name}/alleleome/pangenome_alignments/{gene}/output/mafft_nucleotide_{gene}.fasta",
+        mafft_aa="data/processed/{name}/alleleome/pangenome_alignments/{gene}/output/mafft_amino_acid_{gene}.fasta",
+        consensus_na="data/processed/{name}/alleleome/pangenome_alignments/{gene}/output/nucleotide_consensus_{gene}.fna",
+        consensus_aa="data/processed/{name}/alleleome/pangenome_alignments/{gene}/output/amino_acid_consensus_{gene}.faa",
+        blast_na="data/processed/{name}/alleleome/pangenome_alignments/{gene}/output/nucleotide_blast_out_{gene}.xml",
+        blast_aa="data/processed/{name}/alleleome/pangenome_alignments/{gene}/output/amino_acid_blast_out_{gene}.xml",
     params:
         out_dir="data/processed/{name}/alleleome/pangenome_alignments/{gene}/"
     log:
@@ -96,18 +96,18 @@ rule alleleome_process:
 
 rule alleleome_analyze:
     input:
-        all_genes="data/processed/{name}/alleleome/all_genes.csv"
-        sel_locustag="data/processed/{name}/alleleome/sel_locustag.csv"
-        sel_genes="data/processed/{name}/alleleome/sel_genes.csv"
-        blast_na=lambda wildcards: expand("data/processed/{{name}}/alleleome/pangenome_alignments/{gene}/output/nucleotide_blast_out_{gene}.xml", gene=get_genes(checkpoints.alleleome_prepare.get(name=wildcards.name).output.sel_genes, which=wildcards.pan_core))
-        blast_aa=lambda wildcards: expand("data/processed/{{name}}/alleleome/pangenome_alignments/{gene}/output/amino_acid_blast_out_{gene}.xml", gene=get_genes(checkpoints.alleleome_prepare.get(name=wildcards.name).output.sel_genes, which=wildcards.pan_core))
-        dummy="data/processed/{name}/alleleome/pangenome_alignments/dummy_{pan_core}"
+        all_genes="data/processed/{name}/alleleome/all_genes.csv",
+        sel_locustag="data/processed/{name}/alleleome/sel_locustag.csv",
+        sel_genes="data/processed/{name}/alleleome/sel_genes.csv",
+        blast_na=lambda wildcards: expand("data/processed/{{name}}/alleleome/pangenome_alignments/{gene}/output/nucleotide_blast_out_{gene}.xml", gene=get_genes(checkpoints.alleleome_prepare.get(name=wildcards.name).output.sel_genes, which=wildcards.pan_core)),
+        blast_aa=lambda wildcards: expand("data/processed/{{name}}/alleleome/pangenome_alignments/{gene}/output/amino_acid_blast_out_{gene}.xml", gene=get_genes(checkpoints.alleleome_prepare.get(name=wildcards.name).output.sel_genes, which=wildcards.pan_core)),
+        dummy="data/processed/{name}/alleleome/pangenome_alignments/dummy_{pan_core}",
     output:
-        aa_vars="data/processed/{name}/alleleome/pan_amino_acid_vars_df.csv"
-        codon_muts="data/processed/{name}/alleleome/pan_gene_syno_non_syno_df.csv"
+        aa_vars="data/processed/{name}/alleleome/pan_amino_acid_vars_df.csv",
+        codon_muts="data/processed/{name}/alleleome/pan_gene_syno_non_syno_df.csv",
     params:
-        out_dir="data/processed/{name}/alleleome/pangenome_alignments/"
-        pan_core_flag=lambda wildcards: ("--pan" if wildcards.pan_core == "Pan" else "--no-pan")
+        out_dir="data/processed/{name}/alleleome/pangenome_alignments/",
+        pan_core_flag=lambda wildcards: ("--pan" if wildcards.pan_core == "Pan" else "--no-pan"),
     log:
         "logs/alleleome/analyze_{name}.log"
     conda:
