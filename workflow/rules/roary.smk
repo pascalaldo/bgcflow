@@ -140,10 +140,12 @@ rule roary_out:
         summary_statistics="data/interim/roary/{name}/summary_statistics.txt",
         automlst_processed_dir="data/processed/{name}/automlst_wrapper/",
     output:
-        gene_presence="data/processed/{name}/roary/df_gene_presence_binary.csv",
+        gene_presence_binary="data/processed/{name}/roary/df_gene_presence_binary.csv",
+        gene_presence_locustag="data/processed/{name}/roary/df_gene_presence_locustag.csv",
         summary="data/processed/{name}/roary/df_pangene_summary.csv",
         summary_interim="data/interim/roary/{name}/df_pangene_summary.csv",
-        gene_presence_interim="data/interim/roary/{name}/df_gene_presence_binary.csv",
+        gene_presence_binary_interim="data/interim/roary/{name}/df_gene_presence_binary.csv",
+        gene_presence_locustag_interim="data/interim/roary/{name}/df_gene_presence_locustag.csv",
     params:
         roary_interim_dir="data/interim/roary/{name}/",
         roary_processed_dir="data/processed/{name}/roary",
