@@ -1,6 +1,6 @@
 import pandas as pd
 
-checkpoint alleleome_prepare:
+rule alleleome_prepare:
     input:
         gp_binary="data/interim/roary/{name}/df_gene_presence_binary.csv",
         gp_locustag="data/interim/roary/{name}/df_gene_presence_locustag.csv",
