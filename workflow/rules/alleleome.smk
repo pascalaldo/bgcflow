@@ -83,6 +83,7 @@ rule alleleome_process:
     params:
         out_dir="data/processed/{name}/alleleome/pangenome_alignments/",
         pan_core_flag=lambda wildcards: ("--pan" if wildcards.pan_core == "Pan" else "--no-pan"),
+    threads: workflow.cores
     log:
         "logs/alleleome/process_{name}_{pan_core}.log"
     conda:
@@ -93,7 +94,8 @@ rule alleleome_process:
             --all_genes {input.all_genes} \
             --sel_locustag {input.sel_locustag} \
             --sel_genes {input.sel_genes} \
-            --out_dir {params.out_dir} > {log} 2>&1
+            --out_dir {params.out_dir} \
+            -p {threads} > {log} 2>&1
         touch {output.dummy}
         """
 
