@@ -39,10 +39,8 @@ rule alleleome_fasta:
         sel_locustag="data/processed/{name}/alleleome/sel_locustag.csv",
         sel_genes="data/processed/{name}/alleleome/sel_genes.csv",
     output:
-        # fna=expand("data/processed/{{name}}/alleleome/pangenome_alignments/{gene}/input/pan_genes.fna", gene=get_genes(checkpoints.alleleome_prepare.get(name=wildcards.name).output.sel_genes)),
-        # faa=expand("data/processed/{{name}}/alleleome/pangenome_alignments/{gene}/input/pan_genes.faa", gene=get_genes(checkpoints.alleleome_prepare.get(name=wildcards.name).output.sel_genes)),
-        # alignment_inputs=directory("data/processed/{name}/alleleome/pangenome_alignments/input/"),
         dummy="data/processed/{name}/alleleome/pangenome_alignments/fasta_dummy_{pan_core}",
+        gene_list="data/processed/{name}/alleleome/{pan_core}/gene_list.txt",
     params:
         out_dir="data/processed/{name}/alleleome/pangenome_alignments/",
         pan_core_flag=lambda wildcards: ("--pan" if wildcards.pan_core == "Pan" else "--no-pan"),
@@ -57,6 +55,7 @@ rule alleleome_fasta:
             --all_genes {input.all_genes} \
             --sel_locustag {input.sel_locustag} \
             --sel_genes {input.sel_genes} \
+            --gene_list {output.gene_list} \
             --out_dir {params.out_dir} \
             {params.pan_core_flag} > {log} 2>&1
         touch {output.dummy}
@@ -64,25 +63,12 @@ rule alleleome_fasta:
 
 rule alleleome_process:
     input:
-        # fna="data/processed/{name}/alleleome/pangenome_alignments/{gene}/input/pan_genes.fna",
-        # faa="data/processed/{name}/alleleome/pangenome_alignments/{gene}/input/pan_genes.faa",
-        all_genes="data/processed/{name}/alleleome/all_genes.csv",
-        sel_locustag="data/processed/{name}/alleleome/sel_locustag.csv",
-        sel_genes="data/processed/{name}/alleleome/sel_genes.csv",
+        gene_list="data/processed/{name}/alleleome/{pan_core}/gene_list.txt",
         dummy="data/processed/{name}/alleleome/pangenome_alignments/fasta_dummy_{pan_core}",
-        # alignment_inputs="data/processed/{name}/alleleome/pangenome_alignments/input/",
     output:
-        # mafft_na="data/processed/{name}/alleleome/pangenome_alignments/{gene}/output/mafft_nucleotide_{gene}.fasta",
-        # mafft_aa="data/processed/{name}/alleleome/pangenome_alignments/{gene}/output/mafft_amino_acid_{gene}.fasta",
-        # consensus_na="data/processed/{name}/alleleome/pangenome_alignments/{gene}/output/nucleotide_consensus_{gene}.fna",
-        # consensus_aa="data/processed/{name}/alleleome/pangenome_alignments/{gene}/output/amino_acid_consensus_{gene}.faa",
-        # blast_na="data/processed/{name}/alleleome/pangenome_alignments/{gene}/output/nucleotide_blast_out_{gene}.xml",
-        # blast_aa="data/processed/{name}/alleleome/pangenome_alignments/{gene}/output/amino_acid_blast_out_{gene}.xml",
-        # alignment_outputs=directory("data/processed/{name}/alleleome/pangenome_alignments/output/"),
         dummy="data/processed/{name}/alleleome/pangenome_alignments/process_dummy_{pan_core}",
     params:
         out_dir="data/processed/{name}/alleleome/pangenome_alignments/",
-        pan_core_flag=lambda wildcards: ("--pan" if wildcards.pan_core == "Pan" else "--no-pan"),
     threads: workflow.cores
     log:
         "logs/alleleome/process_{name}_{pan_core}.log"
@@ -91,30 +77,21 @@ rule alleleome_process:
     shell:
         """
         alleleome process \
-            --all_genes {input.all_genes} \
-            --sel_locustag {input.sel_locustag} \
-            --sel_genes {input.sel_genes} \
+            --gene_list {input.gene_list} \
             --out_dir {params.out_dir} \
-            {params.pan_core_flag} \
             -p {threads} > {log} 2>&1
         touch {output.dummy}
         """
 
 rule alleleome_analyze:
     input:
-        all_genes="data/processed/{name}/alleleome/all_genes.csv",
-        sel_locustag="data/processed/{name}/alleleome/sel_locustag.csv",
-        sel_genes="data/processed/{name}/alleleome/sel_genes.csv",
-        # blast_na=lambda wildcards: expand("data/processed/{{name}}/alleleome/pangenome_alignments/{gene}/output/nucleotide_blast_out_{gene}.xml", gene=get_genes(checkpoints.alleleome_prepare.get(name=wildcards.name).output.sel_genes, which=wildcards.pan_core)),
-        # blast_aa=lambda wildcards: expand("data/processed/{{name}}/alleleome/pangenome_alignments/{gene}/output/amino_acid_blast_out_{gene}.xml", gene=get_genes(checkpoints.alleleome_prepare.get(name=wildcards.name).output.sel_genes, which=wildcards.pan_core)),
-        # alignment_outputs="data/processed/{name}/alleleome/pangenome_alignments/output/",
+        gene_list="data/processed/{name}/alleleome/{pan_core}/gene_list.txt",
         dummy="data/processed/{name}/alleleome/pangenome_alignments/process_dummy_{pan_core}",
     output:
         aa_vars="data/processed/{name}/alleleome/{pan_core}/pan_amino_acid_vars_df.csv",
         codon_muts="data/processed/{name}/alleleome/{pan_core}/pan_gene_syno_non_syno_df.csv",
     params:
         out_dir="data/processed/{name}/alleleome/pangenome_alignments/",
-        pan_core_flag=lambda wildcards: ("--pan" if wildcards.pan_core == "Pan" else "--no-pan"),
     log:
         "logs/alleleome/analyze_{name}_{pan_core}.log"
     conda:
@@ -122,11 +99,31 @@ rule alleleome_analyze:
     shell:
         """
         alleleome analyze \
-            --all_genes {input.all_genes} \
-            --sel_locustag {input.sel_locustag} \
-            --sel_genes {input.sel_genes} \
+            --gene_list {input.gene_list} \
             --out_dir {params.out_dir} \
             --aa_vars {output.aa_vars} \
-            --codon_muts {output.codon_muts} \
-            {params.pan_core_flag} > {log} 2>&1
+            --codon_muts {output.codon_muts} > {log} 2>&1
+        """
+
+rule alleleome_preplot:
+    input:
+        gene_list="data/processed/{name}/alleleome/{pan_core}/gene_list.txt",
+        aa_vars="data/processed/{name}/alleleome/{pan_core}/pan_amino_acid_vars_df.csv",
+    output:
+        dominant_aa="data/processed/{name}/alleleome/{pan_core}/final_core_consensus_dominant_aa_count_df.csv",
+        variable_aa="data/processed/{name}/alleleome/{pan_core}/final_core_pan_aa_thresh_vars_all_substitutions_sep_df.csv",
+    params:
+        out_dir="data/processed/{name}/alleleome/pangenome_alignments/",
+    log:
+        "logs/alleleome/preplot_{name}_{pan_core}.log"
+    conda:
+        "../envs/alleleome.yaml"
+    shell:
+        """
+        alleleome preplot \
+            --gene_list {input.gene_list} \
+            --aa_vars {input.aa_vars} \
+            --out_dir {params.out_dir} \
+            --dominant_aa {output.dominant_aa} \
+            --variable_aa {output.variable_aa}> {log} 2>&1
         """
