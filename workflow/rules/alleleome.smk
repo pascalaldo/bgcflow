@@ -112,6 +112,10 @@ rule alleleome_preplot:
     output:
         dominant_aa="data/processed/{name}/alleleome/{pan_core}/final_core_consensus_dominant_aa_count_df.csv",
         variable_aa="data/processed/{name}/alleleome/{pan_core}/final_core_pan_aa_thresh_vars_all_substitutions_sep_df.csv",
+        dom_var="data/processed/{name}/alleleome/{pan_core}/final_pan_aa_thresh_core_genes_dominant_variant_genome_count_pos.csv",
+        gaps="data/processed/{name}/alleleome/{pan_core}/pan_aa_thresh_core_genes_aa_pos_with_gaps.csv",
+        filt_norm="data/processed/{name}/alleleome/{pan_core}/final_pan_aa_thresh_core_genes_dom_var_genome_count_pos_normalized.csv",
+        dom_var_out_dir=directory("data/processed/{name}/alleleome/{pan_core}/dom_var/"),
     params:
         out_dir="data/processed/{name}/alleleome/pangenome_alignments/",
     log:
@@ -125,5 +129,10 @@ rule alleleome_preplot:
             --aa_vars {input.aa_vars} \
             --out_dir {params.out_dir} \
             --dominant_aa {output.dominant_aa} \
-            --variable_aa {output.variable_aa}> {log} 2>&1
+            --variable_aa {output.variable_aa} \
+            --dom_var {output.dom_var} \
+            --gaps {output.gaps} \
+            --filt_norm {output.filt_norm} \
+            --dom_var_out_dir {output.dom_var_out_dir} \
+            > {log} 2>&1
         """
