@@ -120,7 +120,7 @@ rule alleleome_preplot:
         dom_var_out_dir=directory("data/processed/{name}/alleleome/{pan_core}/dom_var/"),
         dn_ds="data/processed/{name}/alleleome/{pan_core}/final_dn_ds_count_per_gene.csv",
         hist="data/processed/{name}/alleleome/{pan_core}/step_line.json",
-        aa_freq="data/processed/{name}/alleleome/{pan_core}/AA_freq.json",
+        aa_freq_dir=directory("data/processed/{name}/alleleome/{pan_core}/aa_freq/"),
     params:
         out_dir="data/processed/{name}/alleleome/pangenome_alignments/",
     log:
@@ -142,6 +142,6 @@ rule alleleome_preplot:
             --codon_muts {input.codon_muts} \
             --dn_ds {output.dn_ds} \
             --hist {output.hist} \
-            --aa_freq {output.aa_freq} \
+            --aa_freq_dir {output.aa_freq_dir} \
             > {log} 2>&1
         """
