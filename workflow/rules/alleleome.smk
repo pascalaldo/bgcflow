@@ -117,7 +117,7 @@ rule alleleome_preplot:
         dom_var="data/processed/{name}/alleleome/{pan_core}/final_pan_aa_thresh_core_genes_dominant_variant_genome_count_pos.csv",
         gaps="data/processed/{name}/alleleome/{pan_core}/pan_aa_thresh_core_genes_aa_pos_with_gaps.csv",
         filt_norm="data/processed/{name}/alleleome/{pan_core}/final_pan_aa_thresh_core_genes_dom_var_genome_count_pos_normalized.csv",
-        dom_var_out_dir=directory("data/processed/{name}/alleleome/{pan_core}/dom_var/"),
+        # dom_var_out_dir=directory("data/processed/{name}/alleleome/{pan_core}/dom_var/"),
         dn_ds="data/processed/{name}/alleleome/{pan_core}/final_dn_ds_count_per_gene.csv",
         hist="data/processed/{name}/alleleome/{pan_core}/step_line.json",
         aa_freq_dir=directory("data/processed/{name}/alleleome/{pan_core}/aa_freq/"),
@@ -138,7 +138,6 @@ rule alleleome_preplot:
             --dom_var {output.dom_var} \
             --gaps {output.gaps} \
             --filt_norm {output.filt_norm} \
-            --dom_var_out_dir {output.dom_var_out_dir} \
             --codon_muts {input.codon_muts} \
             --dn_ds {output.dn_ds} \
             --hist {output.hist} \
