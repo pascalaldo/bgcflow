@@ -110,6 +110,7 @@ rule alleleome_preplot:
         gene_list="data/processed/{name}/alleleome/{pan_core}/gene_list.txt",
         aa_vars="data/processed/{name}/alleleome/{pan_core}/pan_amino_acid_vars_df.csv",
         dummy="data/processed/{name}/alleleome/pangenome_alignments/process_dummy_{pan_core}",
+        codon_muts="data/processed/{name}/alleleome/{pan_core}/pan_gene_syno_non_syno_df.csv",
     output:
         dominant_aa="data/processed/{name}/alleleome/{pan_core}/final_core_consensus_dominant_aa_count_df.csv",
         variable_aa="data/processed/{name}/alleleome/{pan_core}/final_core_pan_aa_thresh_vars_all_substitutions_sep_df.csv",
@@ -117,7 +118,6 @@ rule alleleome_preplot:
         gaps="data/processed/{name}/alleleome/{pan_core}/pan_aa_thresh_core_genes_aa_pos_with_gaps.csv",
         filt_norm="data/processed/{name}/alleleome/{pan_core}/final_pan_aa_thresh_core_genes_dom_var_genome_count_pos_normalized.csv",
         dom_var_out_dir=directory("data/processed/{name}/alleleome/{pan_core}/dom_var/"),
-        codon_muts="data/processed/{name}/alleleome/{pan_core}/pan_gene_syno_non_syno_df.csv",
         dn_ds="data/processed/{name}/alleleome/{pan_core}/final_dn_ds_count_per_gene.csv",
         hist="data/processed/{name}/alleleome/{pan_core}/step_line.json",
         aa_freq="data/processed/{name}/alleleome/{pan_core}/AA_freq.json",
@@ -139,7 +139,7 @@ rule alleleome_preplot:
             --gaps {output.gaps} \
             --filt_norm {output.filt_norm} \
             --dom_var_out_dir {output.dom_var_out_dir} \
-            --codon_muts {output.codon_muts} \
+            --codon_muts {input.codon_muts} \
             --dn_ds {output.dn_ds} \
             --hist {output.hist} \
             --aa_freq {output.aa_freq} \
