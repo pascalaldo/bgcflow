@@ -109,6 +109,7 @@ rule alleleome_preplot:
     input:
         gene_list="data/processed/{name}/alleleome/{pan_core}/gene_list.txt",
         aa_vars="data/processed/{name}/alleleome/{pan_core}/pan_amino_acid_vars_df.csv",
+        dummy="data/processed/{name}/alleleome/pangenome_alignments/process_dummy_{pan_core}",
     output:
         dominant_aa="data/processed/{name}/alleleome/{pan_core}/final_core_consensus_dominant_aa_count_df.csv",
         variable_aa="data/processed/{name}/alleleome/{pan_core}/final_core_pan_aa_thresh_vars_all_substitutions_sep_df.csv",
