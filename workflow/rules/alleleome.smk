@@ -138,7 +138,7 @@ rule alleleome_preplot:
             --dom_var {output.dom_var} \
             --gaps {output.gaps} \
             --filt_norm {output.filt_norm} \
-            --dom_var_out_dir {params.per_gene_out_dir}
+            --dom_var_out_dir {params.per_gene_out_dir} \
             --codon_muts {input.codon_muts} \
             --dn_ds {output.dn_ds} \
             --dn_ds_json {output.dn_ds_json} \
