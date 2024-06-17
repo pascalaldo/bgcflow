@@ -4,7 +4,7 @@ def get_genome_ids(name, df_samples):
 
 rule pankb_isosource:
     input:
-        qc.output
+        rules.qc.output
     params:
         genome_ids=lambda wildcards: get_genome_ids(wildcards.name, filter_samples_qc(wildcards, DF_SAMPLES)),
     output:
