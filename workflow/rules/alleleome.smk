@@ -119,6 +119,7 @@ rule alleleome_preplot:
         filt_norm="data/processed/{name}/alleleome/{pan_core}/final_pan_aa_thresh_core_genes_dom_var_genome_count_pos_normalized.csv",
         dom_var_out_dir=directory("data/processed/{name}/alleleome/{pan_core}/dom_var/"),
         dn_ds="data/processed/{name}/alleleome/{pan_core}/final_dn_ds_count_per_gene.csv",
+        dn_ds_json="data/processed/{name}/alleleome/{pan_core}/dn_ds.json",
         hist="data/processed/{name}/alleleome/{pan_core}/step_line.json",
         aa_freq_dir=directory("data/processed/{name}/alleleome/{pan_core}/aa_freq/"),
     params:
@@ -141,6 +142,7 @@ rule alleleome_preplot:
             --dom_var_out_dir {output.dom_var_out_dir}
             --codon_muts {input.codon_muts} \
             --dn_ds {output.dn_ds} \
+            --dn_ds_json {output.dn_ds_json} \
             --hist {output.hist} \
             --aa_freq_dir {output.aa_freq_dir} \
             > {log} 2>&1
