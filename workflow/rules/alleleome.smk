@@ -91,7 +91,7 @@ rule alleleome_analyze:
         aa_vars="data/processed/{name}/alleleome/{pan_core}/pan_amino_acid_vars_df.csv",
         codon_muts="data/processed/{name}/alleleome/{pan_core}/pan_gene_syno_non_syno_df.csv",
     params:
-        out_dir="data/processed/{name}/alleleome/pangenome_alignments/",
+        out_dir="data/interim/alleleome/{name}/pangenome_alignments/",
     log:
         "logs/alleleome/analyze_{name}_{pan_core}.log"
     conda:
@@ -121,7 +121,7 @@ rule alleleome_preplot:
         dn_ds_json="data/processed/{name}/alleleome/{pan_core}/dn_ds.json",
         hist="data/processed/{name}/alleleome/{pan_core}/step_line.json",
     params:
-        out_dir="data/processed/{name}/alleleome/pangenome_alignments/",
+        out_dir="data/interim/alleleome/{name}/pangenome_alignments/",
         per_gene_out_dir=directory("data/processed/{name}/alleleome/gene_data/"),
     log:
         "logs/alleleome/preplot_{name}_{pan_core}.log"
