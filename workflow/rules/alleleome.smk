@@ -7,11 +7,11 @@ rule alleleome_prepare:
         summary="data/interim/roary/{name}/df_pangene_summary.csv",
         gbk_files=lambda wildcards: get_prokka_outputs(wildcards.name, filter_samples_qc(wildcards, DF_SAMPLES), ext="gbk", path="processed-genbank"),
     output:
-        summary_v2="data/processed/{name}/alleleome/pangene_v2.csv",
-        all_locustag="data/processed/{name}/alleleome/all_locustag.csv",
-        all_genes="data/processed/{name}/alleleome/all_genes.csv",
-        sel_locustag="data/processed/{name}/alleleome/sel_locustag.csv",
-        sel_genes="data/processed/{name}/alleleome/sel_genes.csv",
+        summary_v2="data/interim/alleleome/{name}/pangene_v2.csv",
+        all_locustag="data/interim/alleleome/{name}/all_locustag.csv",
+        all_genes="data/interim/alleleome/{name}/all_genes.csv",
+        sel_locustag="data/interim/alleleome/{name}/sel_locustag.csv",
+        sel_genes="data/interim/alleleome/{name}/sel_genes.csv",
     params:
         gbk_folder="data/interim/processed-genbank/",
     log:
@@ -34,15 +34,15 @@ rule alleleome_prepare:
 
 rule alleleome_fasta:
     input:
-        all_locustag="data/processed/{name}/alleleome/all_locustag.csv",
-        all_genes="data/processed/{name}/alleleome/all_genes.csv",
-        sel_locustag="data/processed/{name}/alleleome/sel_locustag.csv",
-        sel_genes="data/processed/{name}/alleleome/sel_genes.csv",
+        all_locustag="data/interim/alleleome/{name}/all_locustag.csv",
+        all_genes="data/interim/alleleome/{name}/all_genes.csv",
+        sel_locustag="data/interim/alleleome/{name}/sel_locustag.csv",
+        sel_genes="data/interim/alleleome/{name}/sel_genes.csv",
     output:
-        dummy="data/processed/{name}/alleleome/pangenome_alignments/fasta_dummy_{pan_core}",
+        dummy="data/interim/alleleome/{name}/pangenome_alignments/fasta_dummy_{pan_core}",
         gene_list="data/processed/{name}/alleleome/{pan_core}/gene_list.txt",
     params:
-        out_dir="data/processed/{name}/alleleome/pangenome_alignments/",
+        out_dir="data/interim/alleleome/{name}/pangenome_alignments/",
         pan_core_flag=lambda wildcards: ("--pan" if wildcards.pan_core == "Pan" else "--no-pan"),
     log:
         "logs/alleleome/fasta_{name}_{pan_core}.log"
@@ -64,11 +64,11 @@ rule alleleome_fasta:
 rule alleleome_process:
     input:
         gene_list="data/processed/{name}/alleleome/{pan_core}/gene_list.txt",
-        dummy="data/processed/{name}/alleleome/pangenome_alignments/fasta_dummy_{pan_core}",
+        dummy="data/interim/alleleome/{name}/pangenome_alignments/fasta_dummy_{pan_core}",
     output:
-        dummy="data/processed/{name}/alleleome/pangenome_alignments/process_dummy_{pan_core}",
+        dummy="data/interim/alleleome/{name}/pangenome_alignments/process_dummy_{pan_core}",
     params:
-        out_dir="data/processed/{name}/alleleome/pangenome_alignments/",
+        out_dir="data/interim/alleleome/{name}/pangenome_alignments/",
     threads: workflow.cores
     log:
         "logs/alleleome/process_{name}_{pan_core}.log"
@@ -86,7 +86,7 @@ rule alleleome_process:
 rule alleleome_analyze:
     input:
         gene_list="data/processed/{name}/alleleome/{pan_core}/gene_list.txt",
-        dummy="data/processed/{name}/alleleome/pangenome_alignments/process_dummy_{pan_core}",
+        dummy="data/interim/alleleome/{name}/pangenome_alignments/process_dummy_{pan_core}",
     output:
         aa_vars="data/processed/{name}/alleleome/{pan_core}/pan_amino_acid_vars_df.csv",
         codon_muts="data/processed/{name}/alleleome/{pan_core}/pan_gene_syno_non_syno_df.csv",
@@ -109,21 +109,20 @@ rule alleleome_preplot:
     input:
         gene_list="data/processed/{name}/alleleome/{pan_core}/gene_list.txt",
         aa_vars="data/processed/{name}/alleleome/{pan_core}/pan_amino_acid_vars_df.csv",
-        dummy="data/processed/{name}/alleleome/pangenome_alignments/process_dummy_{pan_core}",
+        dummy="data/interim/alleleome/{name}/pangenome_alignments/process_dummy_{pan_core}",
         codon_muts="data/processed/{name}/alleleome/{pan_core}/pan_gene_syno_non_syno_df.csv",
     output:
-        dominant_aa="data/processed/{name}/alleleome/{pan_core}/final_core_consensus_dominant_aa_count_df.csv",
-        variable_aa="data/processed/{name}/alleleome/{pan_core}/final_core_pan_aa_thresh_vars_all_substitutions_sep_df.csv",
-        dom_var="data/processed/{name}/alleleome/{pan_core}/final_pan_aa_thresh_core_genes_dominant_variant_genome_count_pos.csv",
-        gaps="data/processed/{name}/alleleome/{pan_core}/pan_aa_thresh_core_genes_aa_pos_with_gaps.csv",
+        dominant_aa="data/interim/alleleome/{name}/{pan_core}/final_core_consensus_dominant_aa_count_df.csv",
+        variable_aa="data/interim/alleleome/{name}/{pan_core}/final_core_pan_aa_thresh_vars_all_substitutions_sep_df.csv",
+        dom_var="data/interim/alleleome/{name}/{pan_core}/final_pan_aa_thresh_core_genes_dominant_variant_genome_count_pos.csv",
+        gaps="data/interim/alleleome/{name}/{pan_core}/pan_aa_thresh_core_genes_aa_pos_with_gaps.csv",
         filt_norm="data/processed/{name}/alleleome/{pan_core}/final_pan_aa_thresh_core_genes_dom_var_genome_count_pos_normalized.csv",
-        dom_var_out_dir=directory("data/processed/{name}/alleleome/{pan_core}/dom_var/"),
         dn_ds="data/processed/{name}/alleleome/{pan_core}/final_dn_ds_count_per_gene.csv",
         dn_ds_json="data/processed/{name}/alleleome/{pan_core}/dn_ds.json",
         hist="data/processed/{name}/alleleome/{pan_core}/step_line.json",
-        aa_freq_dir=directory("data/processed/{name}/alleleome/{pan_core}/aa_freq/"),
     params:
         out_dir="data/processed/{name}/alleleome/pangenome_alignments/",
+        per_gene_out_dir=directory("data/processed/{name}/alleleome/gene_data/"),
     log:
         "logs/alleleome/preplot_{name}_{pan_core}.log"
     conda:
@@ -139,11 +138,11 @@ rule alleleome_preplot:
             --dom_var {output.dom_var} \
             --gaps {output.gaps} \
             --filt_norm {output.filt_norm} \
-            --dom_var_out_dir {output.dom_var_out_dir}
+            --dom_var_out_dir {params.per_gene_out_dir}
             --codon_muts {input.codon_muts} \
             --dn_ds {output.dn_ds} \
             --dn_ds_json {output.dn_ds_json} \
             --hist {output.hist} \
-            --aa_freq_dir {output.aa_freq_dir} \
+            --aa_freq_dir {params.per_gene_out_dir} \
             > {log} 2>&1
         """
