@@ -1,0 +1,10 @@
+name: alleleome
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python==3.11
+  - pip
+  - pip:
+    - git+https://github.com/pascalaldo/pankb_data_prep.git@main
