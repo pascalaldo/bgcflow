@@ -582,7 +582,8 @@ def sort_roary_matrix(
 if __name__ == "__main__":
     roary_interim_folder = sys.argv[1]
     roary_processed_folder = sys.argv[2]
-    automlst_interim_folder = sys.argv[3]
+    newick_path = sys.argv[3]
+    genome_tree_table_path = sys.argv[4]
     df_gene_presence, df_gene_presence_binary, df_gene_summary = get_roary_data(
         roary_interim_folder,
         roary_processed_folder,
@@ -603,11 +604,7 @@ if __name__ == "__main__":
     )
 
     # Read tree file
-    newick_path = os.path.join(automlst_interim_folder, "final.newick")
     t = Phylo.read(newick_path, "newick")
-    genome_tree_table_path = os.path.join(
-        automlst_interim_folder, "df_genomes_tree.csv"
-    )
     df_genomes_tree = pd.read_csv(genome_tree_table_path, index_col="genome_id")
 
     # Sort the matrix according to phylogeny

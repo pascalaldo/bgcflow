@@ -138,7 +138,8 @@ rule diamond_roary:
 rule roary_out:
     input:
         summary_statistics="data/interim/roary/{name}/summary_statistics.txt",
-        automlst_processed_dir="data/processed/{name}/automlst_wrapper/",
+        genomes_tree="data/processed/{name}/automlst_wrapper/df_genomes_tree.csv",
+        final_tree="data/processed/{name}/automlst_wrapper/final.newick",
     output:
         gene_presence_binary="data/processed/{name}/roary/df_gene_presence_binary.csv",
         gene_presence_locustag="data/processed/{name}/roary/df_gene_presence_locustag.csv",
@@ -155,5 +156,5 @@ rule roary_out:
         "logs/roary/roary-out-{name}.log",
     shell:
         """
-        python workflow/bgcflow/bgcflow/data/make_pangenome_dataset.py {params.roary_interim_dir} {params.roary_processed_dir} {input.automlst_processed_dir} 2>> {log}
+        python workflow/bgcflow/bgcflow/data/make_pangenome_dataset.py {params.roary_interim_dir} {params.roary_processed_dir} {input.final_tree} {input.genomes_tree} 2>> {log}
         """

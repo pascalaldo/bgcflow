@@ -66,17 +66,26 @@ rule automlst_wrapper_out:
             name=wildcards.name,
             strains=[s for s in list(filter_samples_qc(wildcards, PEP_PROJECTS[wildcards.name].sample_table).index)])
     output:
-        automlst_processed=directory("data/processed/{name}/automlst_wrapper/"),
+        genomes_tree="data/processed/{name}/automlst_wrapper/df_genomes_tree.csv",
+        mlst_genes="data/processed/{name}/automlst_wrapper/df_mlst_genes.csv",
         final_tree="data/processed/{name}/automlst_wrapper/final.newick",
+        raxmlpart="data/processed/{name}/automlst_wrapper/raxmlpart.txt",
+        raxmlpart_bionj="data/processed/{name}/automlst_wrapper/raxmlpart.txt.bionj",
+        raxmlpart_contree="data/processed/{name}/automlst_wrapper/raxmlpart.txt.contree",
+        raxmlpart_iqtree="data/processed/{name}/automlst_wrapper/raxmlpart.txt.iqtree",
+        raxmlpart_log="data/processed/{name}/automlst_wrapper/raxmlpart.txt.log",
+        raxmlpart_mldist="data/processed/{name}/automlst_wrapper/raxmlpart.txt.mldist",
+        raxmlpart_treefile="data/processed/{name}/automlst_wrapper/raxmlpart.txt.treefile",
     log:
         "logs/automlst_wrapper/automlst_wrapper/automlst_wrapper_out-{name}.log",
     params:
         automlst_interim=lambda wildcards: f"data/interim/automlst_wrapper/{wildcards.name}/",
+        automlst_processed=lambda wildcards: f"data/processed/{wildcards.name}/automlst_wrapper/",
         prokka_interim="data/interim/prokka",
         gtdb_interim="data/interim/gtdb",
     conda:
         "../envs/bgc_analytics.yaml"
     shell:
         """
-        python workflow/bgcflow/bgcflow/data/make_phylo_tree.py {params.automlst_interim} {output.automlst_processed} {params.prokka_interim} {params.gtdb_interim} 2>> {log}
+        python workflow/bgcflow/bgcflow/data/make_phylo_tree.py {params.automlst_interim} {params.automlst_processed} {params.prokka_interim} {params.gtdb_interim} 2>> {log}
         """
