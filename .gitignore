@@ -29,3 +29,4 @@ pytest-coverage.txt
 data.back/
 logs/
 resources/
+nohup.out

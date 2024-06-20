@@ -227,6 +227,24 @@ rule pankb_cog:
             --output_json {output.all_cog} > {log} 2>&1
         """
 
+rule pankb_cog_distribution:
+    input:
+        summary_v2="data/interim/alleleome/{name}/pangene_v2.csv",
+        eggnog_summary="data/processed/{name}/pankb/df_pangene_eggnog_summary.csv",
+    output:
+        cog_distribution="data/processed/{name}/pankb/COG_distribution.json",
+    log:
+        "logs/pankb_data_prep/pankb_distribution_{name}.log"
+    conda:
+        "../envs/pankb_data_prep.yaml"
+    shell:
+        """
+        pankb_data_prep distribution \
+            --summary {input.summary_v2} \
+            --eggnog_summary {input.eggnog_summary} \
+            --output_json {output.cog_distribution} > {log} 2>&1
+        """
+
 rule pankb_heaps:
     input:
         gp_binary="data/interim/roary/{name}/df_gene_presence_binary.csv",
