@@ -122,7 +122,7 @@ rule alleleome_preplot:
         hist="data/processed/{name}/alleleome/{pan_core}/step_line.json",
     params:
         out_dir="data/interim/alleleome/{name}/pangenome_alignments/",
-        per_gene_out_dir=directory("data/processed/{name}/alleleome/gene_data/"),
+        per_gene_out_dir="data/processed/{name}/alleleome/gene_data/",
     log:
         "logs/alleleome/preplot_{name}_{pan_core}.log"
     conda:

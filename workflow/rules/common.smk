@@ -951,3 +951,7 @@ def get_user_input_with_timeout(prompt, timeout):
         result[0] = None  # Timeout occurred
 
     return result[0]
+
+def get_samples_for_project(df_samples, name):
+    df_exploded = df_samples.explode(["sample_paths", "prokka-db", "gtdb_paths", "name"])
+    return df_exploded.loc[df_exploded["name"] == name, :]

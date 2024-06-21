@@ -165,7 +165,7 @@ rule pankb_eggnog:
         gp_binary="data/interim/roary/{name}/df_gene_presence_binary.csv",
         summary_v2="data/interim/alleleome/{name}/pangene_v2.csv",
         eggnog_table="data/processed/{name}/eggnog_roary/emapper.annotations",
-        reference="data/processed/{name}/roary/pan_genome_reference.fa",
+        reference="data/interim/roary/{name}/pan_genome_reference.fa",
     output:
         eggnog_summary="data/processed/{name}/pankb/df_pangene_eggnog_summary.csv"
     log:
