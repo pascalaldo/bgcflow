@@ -48,6 +48,7 @@ wildcard_constraints:
     patric="|".join(PATRIC),
     name="|".join(PROJECT_IDS),
     prokka_db="|".join(PROKKA_GBFF),
+    assembly_source="all|RefSeq|GenBank",
 
 ##### Target rules #####
 

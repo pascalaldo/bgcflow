@@ -1,0 +1,116 @@
+report: "report/workflow.rst"
+
+include: "rules/common.smk"
+
+KINGDOM = config.get("kingdom", "bacteria")
+
+TAXONS = ["Moraxellaceae"]
+
+##### 3. Wildcard constraints #####
+wildcard_constraints:
+    assembly_source="all|RefSeq|GenBank",
+    taxon="|".join(TAXONS),
+
+##### Target rules #####
+def filter_samples_qc(wildcards, df_samples):
+    qc = pd.read_csv(checkpoints.qc.get().output[0], sep=",", index_col=0, header=0)
+    df_samples_names = set(df_samples.index.to_list())
+    qc_samples_names = set(qc.index.to_list())
+    assert (df_samples_names == qc_samples_names)
+    return df_samples.loc[qc.index[qc["passed"] == True], :]
+include: "rules/qc/qc_contigs_n50.smk"
+
+# Create place holder for resources defined in each modules, will be added if module is included, and passed to create custom_resource_dir
+resource_mapping = {}
+
+checkpoint select_genomes:
+    input:
+        tsv="data/interim/ncbi_datasets/taxon/{taxon}-{assembly_source}.tsv",
+    output:
+        genome_list="data/interim/ncbi_datasets/taxon/{taxon}-{assembly_source}.genome_list",
+    run:
+        import pandas as pd
+        df = pd.read_csv(input.tsv, sep="\t", header=0, index_col=0, low_memory=False)
+        genomes = df.index.to_list()
+        with open(output.genome_list, "w") as f:
+            for genome in genomes:
+                f.write(f"{genome}\n")
+
+def get_accessions_for_taxon(taxon):
+    genome_list = checkpoints.select_genomes.get(taxon=taxon).output.genome_list
+    with open(genome_list, "r") as f:
+        accessions = [g.strip() for g in f.readlines()]
+    return accessions
+def get_all_accessions():
+    accessions = []
+    for taxon in TAXONS:
+        accessions.extend(get_accessions_for_taxon(taxon))
+    return accessions
+def get_taxon_for_accession(accession):
+    for taxon in TAXONS:
+        genome_list = checkpoints.select_genomes.get(taxon=taxon).output.genome_list
+        with open(genome_list, "r") as f:
+            for genome in f:
+                if genome.strip() == accession:
+                    return taxon
+    raise ValueError(f"No taxon found for {accession}")
+
+##### Modules #####
+include "rules/ncbi_datasets.smk"
+# include: "rules/ncbi.smk"
+# include: "rules/prokka.smk"
+# include: "rules/antismash.smk"
+# resource_mapping["antismash_db"] = str(antismash_db_path)
+# include: "rules/roary.smk"
+# include: "rules/bigscape.smk"
+# resource_mapping["BiG-SCAPE"] = str(rules.install_bigscape.output.bigscape)
+# include: "rules/bigslice.smk"
+# resource_mapping["bigslice"] = str(rules.fetch_bigslice_db.output.folder)
+# include: "rules/gtdbtk.smk"
+# resource_mapping["gtdbtk"] = str(rules.install_gtdbtk.output.gtdbtk)
+# include: "rules/mash.smk"
+# include: "rules/fastani.smk"
+# include: "rules/refseq_masher.smk"
+# include: "rules/patric.smk"
+# include: "rules/eggnog.smk"
+# resource_mapping["eggnog_db"] = str(rules.install_eggnog.output.eggnog_db)
+# include: "rules/mlst.smk"
+# include: "rules/automlst_wrapper.smk"
+# include: "rules/seqfu.smk"
+# include: "rules/checkm.smk"
+# resource_mapping["checkm"] = str(rules.install_checkm.output.checkm_db)
+# include: "rules/bgc_analytics.smk"
+# include: "rules/arts.smk"
+# include: "rules/bgc.smk"
+# include: "rules/diamond.smk"
+# include: "rules/deeptfactor.smk"
+# include: "rules/cblaster.smk"
+# # include: "rules/data_warehouse.smk"
+# include: "rules/convert_genbank.smk"
+# include: "rules/gecco.smk"
+# include: "rules/alleleome.smk"
+# include: "rules/pankb_data_prep.smk"
+
+##### 4. Generate user-defined local resources
+custom_resource_dir(config["resources_path"], resource_mapping)
+
+# include: "rules/gtdb.smk"
+
+rule all:
+    input:
+        expand("data/interim/ncbi_datasets/taxon/{taxon}.dummy", taxon=TAXONS),
+        expand("data/interim/fasta/{accession}.fna", accession=get_all_accessions()),
+        # expand("data/processed/{name}/tables/df_gtdb_meta.csv", name=PROJECT_IDS),
+        # expand("data/processed/{name}/roary/df_gene_presence_binary.csv", name=PROJECT_IDS),
+        # expand("data/processed/{name}/pankb/source_info/df_ncbi_isolation_src.csv", name=PROJECT_IDS),
+        # lambda wildcards: expand("data/processed/pankb/family/{family}/summary.csv", family=get_family_list()),
+        # "data/processed/pankb/pankb/organism_genome_count.json",
+        # "data/processed/pankb/pankb/mash_list.csv",
+        # expand("data/processed/{name}/pankb/heatmap_target.json.gz", name=PROJECT_IDS),
+        # expand("data/processed/{name}/pankb/All.json", name=PROJECT_IDS),
+        # expand("data/processed/{name}/pankb/genome_page/", name=PROJECT_IDS),
+        # expand("data/processed/{name}/pankb/gene_locustag/", name=PROJECT_IDS),
+        # "data/processed/pankb/pankb/pankb_dimension.json",
+        # expand("data/processed/{name}/alleleome/Pan/pan_gene_syno_non_syno_df.csv", name=PROJECT_IDS),
+        # expand("data/processed/{name}/alleleome/Pan/dn_ds.json", name=PROJECT_IDS),
+        # expand("data/processed/{name}/alleleome/Pan/step_line.json", name=PROJECT_IDS),
