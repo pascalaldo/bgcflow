@@ -58,17 +58,17 @@ if len(STRAINS_FNA) > 0:
     rule extract_meta_prokka:
         input:
             fna = "data/interim/fasta/{strains_fna}.fna",
+            samples_path = bgcflow_util_dir / "samples.csv",
+            assembly_report= "data/interim/assembly_report/{strains_fna}.json",
         output:
             org_info = "data/interim/prokka/{strains_fna}/organism_info.txt",
         conda:
             "../envs/bgc_analytics.yaml"
         log: "logs/prokka/extract_meta_prokka/extract_meta_prokka-{strains_fna}.log"
-        params:
-            samples_path = bgcflow_util_dir / "samples.csv",
         shell:
             """
             python workflow/bgcflow/bgcflow/data/get_organism_info.py {wildcards.strains_fna} \
-                "{params.samples_path}" data/interim/assembly_report/ data/interim/prokka/ 2>> {log}
+                "{input.samples_path}" {input.assembly_report} data/interim/prokka/ 2>> {log}
             """
     try:
         if os.path.isfile(config["resources_path"]["pfam_for_prokka"]):
@@ -82,7 +82,7 @@ if len(STRAINS_FNA) > 0:
         input:
             fna = "data/interim/fasta/{strains_fna}.fna",
             org_info = "data/interim/prokka/{strains_fna}/organism_info.txt",
-            refgbff = lambda wildcards: get_prokka_refdb(wildcards, "file", DF_SAMPLES, PROKKA_DB_MAP)
+            refgbff = lambda wildcards: get_prokka_refdb(wildcards, "file", get_samples_df(), PROKKA_DB_MAP)
         output:
             gff = "data/interim/prokka/{strains_fna}/{strains_fna}.gff",
             faa = "data/interim/prokka/{strains_fna}/{strains_fna}.faa",
@@ -100,7 +100,7 @@ if len(STRAINS_FNA) > 0:
             increment = 10,
             evalue = "1e-05",
             rna_detection = prokka_params_rna,
-            refgbff = lambda wildcards: get_prokka_refdb(wildcards, "params", DF_SAMPLES, PROKKA_DB_MAP),
+            refgbff = lambda wildcards: get_prokka_refdb(wildcards, "params", get_samples_df(), PROKKA_DB_MAP),
             use_pfam = prokka_use_pfam,
             kingdom = KINGDOM.capitalize(),
         threads: 4

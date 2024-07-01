@@ -1,8 +1,9 @@
 import os
 import sys
+from pathlib import Path
 
 import pandas as pd
-
+import json
 
 def extract_org_info(genome_id, samples_path, assembly_report_path, prokka_dir):
     """
@@ -59,20 +60,35 @@ def extract_ncbi_org_info(prokka_dir, genome_id, assembly_report_path):
     1. {prokka_dir}/organism_info.txt
         A one lined text file with genus, species, and strain information of a given NCBI assembly id
     """
-    assembly_report_json = os.path.join(assembly_report_path, f"{genome_id}.json")
-    df_ncbi_meta = pd.read_json(assembly_report_json).T
-    df_ncbi_meta = df_ncbi_meta.fillna("")
+    prokka_dir = Path(prokka_dir)
+    # assembly_report_json = os.path.join(assembly_report_path, f"{genome_id}.json")
+    with open(assembly_report_path, "r") as f:
+        d_ncbi = json.load(f)
+    if ("accession" in d_ncbi) and ("genus" in d_ncbi) and ("species" in d_ncbi) and ("strain" in d_ncbi):
+        idx = str(d_ncbi["accession"])
+        GENUS = str(d_ncbi["genus"])
+        SPECIES = str(d_ncbi["species"])
+        STRAIN_ID = str(d_ncbi["strain"])
 
-    for idx in df_ncbi_meta.index:
-        GENUS = str(df_ncbi_meta.loc[idx, "genus"])
-        SPECIES = str(df_ncbi_meta.loc[idx, "species"])
-        STRAIN_ID = str(df_ncbi_meta.loc[idx, "strain"])
-
-        if not os.path.isdir(os.path.join(prokka_dir, idx)):
-            os.mkdir(os.path.join(prokka_dir, idx))
-        org_info_path = os.path.join(prokka_dir, idx, "organism_info.txt")
+        idx_path = prokka_dir / idx
+        idx_path.mkdir(parents=True, exist_ok=True)
+        org_info_path = idx_path / "organism_info.txt"
         with open(org_info_path, "w") as file_obj:
             file_obj.write(",".join([GENUS, SPECIES, STRAIN_ID]))
+    else:
+        df_ncbi_meta = pd.read_json(assembly_report_path).T
+        df_ncbi_meta = df_ncbi_meta.fillna("")
+
+        for idx in df_ncbi_meta.index:
+            GENUS = str(df_ncbi_meta.loc[idx, "genus"])
+            SPECIES = str(df_ncbi_meta.loc[idx, "species"])
+            STRAIN_ID = str(df_ncbi_meta.loc[idx, "strain"])
+
+            idx_path = prokka_dir / idx
+            idx_path.mkdir(parents=True, exist_ok=True)
+            org_info_path = idx_path / "organism_info.txt"
+            with open(org_info_path, "w") as file_obj:
+                file_obj.write(",".join([GENUS, SPECIES, STRAIN_ID]))
 
     return None
 

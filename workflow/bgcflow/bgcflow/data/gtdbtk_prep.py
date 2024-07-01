@@ -16,7 +16,10 @@ def assess_gtdb_json_file(item):
     logging.info(f"Assessing {item}")
     with open(item, "r") as json_file:
         data = json.load(json_file)
-        genome_id = data["genome_id"]
+        if "genome_id" in data:
+            genome_id = data["genome_id"]
+        else:
+            genome_id = data["accession"]
         try:
             gtdb_release = data["gtdb_release"]
             metadata = data["metadata"]

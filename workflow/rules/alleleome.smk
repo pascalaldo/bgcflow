@@ -5,7 +5,7 @@ rule alleleome_prepare:
         gp_binary="data/interim/roary/{name}/df_gene_presence_binary.csv",
         gp_locustag="data/interim/roary/{name}/df_gene_presence_locustag.csv",
         summary="data/interim/roary/{name}/df_pangene_summary.csv",
-        gbk_files=lambda wildcards: get_prokka_outputs(wildcards.name, filter_samples_qc(wildcards, DF_SAMPLES), ext="gbk", path="processed-genbank"),
+        gbk_files=lambda wildcards: get_prokka_outputs(wildcards.name, filter_samples_qc(wildcards, get_samples_df()), ext="gbk", path="processed-genbank"),
     output:
         summary_v2="data/interim/alleleome/{name}/pangene_v2.csv",
         all_locustag="data/interim/alleleome/{name}/all_locustag.csv",

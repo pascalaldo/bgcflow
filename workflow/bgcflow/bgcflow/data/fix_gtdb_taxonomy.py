@@ -21,39 +21,47 @@ def summarize_gtdb_json(accession_list, df_gtdb_output):
 
     input_json = Path(accession_list)
 
-    if input_json.is_file() and input_json.suffix == ".json":
-        logging.info(f"Getting GTDB taxonomy from a single file: {input_json}")
-        input_json_files = input_json
-
-    elif input_json.is_file() and input_json.suffix == ".txt":
-        logging.info(f"Getting GTDB taxonomy from a text file: {input_json}")
-        with open(input_json, "r") as file:
-            file_content = [i.strip("\n") for i in file.readlines()]
-            if len(file_content) == 1:
-                # Paths space-separated on a single line
-                paths = file_content[0].split()
-            else:
-                # Paths written on separate lines
-                paths = file_content
-            input_json_files = [
-                Path(path) for path in paths if Path(path).suffix == ".json"
-            ]
+    if input_json.is_file() and input_json.suffix == ".jsonl":
+        logging.info(f"Getting GTDB taxonomy from a json lines file: {input_json}")
+        with open(input_json, "r") as f:
+            out = []
+            for line in f:
+                if line.strip() != "":
+                    out.append(json.loads(line))
     else:
-        input_json_files = [
-            Path(file)
-            for file in str(input_json).split()
-            if Path(file).suffix == ".json"
-        ]
-        logging.info(
-            f"Getting GTDB_taxonomy from the given list of {len(input_json_files)} files..."
-        )
+        if input_json.is_file() and input_json.suffix == ".json":
+            logging.info(f"Getting GTDB taxonomy from a single file: {input_json}")
+            input_json_files = input_json
 
-    accession = input_json_files
-    out = []
-    for a in accession:
-        logging.info(f"Reading {a}...")
-        with open(a, "r") as f:
-            out.append(json.load(f))
+        elif input_json.is_file() and input_json.suffix == ".txt":
+            logging.info(f"Getting GTDB taxonomy from a text file: {input_json}")
+            with open(input_json, "r") as file:
+                file_content = [i.strip("\n") for i in file.readlines()]
+                if len(file_content) == 1:
+                    # Paths space-separated on a single line
+                    paths = file_content[0].split()
+                else:
+                    # Paths written on separate lines
+                    paths = file_content
+                input_json_files = [
+                    Path(path) for path in paths if Path(path).suffix == ".json"
+                ]
+        else:
+            input_json_files = [
+                Path(file)
+                for file in str(input_json).split()
+                if Path(file).suffix == ".json"
+            ]
+            logging.info(
+                f"Getting GTDB_taxonomy from the given list of {len(input_json_files)} files..."
+            )
+
+        accession = input_json_files
+        out = []
+        for a in accession:
+            logging.info(f"Reading {a}...")
+            with open(a, "r") as f:
+                out.append(json.load(f))
     df = pd.DataFrame(out).set_index("genome_id", drop=False)
 
     # Getting taxonomic information

@@ -19,7 +19,7 @@ rule seqfu_combine:
     input:
         json=lambda wildcards: expand(
             "data/interim/seqfu/{strains}.json",
-            strains=[s for s in list(PEP_PROJECTS[wildcards.name].sample_table.index)],
+            strains=get_accessions_for_name(wildcards.name),
         ),
     output:
         all_csv=report(

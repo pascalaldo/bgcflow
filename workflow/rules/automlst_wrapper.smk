@@ -38,7 +38,7 @@ rule prep_automlst_gbk:
 
 rule automlst_wrapper:
     input:
-        gbk=lambda wildcards: get_automlst_inputs(wildcards.name, filter_samples_qc(wildcards, DF_SAMPLES)),
+        gbk=lambda wildcards: get_automlst_inputs(wildcards.name, filter_samples_qc(wildcards, get_samples_df())),
         reduced_core="resources/automlst-simplified-wrapper-main/reducedcore.hmm",
     output:
         tree="data/interim/automlst_wrapper/{name}/raxmlpart.txt.treefile",
@@ -63,11 +63,11 @@ rule automlst_wrapper_out:
         #             strains=[s for s in list(filter_samples_qc(wildcards, PEP_PROJECTS[wildcards.name].sample_table).index)],
         # ),
         organism_info=lambda wildcards: expand("data/interim/prokka/{strains}/organism_info.txt",
-                    strains=list(get_samples_for_project(filter_samples_qc(wildcards, DF_SAMPLES), wildcards.name).index)),
+                    strains=list(get_samples_for_project_from_df(filter_samples_qc(wildcards, get_samples_df()), wildcards.name).index)),
         # gtdb=lambda wildcards: expand("data/interim/gtdb/{strains}.json",
         #     name=wildcards.name,
         #     strains=[s for s in list(filter_samples_qc(wildcards, PEP_PROJECTS[wildcards.name].sample_table).index)])
-        gtdb=lambda wildcards: expand("data/interim/gtdb/{strains}.json", strains=list(get_samples_for_project(filter_samples_qc(wildcards, DF_SAMPLES), wildcards.name).index)),
+        gtdb=lambda wildcards: expand("data/interim/gtdb/{strains}.json", strains=list(get_samples_for_project_from_df(filter_samples_qc(wildcards, get_samples_df()), wildcards.name).index)),
     output:
         genomes_tree="data/processed/{name}/automlst_wrapper/df_genomes_tree.csv",
         mlst_genes="data/processed/{name}/automlst_wrapper/df_mlst_genes.csv",
