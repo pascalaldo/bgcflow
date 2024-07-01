@@ -15,14 +15,14 @@ rule pankb_genome_list:
     log:
         "logs/pankb_data_prep/pankb_genome_list_{name}.log"
     run:
-        genomes = get_genome_ids(wildcards.name, filter_samples_qc(wildcards, DF_SAMPLES))
+        genomes = get_genome_ids(wildcards.name, filter_samples_qc(wildcards, get_samples_df()))
         with open(output.genomes, "w") as f:
             f.writelines(f"{genome}\n" for genome in genomes)
 
 rule pankb_select_and_merge:
     input:
-        genomes=expand("data/processed/{name}/pankb/genomes.txt", name=PROJECT_IDS),
-        csv=expand("data/processed/{name}/{{directory}}/{{filename}}.csv", name=PROJECT_IDS),
+        genomes=lambda _: expand("data/processed/{name}/pankb/genomes.txt", name=get_projects()),
+        csv=lambda _: expand("data/processed/{name}/{{directory}}/{{filename}}.csv", name=get_projects()),
     output: "data/processed/pankb/{directory}/{filename}.csv",
     run:
         import pandas as pd

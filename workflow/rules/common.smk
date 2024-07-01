@@ -8,7 +8,8 @@ from pathlib import Path
 import peppy
 
 min_version("7.14.0")
-__version__ = "0.9.3"
+
+include: "./basic.smk"
 
 
 # container: "docker://matinnu/bgcflow:latest"
@@ -479,47 +480,6 @@ def get_fasta_inputs(name, df_samples):
     return output
 
 
-# prokka.smk #
-def get_prokka_refdb(genome_id, params, df_samples, mapping_file, config=config):
-    """
-    Given a genome id, find which prokka-db input to use.
-
-    params:
-        - "table" - will return the corresponding prokka-db table to use
-        - "file" - will return the corresponding reference gbks
-        - "params" - will return prokka protein params and the corresponding file
-
-    Arguments:
-        genome_id {str} -- genome id
-        params {str} -- "table" or "file" or "params"
-        df_samples {pd.DataFrame} -- sample table
-        mapping_file {dict} -- mapping file between prokka-db and reference gbks
-        config {dict} -- config file
-
-    Returns:
-        output {str} -- prokka-db table or reference gbks or prokka protein params
-    """
-
-    prokka_db = df_samples.loc[genome_id, "ref_annotation"].iloc[0]
-    name = df_samples.loc[genome_id, "name"].iloc[0]
-
-    if not os.path.isfile(str(prokka_db)):
-        if params == "file":
-            output = []
-        else:
-            output = ""
-    elif params == "table":
-        output = prokka_db
-    elif params == "file":
-        output = f"resources/prokka_db/{mapping_file[prokka_db]}.gbff"
-    elif params == "params":
-        output = f"--proteins resources/prokka_db/{mapping_file[prokka_db]}.gbff"
-    else:
-        sys.stderr.write(f"Second argument should be: table, file, or params.\n")
-        raise
-    return output
-
-
 # bigscape.smk, bigslice.smk, and bgc_analytics.smk #
 def get_antismash_inputs(name, version, df_samples):
     """
@@ -535,45 +495,6 @@ def get_antismash_inputs(name, version, df_samples):
     """
     selection = [i for i in df_samples.index if name in df_samples.loc[i, "name"]]
     output = [f"data/interim/antismash/{version}/{s}/{s}.gbk" for s in selection]
-    return output
-
-
-# roary.smk #
-def get_prokka_outputs(name, df_samples, ext="gff", path="prokka"):
-    """
-    Given a project name, find the corresponding sample file to use
-
-    Arguments:
-        name {str} -- project name
-        df_samples {pd.DataFrame} -- sample table
-        ext {str} -- file extension
-
-    Returns:
-        output {list} -- list of prokka outputs
-    """
-    selection = [i for i in df_samples.index if name in df_samples.loc[i, "name"]]
-    assert path in ["prokka", "processed-genbank"]
-    if path == "prokka":
-        output = [f"data/interim/{path}/{s}/{s}.{ext}" for s in selection]
-    elif path == "processed-genbank":
-        output = [f"data/interim/{path}/{s}.{ext}" for s in selection]
-    return output
-
-
-# automlst_wrapper.smk #
-def get_automlst_inputs(name, df_samples):
-    """
-    Given a project name, find the corresponding sample file to use
-
-    Arguments:
-        name {str} -- project name
-        df_samples {pd.DataFrame} -- sample table
-
-    Returns:
-        output {list} -- list of automlst gbk files
-    """
-    selection = [i for i in df_samples.index if name in df_samples.loc[i, "name"]]
-    output = [f"data/interim/automlst_wrapper/{name}/{s}.gbk" for s in selection]
     return output
 
 
@@ -952,6 +873,11 @@ def get_user_input_with_timeout(prompt, timeout):
 
     return result[0]
 
-def get_samples_for_project(df_samples, name):
-    df_exploded = df_samples.explode(["sample_paths", "prokka-db", "gtdb_paths", "name"])
-    return df_exploded.loc[df_exploded["name"] == name, :]
+def get_qc_names():
+    return PROJECT_IDS
+
+def get_accessions_for_name(name):
+    return [s for s in list(PEP_PROJECTS[name].sample_table.index)]
+
+def get_fasta_inputs_for_name(name):
+    return get_fasta_inputs(name, DF_SAMPLES)

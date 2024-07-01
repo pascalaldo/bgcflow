@@ -1,8 +1,9 @@
-name: ncbi_datasets
+name: alleleome
 channels:
   - conda-forge
   - bioconda
   - defaults
 dependencies:
-  - ncbi-datasets-cli=16.22.0
-  - unzip=6.0
+  - python==3.11
+  - pandas=2.2.2
+  - pyarrow

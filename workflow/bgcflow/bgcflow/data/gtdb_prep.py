@@ -6,6 +6,9 @@ import sys
 import pandas as pd
 import requests
 
+from random import randint
+from time import sleep
+
 log_format = "%(levelname)-8s %(asctime)s   %(message)s"
 date_format = "%d/%m %H:%M:%S"
 logging.basicConfig(format=log_format, datefmt=date_format, level=logging.DEBUG)
@@ -237,14 +240,24 @@ def get_ncbi_taxon_GTDB(accession, api_base_url, release="R207"):
         elif api_type == "summary":
             api_url = f"{api_base_url}/genome/{accession}/card"
         logging.debug(f"Requesting GTDB API: {api_url}")
-        response = requests.get(api_url)
 
-        try:
-            js = response.json()
-        except json.JSONDecodeError:
-            logging.critical(
-                f"Cannot decode response from GTDB API. Make sure this is a valid url: {api_url}"
-            )
+        js = None
+        max_retries = 3
+        retries_left = max_retries
+        while retries_left > 0:
+            if retries_left != max_retries:
+                sleep(randint(5, 20))
+            response = requests.get(api_url)
+            try:
+                js = response.json()
+                retries_left = 0
+            except json.JSONDecodeError:
+                logging.critical(
+                    f"Cannot decode response from GTDB API. Make sure this is a valid url: {api_url}"
+                )
+                retries_left = retries_left - 1
+                # raise
+        if js is None:
             raise
 
         return js, api_url
