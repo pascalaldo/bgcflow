@@ -1,7 +1,7 @@
 checkpoint qc:
     input:
-        seqfu=expand("data/processed/{name}/tables/df_seqfu_stats.csv", name=get_qc_names()),
-        checkm=expand("data/processed/{name}/tables/df_combined_stats.csv", name=get_qc_names()),
+        seqfu=expand("data/processed/{name}/tables/df_seqfu_stats.csv", name=RULE_FUNCTIONS["qc"]["names"]()),
+        checkm=expand("data/processed/{name}/tables/df_combined_stats.csv", name=RULE_FUNCTIONS["qc"]["names"]()),
     output: "data/processed/qc/qc_passed.csv",
     run:
         import pandas as pd
