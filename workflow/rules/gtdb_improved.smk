@@ -104,7 +104,7 @@ rule gtdb_prep:
 
 rule gtdb_jsonl_combine:
     input:
-        gtdb_jsonl=expand("data/interim/gtdb/{taxon}.jsonl", taxon=TAXONS.index.to_list()),
+        gtdb_jsonl=expand("data/interim/gtdb/{taxon}.jsonl", taxon=RULE_FUNCTIONS["gtdb_improved"]["taxons"]()),
     output:
         gtdb_jsonl="data/interim/gtdb/all/gtdb.jsonl",
     shell:

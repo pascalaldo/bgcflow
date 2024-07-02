@@ -21,8 +21,8 @@ rule pankb_genome_list:
 
 rule pankb_select_and_merge:
     input:
-        genomes=lambda _: expand("data/processed/{name}/pankb/genomes.txt", name=get_projects()),
-        csv=lambda _: expand("data/processed/{name}/{{directory}}/{{filename}}.csv", name=get_projects()),
+        genomes=lambda _: expand("data/processed/{name}/pankb/genomes.txt", name=RULE_FUNCTIONS["pankb_data_prep"]["projects"]()),
+        csv=lambda _: expand("data/processed/{name}/{{directory}}/{{filename}}.csv", name=RULE_FUNCTIONS["pankb_data_prep"]["projects"]()),
     output: "data/processed/pankb/{directory}/{filename}.csv",
     run:
         import pandas as pd

@@ -43,6 +43,8 @@ CUSTOM_FNA = []
 STRAINS_FNA = ["Dummy"]
 PROKKA_DB_MAP = {}
 
+RULE_FUNCTIONS = {}
+
 ##### 3. Wildcard constraints #####
 wildcard_constraints:
     assembly_source="all|RefSeq|GenBank",
@@ -50,19 +52,26 @@ wildcard_constraints:
 
 include: "rules/preselect_genomes/preselect_all_genomes.smk"
 include: "rules/select_genomes/select_all_genomes.smk"
-def get_qc_names():
+
+def get_taxons():
     return TAXONS.index.to_list()
 def get_accessions_for_name(name):
     return get_accessions_for_taxon(name)
-def get_fasta_inputs_for_name(name):
-    return [f"data/interim/fasta/{s}.fna" for s in get_accessions_for_name(name)]
-def filter_samples_qc(wildcards, df_samples):
+# def get_fasta_inputs_for_name(name):
+#     return [f"data/interim/fasta/{s}.fna" for s in get_accessions_for_name(name)]
+# def filter_samples_qc(wildcards, df_samples):
+#     qc = pd.read_csv(checkpoints.qc.get().output[0], sep=",", index_col=0, header=0)
+#     df_samples_names = set(df_samples.index.to_list())
+#     # assert (df_samples_names == qc_samples_names)
+#     qc_samples_names = set(qc.index[qc["passed"] == True].to_list())
+#     sel = list(df_samples_names & qc_samples_names)
+#     return df_samples.loc[sel, :]
+def filter_sample_names_qc(sample_names):
     qc = pd.read_csv(checkpoints.qc.get().output[0], sep=",", index_col=0, header=0)
-    df_samples_names = set(df_samples.index.to_list())
-    # assert (df_samples_names == qc_samples_names)
     qc_samples_names = set(qc.index[qc["passed"] == True].to_list())
-    sel = list(df_samples_names & qc_samples_names)
-    return df_samples.loc[sel, :]
+    sel = list(sample_names & qc_samples_names)
+    return sel
+RULE_FUNCTIONS["qc"] = {"names": get_taxons}
 include: "rules/qc/qc_contigs_n50.smk"
 
 resource_mapping = {}
@@ -72,23 +81,35 @@ include: "rules/ncbi_datasets.smk"
 ##### 4. Generate user-defined local resources
 # custom_resource_dir(config["resources_path"], resource_mapping)
 
+RULE_FUNCTIONS["seqfu"] = {"strains": get_accessions_for_taxon}
 include: "rules/seqfu.smk"
 include: "rules/checkm_for_missing.smk"
+RULE_FUNCTIONS["checkm"] = {"accessions": get_accessions_for_taxon}
 include: "rules/checkm.smk"
 
+RULE_FUNCTIONS["gtdb_improved"] = {"taxons": get_taxons}
 include: "rules/gtdb_improved.smk"
 include: "rules/merge_taxonomy/gtdb_only.smk"
 include: "rules/split_species_into_projects.smk"
-get_samples_df = get_species_projects_samples_df
-get_projects = get_species_projects
-get_samples_for_project = get_samples_for_species_project
-get_samples_df_for_project = get_samples_for_species_project
+# get_samples_df = get_species_projects_samples_df
+# get_projects = get_species_projects
+# get_samples_for_project = get_samples_for_species_project
+# get_samples_df_for_project = get_samples_for_species_project
 
+def filtered_accessions_for_project(name):
+    return filter_sample_names_qc(get_samples_for_species_project(name))
+
+RULE_FUNCTIONS["prokka"] = {"samples": get_species_projects_samples_df}
 include: "rules/prokka.smk"
+RULE_FUNCTIONS["roary"] = {"samples": filtered_accessions_for_project}
 include: "rules/roary.smk"
+RULE_FUNCTIONS["mash"] = {"accessions": filtered_accessions_for_project}
 include: "rules/mash.smk"
+RULE_FUNCTIONS["automlst_wrapper"] = {"accessions": filtered_accessions_for_project}
 include: "rules/automlst_wrapper.smk"
+RULE_FUNCTIONS["alleleome"] = {"samples": filtered_accessions_for_project}
 include: "rules/alleleome.smk"
+RULE_FUNCTIONS["pankb_data_prep"] = {"projects": get_species_projects}
 include: "rules/pankb_data_prep.smk"
 
 rule all:
