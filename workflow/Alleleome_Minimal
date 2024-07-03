@@ -52,6 +52,8 @@ wildcard_constraints:
 
 filter_samples_qc = lambda x, y: y # No automated QC
 def get_samples_for_project(name):
+    print("Samples")
+    print(DF_SAMPLES.loc[DF_SAMPLES["name"] == name, :].index.to_list())
     return DF_SAMPLES.loc[DF_SAMPLES["name"] == name, :].index.to_list()
 ##### Target rules #####
 rule all:
