@@ -52,11 +52,13 @@ wildcard_constraints:
 
 filter_samples_qc = lambda x, y: y # No automated QC
 def get_samples_for_project(name):
-    samples = DF_SAMPLES[["name"]]
+    samples = DF_SAMPLES[["name"]].copy()
     samples["genome_id"] = samples.index
     samples = samples.reindex()
     samples = samples.explode("name")
     return samples.loc[samples["name"] == name, "genome_id"].to_list()
+def get_samples_df_for_project(name):
+    return DF_SAMPLES.loc[get_samples_for_project(name), :]
 ##### Target rules #####
 rule all:
     input:
@@ -79,7 +81,8 @@ RULE_FUNCTIONS["automlst_wrapper"] = {"accessions": get_samples_for_project}
 include: "rules/automlst_wrapper.smk"
 # include: "rules/bgc_analytics.smk"
 # include: "rules/ncbi.smk"
-# include: "rules/prokka.smk"
+RULE_FUNCTIONS["prokka"] = {"samples": get_samples_df_for_project}
+include: "rules/prokka.smk"
 # include: "rules/gtdb.smk"
 RULE_FUNCTIONS["roary"] = {"samples": get_samples_for_project}
 include: "rules/roary.smk"
