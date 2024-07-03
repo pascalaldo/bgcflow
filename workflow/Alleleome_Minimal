@@ -82,7 +82,7 @@ include: "rules/mash.smk"
 RULE_FUNCTIONS["automlst_wrapper"] = {"accessions": get_samples_for_project}
 include: "rules/automlst_wrapper.smk"
 # include: "rules/bgc_analytics.smk"
-# include: "rules/ncbi.smk"
+include: "rules/ncbi.smk"
 RULE_FUNCTIONS["prokka"] = {"samples": get_samples_df}
 include: "rules/prokka.smk"
 # include: "rules/gtdb.smk"
