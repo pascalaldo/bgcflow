@@ -81,7 +81,7 @@ rule automlst_wrapper_out:
         raxmlpart_iqtree="data/processed/{name}/automlst_wrapper/raxmlpart.txt.iqtree",
         raxmlpart_log="data/processed/{name}/automlst_wrapper/raxmlpart.txt.log",
         raxmlpart_mldist="data/processed/{name}/automlst_wrapper/raxmlpart.txt.mldist",
-        raxmlpart_treefile="data/processed/{name}/automlst_wrapper/raxmlpart.txt.treefile",
+        # raxmlpart_treefile="data/processed/{name}/automlst_wrapper/raxmlpart.txt.treefile",
     log:
         "logs/automlst_wrapper/automlst_wrapper/automlst_wrapper_out-{name}.log",
     params:
