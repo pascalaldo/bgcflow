@@ -52,9 +52,11 @@ wildcard_constraints:
 
 filter_samples_qc = lambda x, y: y # No automated QC
 def get_samples_for_project(name):
-    print("Samples")
-    print(DF_SAMPLES)
-    return DF_SAMPLES.loc[DF_SAMPLES["name"] == name, :].index.to_list()
+    samples = DF_SAMPLES[["name"]]
+    samples["genome_id"] = samples.index
+    samples = samples.reindex()
+    samples = samples.explode("name")
+    return samples.loc[samples["name"] == name, "genome_id"].to_list()
 ##### Target rules #####
 rule all:
     input:
