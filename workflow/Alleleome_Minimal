@@ -85,7 +85,7 @@ include: "rules/automlst_wrapper.smk"
 include: "rules/ncbi.smk"
 RULE_FUNCTIONS["prokka"] = {"samples": get_samples_df}
 include: "rules/prokka.smk"
-# include: "rules/gtdb.smk"
+include: "rules/gtdb.smk"
 RULE_FUNCTIONS["roary"] = {"samples": get_samples_for_project}
 include: "rules/roary.smk"
 RULE_FUNCTIONS["alleleome"] = {"samples": get_samples_for_project}
