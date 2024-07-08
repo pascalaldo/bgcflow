@@ -67,6 +67,7 @@ def get_accessions_for_name(name):
 #     sel = list(df_samples_names & qc_samples_names)
 #     return df_samples.loc[sel, :]
 def filter_sample_names_qc(sample_names):
+    sample_names = set(sample_names)
     qc = pd.read_csv(checkpoints.qc.get().output[0], sep=",", index_col=0, header=0)
     qc_samples_names = set(qc.index[qc["passed"] == True].to_list())
     sel = list(sample_names & qc_samples_names)
@@ -128,4 +129,5 @@ rule all:
         # expand("data/interim/split/{taxon}/classification.csv", taxon=TAXONS.index.to_list()),
         # expand("data/interim/gtdb/{taxon}.jsonl", taxon=TAXONS.index.to_list()),
         # expand("data/interim/checkm/{taxon}_missing.txt", taxon=TAXONS.index.to_list()),
-        lambda _: expand("data/processed/{name}/alleleome/Pan/dn_ds.json", name=get_species_projects()),
+        # lambda _: expand("data/processed/{name}/alleleome/Pan/dn_ds.json", name=get_species_projects()),
+	    "data/interim/alleleome/Lacticaseibacillus_paracasei/pangenome_alignments/process_dummy_Pan",
