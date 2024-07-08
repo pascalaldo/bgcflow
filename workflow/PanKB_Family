@@ -128,4 +128,4 @@ rule all:
         # expand("data/interim/split/{taxon}/classification.csv", taxon=TAXONS.index.to_list()),
         # expand("data/interim/gtdb/{taxon}.jsonl", taxon=TAXONS.index.to_list()),
         # expand("data/interim/checkm/{taxon}_missing.txt", taxon=TAXONS.index.to_list()),
-        lambda _: expand("data/processed/{name}/alleleome/Pan/dn_ds.json", name=get_projects()),
+        lambda _: expand("data/processed/{name}/alleleome/Pan/dn_ds.json", name=get_species_projects()),
