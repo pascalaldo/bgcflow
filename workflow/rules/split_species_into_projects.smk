@@ -33,7 +33,7 @@ checkpoint extract_species_split_samples:
         df_samples = get_species_projects_samples_df_for_taxon(taxon)
         df_samples = df_samples.loc[df_samples["name"] == wildcards.name, :]
         df_samples.to_csv(output.samples)
-        df_samples.to_csv(output.samples_2)
+        # df_samples.to_csv(output.samples_2)
 
 def get_samples_for_species_project(name):
     df = pd.read_csv(checkpoints.extract_species_split_samples.get(name=name).output.samples, header=0, index_col=0, low_memory=False)
