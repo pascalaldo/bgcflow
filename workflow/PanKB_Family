@@ -88,6 +88,9 @@ include: "rules/checkm_for_missing.smk"
 RULE_FUNCTIONS["checkm"] = {"accessions": get_accessions_for_taxon}
 include: "rules/checkm.smk"
 
+RULE_FUNCTIONS["gtdbtk_simple"] = {"accessions": get_unclassified_accessions}
+include: "rules/gtdbtk_simple.smk"
+
 RULE_FUNCTIONS["gtdb_improved"] = {"taxons": get_taxons}
 include: "rules/gtdb_improved.smk"
 include: "rules/merge_taxonomy/gtdb_only.smk"
@@ -124,10 +127,11 @@ rule all:
         # lambda _: expand("data/interim/fasta/{accession}.fna", accession=get_all_accessions()),
         # lambda _: expand("data/interim/gtdb/{accession}.json", accession=get_all_accessions()),
         # expand("data/processed/{taxon}/tables/df_gtdb_meta.csv", taxon=TAXONS.index.to_list()),
-        # expand("data/processed/{taxon}/tables/gtdbtk.bac120.summary.tsv", taxon=TAXONS.index.to_list()),
+        expand("data/processed/{taxon}/tables/gtdbtk.bac120.summary.tsv", taxon=TAXONS.index.to_list()),
         # "data/processed/qc/qc_passed.csv",
         # expand("data/interim/split/{taxon}/classification.csv", taxon=TAXONS.index.to_list()),
         # expand("data/interim/gtdb/{taxon}.jsonl", taxon=TAXONS.index.to_list()),
         # expand("data/interim/checkm/{taxon}_missing.txt", taxon=TAXONS.index.to_list()),
         # lambda _: expand("data/processed/{name}/alleleome/Pan/dn_ds.json", name=get_species_projects()),
-	    "data/interim/alleleome/Lacticaseibacillus_paracasei/pangenome_alignments/process_dummy_Pan",
+	    # "data/interim/alleleome/Lacticaseibacillus_paracasei/pangenome_alignments/process_dummy_Pan",
+

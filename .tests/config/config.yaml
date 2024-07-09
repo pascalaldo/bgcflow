@@ -76,7 +76,7 @@ rule_parameters:
     release: "214.1"
     release_version: "r214"
   gtdbtk:
-    ani_screen: FALSE
+    ani_screen: TRUE
   antismash:
     version: "7" # valid versions: 6, 7
   use_gtdb_api: TRUE # Set to false to enable offline mode for taxonomic assignment, see https://github.com/NBChub/bgcflow/wiki/07-Advanced-Configurations#using-gtdb_api-offline-mode
