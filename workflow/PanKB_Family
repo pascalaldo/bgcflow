@@ -93,7 +93,8 @@ include: "rules/gtdbtk_simple.smk"
 
 RULE_FUNCTIONS["gtdb_improved"] = {"taxons": get_taxons}
 include: "rules/gtdb_improved.smk"
-include: "rules/merge_taxonomy/gtdb_only.smk"
+# include: "rules/merge_taxonomy/gtdb_only.smk"
+include: "rules/merge_taxonomy/gtdb_and_gtdbtk.smk"
 include: "rules/split_species_into_projects.smk"
 # get_samples_df = get_species_projects_samples_df
 # get_projects = get_species_projects
