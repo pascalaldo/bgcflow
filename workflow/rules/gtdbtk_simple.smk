@@ -42,7 +42,7 @@ rule install_gtdbtk:
 
 checkpoint prepare_gtdbtk_input:
     input:
-        gtdb_meta="data/processed/{name}/tables/df_gtdb_meta.csv",
+        gtdb_meta="data/interim/gtdb/{name}/tables/df_gtdb_meta.csv",
         json_list=lambda wildcards: expand("data/interim/assembly_report/{accession}.json", accession=RULE_FUNCTIONS["gtdbtk_simple"]["accessions"](wildcards.name)),
         fna=lambda wildcards: expand("data/interim/fasta/{accession}.fna", accession=RULE_FUNCTIONS["gtdbtk_simple"]["accessions"](wildcards.name)),
     output:
