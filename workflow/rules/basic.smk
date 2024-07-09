@@ -88,3 +88,9 @@ def get_samples_for_project_from_df(df_samples, name):
     cols = list({"sample_paths", "prokka-db", "gtdb_paths", "name"} & set(df_samples.columns.to_list()))
     df_exploded = df_samples.explode(cols)
     return df_exploded.loc[df_exploded["name"] == name, :]
+
+def get_unclassified_accessions(taxon):
+    import pandas as pd
+    df = pd.read_csv(checkpoints.fix_gtdb_taxonomy.get(taxon=taxon).output.meta, low_memory=False, header=0, index_col=0)
+    unclassified = df.loc[df["Species"] == "s__", :]
+    return unclassified.index.tolist()

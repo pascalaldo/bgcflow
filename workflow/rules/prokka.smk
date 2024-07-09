@@ -86,7 +86,7 @@ if len(STRAINS_FNA) > 0:
         output:
             gff = "data/interim/prokka/{strains_fna}/{strains_fna}.gff",
             faa = "data/interim/prokka/{strains_fna}/{strains_fna}.faa",
-            gbk = "data/interim/prokka/{strains_fna}/{strains_fna}.gbk",
+            gbk = temp("data/interim/prokka/{strains_fna}/{strains_fna}.gbk"), # Temporary file now, use processed-genbank files in other rules
             txt = "data/interim/prokka/{strains_fna}/{strains_fna}.txt",
             tsv = "data/interim/prokka/{strains_fna}/{strains_fna}.tsv",
             fna = temp("data/interim/prokka/{strains_fna}/{strains_fna}.fna"),

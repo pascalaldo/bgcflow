@@ -40,17 +40,11 @@ rule install_gtdbtk:
         (cd resources && mkdir -p gtdbtk && tar -xvzf gtdbtk_{params.release_version}_data.tar.gz -C "gtdbtk" --strip 1 && rm gtdbtk_{params.release_version}_data.tar.gz) &>> {log}
         """
 
-def get_unclassified_accessions(taxon):
-    import pandas as pd
-    df = pd.read_csv(checkpoints.fix_gtdb_taxonomy.get(taxon=taxon).output.meta, low_memory=False, header=0, index_col=0)
-    unclassified = df.loc[df["Species"] == "s__", :]
-    return unclassified.index.tolist()
-
 checkpoint prepare_gtdbtk_input:
     input:
         gtdb_meta="data/processed/{name}/tables/df_gtdb_meta.csv",
-        json_list=lambda wildcards: expand("data/interim/assembly_report/{accession}.json", accession=get_unclassified_accessions(wildcards.name)),
-        fna=lambda wildcards: expand("data/interim/fasta/{accession}.fna", accession=get_unclassified_accessions(wildcards.name)),
+        json_list=lambda wildcards: expand("data/interim/assembly_report/{accession}.json", accession=RULE_FUNCTIONS["gtdbtk_simple"]["accessions"](wildcards.name)),
+        fna=lambda wildcards: expand("data/interim/fasta/{accession}.fna", accession=RULE_FUNCTIONS["gtdbtk_simple"]["accessions"](wildcards.name)),
     output:
         fnadir=directory("data/interim/gtdbtk/{name}/fasta/"),
         fnalist="data/interim/gtdbtk/{name}/fasta_list.txt",

@@ -43,6 +43,7 @@ rule automlst_wrapper:
         reduced_core="resources/automlst-simplified-wrapper-main/reducedcore.hmm",
     output:
         tree="data/interim/automlst_wrapper/{name}/raxmlpart.txt.treefile",
+        gbk_to_sql=temp("data/interim/automlst_wrapper/{name}/genbank_to_sql"),
     log:
         "logs/automlst_wrapper/automlst_wrapper/automlst_wrapper-{name}.log",
     conda:
