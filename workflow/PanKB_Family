@@ -3,11 +3,22 @@ report: "report/workflow.rst"
 include: "rules/basic.smk"
 configfile: "config/config.yaml"
 import pandas as pd
+import numpy as np
 from pathlib import Path
 # generate centralized sample datasets
 bgcflow_util_dir = Path("data/interim/bgcflow_utils")
 bgcflow_util_dir.mkdir(parents=True, exist_ok=True)
 
+def extract_custom_sample_information(custom_samples_path):
+    df = pd.read_csv(custom_samples_path, index_col=0, header=0, low_memory=False)
+    df.index.name = "genome_id"
+    if not "path" in df.columns:
+        df["path"] = np.nan
+    df.loc[df["path"] == "", "path"] = np.nan
+    df["source"] = "local"
+    df.loc[pd.isna(df["path"]), "source"] = "ncbi"
+    return df
+    
 def extract_project_information(config):
     # load information from config
     print(f"Step 1. Extracting project information from config...\n", file=sys.stderr)
@@ -15,24 +26,30 @@ def extract_project_information(config):
     taxons = config["taxons"]
 
     taxon_records = []
+    custom_samples_df = None
 
     for num, p in enumerate(taxons):
         print(
             f"Step 2.{num+1} Getting sample information from: {p['name']}",
             file=sys.stderr,
         )
+        custom_samples_file = p.get("custom_samples", None)
+        if not custom_samples_file is None:
+            print(f"Step 3.{num+1} Extracting custom sample information from: {custom_samples_file}.")
+            custom_samples_df = pd.concat([custom_samples_df, extract_custom_sample_information(custom_samples_file)])
         # grab a bgcflow pep project
         record = {
             "name": p["name"].replace(" ", "_"),
             "taxon": p["name"].replace("_", " "),
             "reference_only": p.get("reference_only", True),
+            "custom_samples_file": custom_samples_file,
         }
         taxon_records.append(record)
     taxons_df = pd.DataFrame.from_records(taxon_records, index="name")
-    return taxons_df
+    return taxons_df, custom_samples_df
 
 ##### 1. Extract information from config file
-TAXONS = extract_project_information(config)
+TAXONS, CUSTOM_SAMPLES = extract_project_information(config)
 
 KINGDOM = "bacteria"
 
@@ -77,6 +94,7 @@ include: "rules/qc/qc_contigs_n50.smk"
 
 resource_mapping = {}
 #### Modules #####
+include: "rules/custom_genomes.smk"
 include: "rules/ncbi_datasets.smk"
 
 ##### 4. Generate user-defined local resources
