@@ -26,7 +26,8 @@ plugins/
 metabase.db*
 pytest-coverage.txt
 .coverage
-data.back/
+data.*/
+config.*/
 logs/
 resources/
 nohup.out

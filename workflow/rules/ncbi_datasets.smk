@@ -34,6 +34,8 @@ rule ncbi_dataset_for_taxon:
 checkpoint ncbi_dataset_tsv_to_samples_csv:
     input:
         tsv="data/interim/ncbi_datasets/taxon/{taxon}.tsv",
+        dummy="data/interim/ncbi_datasets/taxon/{taxon}.dummy",
+        dummy_custom="data/interim/ncbi_datasets/taxon/{taxon}-custom.dummy",
     output:
         csv="data/interim/ncbi_datasets/taxon/{taxon}.csv",
     log:
@@ -48,14 +50,14 @@ checkpoint ncbi_dataset_tsv_to_samples_csv:
             pass
         else:
             if not CUSTOM_SAMPLES is None:
-                df = df.join(CUSTOM_SAMPLES)
+                df = pd.concat([df, CUSTOM_SAMPLES])
         df["genome_id"] = df.index
         df["closest_placement_reference"] = df["ani-best-ani-match-assembly"] if "ani-best-ani-match-assembly" in df.columns else ""
         df.to_csv(output.csv)
 
 def get_accessions_for_taxon(taxon):
     genome_list = checkpoints.ncbi_dataset_tsv_to_samples_csv.get(taxon=taxon).output.csv
-    df = pd.read_csv(genome_list)
+    df = pd.read_csv(genome_list, index_col=0, header=0, low_memory=False)
     return df.index.to_list()
 def get_all_accessions():
     accessions = []
@@ -65,7 +67,7 @@ def get_all_accessions():
 def get_taxon_for_accession(accession):
     for taxon in TAXONS.index.to_list():
         genome_list = checkpoints.ncbi_dataset_tsv_to_samples_csv.get(taxon=taxon).output.csv
-        df = pd.read_csv(genome_list)
+        df = pd.read_csv(genome_list, index_col=0, header=0, low_memory=False)  
         if accession in df.index:
             return taxon
     raise ValueError(f"No taxon found for {accession}")
@@ -89,7 +91,7 @@ rule ncbi_dataset_download_genome_for_taxon_dehydrated:
     shell:
         """
             datasets download genome accession --inputfile {input.genome_list} --dehydrated --filename {output.dehydrated_dataset} > {log} 2>&1
-            unzip -o -d {params.taxon_out_dir} {output.dehydrated_dataset}
+            unzip -o -d {params.taxon_out_dir} {output.dehydrated_dataset} >> {log}
         """
 
 rule ncbi_dataset_rehydrate:
@@ -123,32 +125,38 @@ rule ncbi_insert_custom_genomes:
         samples_file="data/interim/custom_genomes/samples.csv",
     output:
         dummy="data/interim/ncbi_datasets/taxon/{taxon}-custom.dummy",
-        tmp=temp("data/interim/ncbi_datasets/temp/{taxon}/"),
     params:
-        taxon_out_dir="data/interim/ncbi_datasets/datasets/{taxon}/"
+        taxon_out_dir="data/interim/ncbi_datasets/datasets/{taxon}/",
+        tmp=temp(directory("data/interim/ncbi_datasets/temp/{taxon}/")),
         # dataset_dir=lambda wildcards: f"data/interim/ncbi_datasets/datasets/{wildcards.taxon}/",
     conda:
         "../envs/ncbi_datasets.yaml"
+    log:
+        "logs/ncbi_datasets/ncbi_insert_custom_genomes_{taxon}.log",
     shell:
         """
+            echo "Inserting custom genomes into ncbi dataset for {wildcards.taxon}" > {log}
             while IFS="" read -r p || [ -n "$p" ]
             do
                 GENOME_ID=`echo "$p" | cut --delimiter=',' --fields=1`
-                GENOME_SOURCE=`echo "$p" | cut --delimiter=',' --fields=2`
-                GENOME_PATH=`echo "$p" | cut --delimiter=',' --fields=3`
-                mkdir -p {params.taxon_out_dir}/ncbi_dataset/data/$GENOME_ID/
-                if [[ "$GENOME_SOURCE" == "local" ]]; then
-                    cp "$GENOME_PATH" {params.taxon_out_dir}/ncbi_dataset/data/$GENOME_ID/$GENOME_ID.fna
-                elif [[ "$GENOME_SOURCE" == "local" ]]; then
-                    datasets download genome accession $GENOME_ID
-                    unzip {output.tmp}/ncbi_dataset.zip -d {output.tmp} -x README.md
-                    rm {output.tmp}/ncbi_dataset.zip
-                    mv {output.tmp}/ncbi_dataset/data/$GENOME_ID/*_genomic.fna {params.taxon_out_dir}/ncbi_dataset/data/$GENOME_ID/$GENOME_ID.fna
-                    cat {output.tmp}/ncbi_dataset/data/assembly_data_report.jsonl >> {params.taxon_out_dir}/ncbi_dataset/data/assembly_data_report.jsonl
-                    rm -r {output.tmp}/ncbi_dataset/
-                else
-                    echo "Incorrect source '$GENOME_SOURCE' for '$GENOME_ID'"
-                    exit 1
+                if [[ "$GENOME_ID" != "genome_id" ]]; then
+                    GENOME_SOURCE=`echo "$p" | cut --delimiter=',' --fields=2`
+                    GENOME_PATH=`echo "$p" | cut --delimiter=',' --fields=3`
+                    mkdir -p {params.taxon_out_dir}/ncbi_dataset/data/$GENOME_ID/
+                    if [[ "$GENOME_SOURCE" == "local" ]]; then
+                        cp "$GENOME_PATH" {params.taxon_out_dir}/ncbi_dataset/data/$GENOME_ID/$GENOME_ID.fna
+                    elif [[ "$GENOME_SOURCE" == "ncbi" ]]; then
+                        mkdir -p {params.tmp}
+                        datasets download genome accession $GENOME_ID --filename {params.tmp}/ncbi_dataset.zip >> {log}
+                        unzip {params.tmp}/ncbi_dataset.zip -d {params.tmp} -x README.md >> {log}
+                        rm {params.tmp}/ncbi_dataset.zip
+                        mv {params.tmp}/ncbi_dataset/data/$GENOME_ID/*_genomic.fna {params.taxon_out_dir}/ncbi_dataset/data/$GENOME_ID/$GENOME_ID.fna
+                        cat {params.tmp}/ncbi_dataset/data/assembly_data_report.jsonl >> {params.taxon_out_dir}/ncbi_dataset/data/assembly_data_report.jsonl
+                        rm -r {params.tmp}/
+                    else
+                        echo "Incorrect source '$GENOME_SOURCE' for '$GENOME_ID'" >> {log}
+                        exit 1
+                    fi
                 fi
             done < {input.samples_file}
             touch {output.dummy}
