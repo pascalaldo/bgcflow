@@ -157,7 +157,7 @@ rule ncbi_insert_custom_genomes:
 rule ncbi_dataset_collect:
     input:
         dummy=lambda wildcards: expand("data/interim/ncbi_datasets/taxon/{taxon}.dummy", taxon=get_taxon_for_accession(wildcards.accession)),
-        dummy=lambda wildcards: expand("data/interim/ncbi_datasets/taxon/{taxon}-custom.dummy", taxon=get_taxon_for_accession(wildcards.accession)),
+        dummy_custom=lambda wildcards: expand("data/interim/ncbi_datasets/taxon/{taxon}-custom.dummy", taxon=get_taxon_for_accession(wildcards.accession)),
         jsonl_report=lambda wildcards: expand("data/interim/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/assembly_data_report.jsonl", taxon=get_taxon_for_accession(wildcards.accession)),
     output:
         fna="data/interim/fasta/{accession}.fna",
