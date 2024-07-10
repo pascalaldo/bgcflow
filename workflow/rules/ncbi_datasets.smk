@@ -31,7 +31,7 @@ rule ncbi_dataset_for_taxon:
             datasets summary genome taxon {params.taxon} --assembly-version latest --assembly-source RefSeq {params.reference} --as-json-lines | dataformat tsv genome --fields {params.fields} > {output.tsv} 2> {log}
         """
 
-rule ncbi_dataset_tsv_to_samples_csv:
+checkpoint ncbi_dataset_tsv_to_samples_csv:
     input:
         tsv="data/interim/ncbi_datasets/taxon/{taxon}.tsv",
     output:
@@ -41,10 +41,35 @@ rule ncbi_dataset_tsv_to_samples_csv:
     run:
         import pandas as pd
         df = pd.read_csv(input.tsv, sep="\t", low_memory=False, header=0, index_col=0)
-        df["source"] = "ncbi"
+        df["source"] = "ncbi_taxon"
+        try:
+            CUSTOM_SAMPLES
+        except NameError:
+            pass
+        else:
+            if not CUSTOM_SAMPLES is None:
+                df = df.join(CUSTOM_SAMPLES)
         df["genome_id"] = df.index
         df["closest_placement_reference"] = df["ani-best-ani-match-assembly"] if "ani-best-ani-match-assembly" in df.columns else ""
         df.to_csv(output.csv)
+
+def get_accessions_for_taxon(taxon):
+    genome_list = checkpoints.ncbi_dataset_tsv_to_samples_csv.get(taxon=taxon).output.csv
+    df = pd.read_csv(genome_list)
+    return df.index.to_list()
+def get_all_accessions():
+    accessions = []
+    for taxon in TAXONS.index.to_list():
+        accessions.extend(get_accessions_for_taxon(taxon))
+    return accessions
+def get_taxon_for_accession(accession):
+    for taxon in TAXONS.index.to_list():
+        genome_list = checkpoints.ncbi_dataset_tsv_to_samples_csv.get(taxon=taxon).output.csv
+        df = pd.read_csv(genome_list)
+        if accession in df.index:
+            return taxon
+    raise ValueError(f"No taxon found for {accession}")
+
 
 rule ncbi_dataset_download_genome_for_taxon_dehydrated:
     input:
@@ -89,6 +114,42 @@ rule ncbi_dataset_rehydrate:
                 ls -w 1 {params.taxon_out_dir}/ncbi_dataset/data/$p/${{p}}_*_genomic.fna | wc -l | grep "^1$" > /dev/null
                 mv {params.taxon_out_dir}/ncbi_dataset/data/$p/${{p}}_*_genomic.fna {params.taxon_out_dir}/ncbi_dataset/data/$p/$p.fna
             done < {input.genome_list}
+            touch {output.dummy}
+        """
+
+rule ncbi_insert_custom_genomes:
+    input:
+        samples_file="data/interim/custom_genomes/samples.csv",
+    output:
+        dummy="data/interim/ncbi_datasets/taxon/{taxon}-custom.dummy",
+        tmp=temp("data/interim/ncbi_datasets/temp/{taxon}/"),
+    params:
+        taxon_out_dir="data/interim/ncbi_datasets/datasets/{taxon}/"
+        # dataset_dir=lambda wildcards: f"data/interim/ncbi_datasets/datasets/{wildcards.taxon}/",
+    conda:
+        "../envs/ncbi_datasets.yaml"
+    shell:
+        """
+            while IFS="" read -r p || [ -n "$p" ]
+            do
+                GENOME_ID=`echo "$p" | cut --delimiter=',' --fields=1`
+                GENOME_SOURCE=`echo "$p" | cut --delimiter=',' --fields=2`
+                GENOME_PATH=`echo "$p" | cut --delimiter=',' --fields=3`
+                mkdir -p {params.taxon_out_dir}/ncbi_dataset/data/$GENOME_ID/
+                if [[ "$GENOME_SOURCE" == "local" ]]; then
+                    cp "$GENOME_PATH" {params.taxon_out_dir}/ncbi_dataset/data/$GENOME_ID/$GENOME_ID.fna
+                elif [[ "$GENOME_SOURCE" == "local" ]]; then
+                    datasets download genome accession $GENOME_ID
+                    unzip {output.tmp}/ncbi_dataset.zip -d {output.tmp} -x README.md
+                    rm {output.tmp}/ncbi_dataset.zip
+                    mv {output.tmp}/ncbi_dataset/data/$GENOME_ID/*_genomic.fna {params.taxon_out_dir}/ncbi_dataset/data/$GENOME_ID/$GENOME_ID.fna
+                    cat {output.tmp}/ncbi_dataset/data/assembly_data_report.jsonl >> {params.taxon_out_dir}/ncbi_dataset/data/assembly_data_report.jsonl
+                    rm -r {output.tmp}/ncbi_dataset/
+                else
+                    echo "Incorrect source '$GENOME_SOURCE' for '$GENOME_ID'"
+                    exit 1
+                fi
+            done < {input.samples_file}
             touch {output.dummy}
         """
 
