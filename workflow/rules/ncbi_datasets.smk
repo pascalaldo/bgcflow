@@ -119,6 +119,7 @@ rule ncbi_dataset_rehydrate:
 
 rule ncbi_insert_custom_genomes:
     input:
+        dummy="data/interim/ncbi_datasets/taxon/{taxon}.dummy",
         samples_file="data/interim/custom_genomes/samples.csv",
     output:
         dummy="data/interim/ncbi_datasets/taxon/{taxon}-custom.dummy",
@@ -156,6 +157,7 @@ rule ncbi_insert_custom_genomes:
 rule ncbi_dataset_collect:
     input:
         dummy=lambda wildcards: expand("data/interim/ncbi_datasets/taxon/{taxon}.dummy", taxon=get_taxon_for_accession(wildcards.accession)),
+        dummy=lambda wildcards: expand("data/interim/ncbi_datasets/taxon/{taxon}-custom.dummy", taxon=get_taxon_for_accession(wildcards.accession)),
         jsonl_report=lambda wildcards: expand("data/interim/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/assembly_data_report.jsonl", taxon=get_taxon_for_accession(wildcards.accession)),
     output:
         fna="data/interim/fasta/{accession}.fna",
