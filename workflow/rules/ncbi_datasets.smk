@@ -91,7 +91,7 @@ rule ncbi_dataset_download_genome_for_taxon_dehydrated:
     shell:
         """
             datasets download genome accession --inputfile {input.genome_list} --dehydrated --filename {output.dehydrated_dataset} > {log} 2>&1
-            unzip -o -d {params.taxon_out_dir} {output.dehydrated_dataset} >> {log}
+            unzip -o -d {params.taxon_out_dir} {output.dehydrated_dataset} >> {log} 2>&1
         """
 
 rule ncbi_dataset_rehydrate:
@@ -123,8 +123,10 @@ rule ncbi_insert_custom_genomes:
     input:
         dummy="data/interim/ncbi_datasets/taxon/{taxon}.dummy",
         samples_file="data/interim/custom_genomes/samples.csv",
+        assembly_report="data/interim/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/assembly_data_report.jsonl",
     output:
         dummy="data/interim/ncbi_datasets/taxon/{taxon}-custom.dummy",
+        assembly_report="data/interim/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/full_assembly_data_report.jsonl",
     params:
         taxon_out_dir="data/interim/ncbi_datasets/datasets/{taxon}/",
         tmp=temp(directory("data/interim/ncbi_datasets/temp/{taxon}/")),
@@ -136,6 +138,7 @@ rule ncbi_insert_custom_genomes:
     shell:
         """
             echo "Inserting custom genomes into ncbi dataset for {wildcards.taxon}" > {log}
+            cat {input.assembly_report} > {output.assembly_report}
             while IFS="" read -r p || [ -n "$p" ]
             do
                 GENOME_ID=`echo "$p" | cut --delimiter=',' --fields=1`
@@ -147,11 +150,11 @@ rule ncbi_insert_custom_genomes:
                         cp "$GENOME_PATH" {params.taxon_out_dir}/ncbi_dataset/data/$GENOME_ID/$GENOME_ID.fna
                     elif [[ "$GENOME_SOURCE" == "ncbi" ]]; then
                         mkdir -p {params.tmp}
-                        datasets download genome accession $GENOME_ID --filename {params.tmp}/ncbi_dataset.zip >> {log}
-                        unzip {params.tmp}/ncbi_dataset.zip -d {params.tmp} -x README.md >> {log}
+                        datasets download genome accession $GENOME_ID --filename {params.tmp}/ncbi_dataset.zip >> {log} 2>&1
+                        unzip {params.tmp}/ncbi_dataset.zip -d {params.tmp} -x README.md >> {log} 2>&1
                         rm {params.tmp}/ncbi_dataset.zip
                         mv {params.tmp}/ncbi_dataset/data/$GENOME_ID/*_genomic.fna {params.taxon_out_dir}/ncbi_dataset/data/$GENOME_ID/$GENOME_ID.fna
-                        cat {params.tmp}/ncbi_dataset/data/assembly_data_report.jsonl >> {params.taxon_out_dir}/ncbi_dataset/data/assembly_data_report.jsonl
+                        cat {params.tmp}/ncbi_dataset/data/assembly_data_report.jsonl >> {output.assembly_report}
                         rm -r {params.tmp}/
                     else
                         echo "Incorrect source '$GENOME_SOURCE' for '$GENOME_ID'" >> {log}
@@ -166,7 +169,7 @@ rule ncbi_dataset_collect:
     input:
         dummy=lambda wildcards: expand("data/interim/ncbi_datasets/taxon/{taxon}.dummy", taxon=get_taxon_for_accession(wildcards.accession)),
         dummy_custom=lambda wildcards: expand("data/interim/ncbi_datasets/taxon/{taxon}-custom.dummy", taxon=get_taxon_for_accession(wildcards.accession)),
-        jsonl_report=lambda wildcards: expand("data/interim/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/assembly_data_report.jsonl", taxon=get_taxon_for_accession(wildcards.accession)),
+        jsonl_report=lambda wildcards: expand("data/interim/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/full_assembly_data_report.jsonl", taxon=get_taxon_for_accession(wildcards.accession)),
     output:
         fna="data/interim/fasta/{accession}.fna",
         json_report="data/interim/assembly_report/{accession}.json",
@@ -180,8 +183,8 @@ rule ncbi_dataset_collect:
         """
             if [ ! -f {output.fna} ]
             then
-                mv {params.fna} {output.fna}
+                cp {params.fna} {output.fna}
             fi
-            grep '^{{"accession":"{wildcards.accession}"' {input.jsonl_report} > {output.json_report}
+            grep '^{{"accession":"{wildcards.accession}"' {input.jsonl_report} > {output.json_report} || true
             python workflow/scripts/add_info_to_assembly_report.py {output.json_report}
         """

@@ -56,7 +56,7 @@ rule extract_species_split_gtdb_meta:
         gtdb=lambda wildcards: f"data/processed/{get_taxon_for_species_project(wildcards.name)}/tables/df_gtdb_meta.csv",
         samples="data/processed/samples/{name}.csv",
     output:
-        gtdb="data/processed/{name,[A-Za-z]+_[A-Za-z]+}/tables/df_gtdb_meta.csv",
+        gtdb="data/processed/{name,[A-Za-z]+_[A-Za-z_]+}/tables/df_gtdb_meta.csv",
     run:
         import pandas as pd
         df_gtdb = pd.read_csv(input.gtdb, header=0, index_col=0, low_memory=False)
@@ -64,12 +64,38 @@ rule extract_species_split_gtdb_meta:
         df_gtdb = df_gtdb.loc[df_samples.index.to_list(), :]
         df_gtdb.to_csv(output.gtdb)
 
+rule extract_species_split_seqfu_stats:
+    input:
+        seqfu_stats=lambda wildcards: f"data/processed/{get_taxon_for_species_project(wildcards.name)}/tables/df_seqfu_stats.csv",
+        samples="data/processed/samples/{name}.csv",
+    output:
+        seqfu_stats="data/processed/{name,[A-Za-z]+_[A-Za-z_]+}/tables/df_seqfu_stats.csv",
+    run:
+        import pandas as pd
+        df_seqfu_stats = pd.read_csv(input.seqfu_stats, header=0, index_col=0, low_memory=False)
+        df_samples = pd.read_csv(input.samples, header=0, index_col=0)
+        df_seqfu_stats = df_seqfu_stats.loc[df_samples.index.to_list(), :]
+        df_seqfu_stats.to_csv(output.seqfu_stats)
+
+# rule extract_species_split_ncbi_meta:
+#     input:
+#         ncbi=lambda wildcards: f"data/processed/{get_taxon_for_species_project(wildcards.name)}/tables/df_ncbi_meta.csv",
+#         samples="data/processed/samples/{name}.csv",
+#     output:
+#         ncbi="data/processed/{name,[A-Za-z]+_[A-Za-z_]+}/tables/df_ncbi_meta.csv",
+#     run:
+#         import pandas as pd
+#         df_ncbi = pd.read_csv(input.ncbi, header=0, index_col=0, low_memory=False)
+#         df_samples = pd.read_csv(input.samples, header=0, index_col=0)
+#         df_ncbi = df_ncbi.loc[df_samples.index.to_list(), :]
+#         df_ncbi.to_csv(output.ncbi)
+
 rule extract_species_split_overview:
     input:
         overview=lambda wildcards: f"data/interim/ncbi_datasets/taxon/{get_taxon_for_species_project(wildcards.name)}.csv",
         samples="data/processed/samples/{name}.csv",
     output:
-        overview="data/processed/samples/overview_{name, [A-Za-z]+_[A-Za-z]+}.csv",
+        overview="data/processed/samples/overview_{name, [A-Za-z]+_[A-Za-z_]+}.csv",
     run:
         import pandas as pd
         df_overview = pd.read_csv(input.overview, header=0, index_col=0, low_memory=False)
