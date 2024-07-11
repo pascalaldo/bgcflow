@@ -15,7 +15,8 @@ rule pankb_genome_list:
     log:
         "logs/pankb_data_prep/pankb_genome_list_{name}.log"
     run:
-        genomes = get_genome_ids(wildcards.name, filter_samples_qc(wildcards, get_samples_df()))
+        # genomes = get_genome_ids(wildcards.name, filter_samples_qc(wildcards, get_samples_df()))
+        genomes = RULE_FUNCTIONS["pankb_data_prep"]["genomes"](wildcards.name)
         with open(output.genomes, "w") as f:
             f.writelines(f"{genome}\n" for genome in genomes)
 
@@ -91,6 +92,7 @@ rule pankb_species_summary:
 rule pankb_family_summary:
     input:
         gtdb_merged="data/processed/pankb/tables/df_gtdb_meta.csv",
+        seqfu_stats="data/processed/pankb/tables/df_seqfu_stats.csv",
     output:
         summary="data/processed/pankb/family/{family}/summary.csv"
     log:
@@ -101,12 +103,14 @@ rule pankb_family_summary:
         """
         pankb_data_prep family {wildcards.family} \
             --gtdb_meta {input.gtdb_merged} \
+            --seqfu {input.seqfu_stats} \
             -o {output.summary} > {log} 2>&1
         """
 
 rule pankb_full_summary:
     input:
         gtdb_merged="data/processed/pankb/tables/df_gtdb_meta.csv",
+        seqfu_stats="data/processed/pankb/tables/df_seqfu_stats.csv",
     output:
         summary="data/processed/pankb/pankb/full_summary.csv"
     log:
@@ -117,6 +121,7 @@ rule pankb_full_summary:
         """
         pankb_data_prep full \
             --gtdb_meta {input.gtdb_merged} \
+            --seqfu {input.seqfu_stats} \
             -o {output.summary} > {log} 2>&1
         """
 
@@ -189,7 +194,7 @@ rule pankb_heatmap:
         eggnog_summary="data/processed/{name}/pankb/df_pangene_eggnog_summary.csv",
         mash_list="data/processed/{name}/pankb/mash_list.csv",
         isosource="data/processed/{name}/pankb/source_info/df_ncbi_isolation_src.csv",
-        species_info="data/processed/{name}/tables/df_ncbi_meta.csv",
+        # species_info="data/processed/{name}/tables/df_ncbi_meta.csv",
     output:
         heatmap="data/processed/{name}/pankb/heatmap_target.json",
     log:
@@ -205,7 +210,6 @@ rule pankb_heatmap:
             --eggnog_summary {input.eggnog_summary} \
             --mash_list {input.mash_list} \
             --isosource {input.isosource} \
-            --species_info {input.species_info} \
             --output_json {output.heatmap} > {log} 2>&1
         """
 
@@ -284,7 +288,7 @@ rule pankb_genome_page:
         full_summary="data/processed/pankb/pankb/full_summary.csv",
         gp_binary="data/interim/roary/{name}/df_gene_presence_binary.csv",
         isosource="data/processed/{name}/pankb/source_info/df_ncbi_isolation_src.csv",
-        species_info="data/processed/{name}/tables/df_ncbi_meta.csv",
+        # species_info="data/processed/{name}/tables/df_ncbi_meta.csv",
         summary_v2="data/interim/alleleome/{name}/pangene_v2.csv",
         eggnog_summary="data/processed/{name}/pankb/df_pangene_eggnog_summary.csv",
     output:
@@ -300,7 +304,6 @@ rule pankb_genome_page:
             --gp_binary {input.gp_binary} \
             --species_summary {input.full_summary} \
             --isosource {input.isosource} \
-            --species_info {input.species_info} \
             --eggnog_summary {input.eggnog_summary} \
             -o {output.genome_page_dir} > {log} 2>&1
         """
