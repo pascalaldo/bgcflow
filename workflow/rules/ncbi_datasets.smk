@@ -1,5 +1,3 @@
-#datasets summary genome taxon Lactobacillaceae  --assembly-source refseq --as-json-lines | dataformat tsv genome > Lactobacillaceae_refseq.tsv
-
 rule ncbi_dataset_for_taxon:
     output:
         tsv="data/interim/ncbi_datasets/taxon/{taxon}_original.tsv",
