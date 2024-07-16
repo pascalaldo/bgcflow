@@ -59,7 +59,7 @@ rule alleleome_fasta:
             --all_genes {input.all_genes} \
             --sel_locustag {input.sel_locustag} \
             --sel_genes {input.sel_genes} \
-            --tmp_folder {output.tmp_folder} \
+            --tmp_folder {input.tmp_folder} \
             --gene_list {output.gene_list} \
             --out_dir {params.out_dir} \
             {params.pan_core_flag} > {log} 2>&1
