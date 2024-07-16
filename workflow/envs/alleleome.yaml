@@ -9,4 +9,4 @@ dependencies:
   - blast==2.14.0
   - pip
   - pip:
-    - git+https://github.com/pascalaldo/Alleleome.git@main
+    - git+https://github.com/pascalaldo/Alleleome.git@dev-optimized-1
