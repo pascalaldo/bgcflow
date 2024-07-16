@@ -13,6 +13,7 @@ rule alleleome_prepare:
         all_genes="data/interim/alleleome/{name}/all_genes.csv",
         sel_locustag="data/interim/alleleome/{name}/sel_locustag.csv",
         sel_genes="data/interim/alleleome/{name}/sel_genes.csv",
+        tmp_folder=temp(directory("data/interim/alleleome/{name}/tmp_fasta/")),
     params:
         gbk_folder="data/interim/processed-genbank/",
     log:
@@ -26,6 +27,7 @@ rule alleleome_prepare:
             --gp_locustag {input.gp_locustag} \
             --summary {input.summary} \
             --gbk_folder {params.gbk_folder} \
+            --tmp_folder {output.tmp_folder} \
             --summary_v2 {output.summary_v2} \
             --all_locustag {output.all_locustag} \
             --all_genes {output.all_genes} \
@@ -39,6 +41,7 @@ rule alleleome_fasta:
         all_genes="data/interim/alleleome/{name}/all_genes.csv",
         sel_locustag="data/interim/alleleome/{name}/sel_locustag.csv",
         sel_genes="data/interim/alleleome/{name}/sel_genes.csv",
+        tmp_folder="data/interim/alleleome/{name}/tmp_fasta/",
     output:
         dummy="data/interim/alleleome/{name}/pangenome_alignments/fasta_dummy_{pan_core}",
         gene_list="data/processed/{name}/alleleome/{pan_core}/gene_list.txt",
@@ -56,6 +59,7 @@ rule alleleome_fasta:
             --all_genes {input.all_genes} \
             --sel_locustag {input.sel_locustag} \
             --sel_genes {input.sel_genes} \
+            --tmp_folder {output.tmp_folder} \
             --gene_list {output.gene_list} \
             --out_dir {params.out_dir} \
             {params.pan_core_flag} > {log} 2>&1
