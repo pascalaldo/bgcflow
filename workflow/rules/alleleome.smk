@@ -129,6 +129,7 @@ rule alleleome_preplot:
     params:
         out_dir="data/interim/alleleome/{name}/pangenome_alignments/",
         per_gene_out_dir="data/processed/{name}/alleleome/gene_data/",
+    threads: workflow.cores
     log:
         "logs/alleleome/preplot_{name}_{pan_core}.log"
     conda:
@@ -150,5 +151,6 @@ rule alleleome_preplot:
             --dn_ds_json {output.dn_ds_json} \
             --hist {output.hist} \
             --aa_freq_dir {params.per_gene_out_dir} \
+            -p {threads} \
             > {log} 2>&1
         """
