@@ -96,6 +96,7 @@ rule alleleome_analyze:
         codon_muts="data/processed/{name}/alleleome/{pan_core}/pan_gene_syno_non_syno_df.csv",
     params:
         out_dir="data/interim/alleleome/{name}/pangenome_alignments/",
+    threads: workflow.cores
     log:
         "logs/alleleome/analyze_{name}_{pan_core}.log"
     conda:
@@ -106,7 +107,8 @@ rule alleleome_analyze:
             --gene_list {input.gene_list} \
             --out_dir {params.out_dir} \
             --aa_vars {output.aa_vars} \
-            --codon_muts {output.codon_muts} > {log} 2>&1
+            --codon_muts {output.codon_muts} \
+            -p {threads} > {log} 2>&1
         """
 
 rule alleleome_preplot:
