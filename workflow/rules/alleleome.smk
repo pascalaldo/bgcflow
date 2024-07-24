@@ -141,7 +141,7 @@ rule alleleome_preplot:
             --gene_list {input.gene_list} \
             --aa_vars {input.aa_vars} \
             --out_dir {params.out_dir} \
-            --dominant_aa {output.dominant_aa} \
+            --dominant_aa {input.dominant_aa} \
             --variable_aa {output.variable_aa} \
             --dom_var {output.dom_var} \
             --gaps {output.gaps} \
