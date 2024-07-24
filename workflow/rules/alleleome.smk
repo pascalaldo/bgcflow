@@ -94,6 +94,7 @@ rule alleleome_analyze:
     output:
         aa_vars="data/processed/{name}/alleleome/{pan_core}/pan_amino_acid_vars_df.csv",
         codon_muts="data/processed/{name}/alleleome/{pan_core}/pan_gene_syno_non_syno_df.csv",
+        dominant_aa="data/interim/alleleome/{name}/{pan_core}/final_core_consensus_dominant_aa_count_df.csv",
     params:
         out_dir="data/interim/alleleome/{name}/pangenome_alignments/",
     threads: workflow.cores
@@ -108,6 +109,7 @@ rule alleleome_analyze:
             --out_dir {params.out_dir} \
             --aa_vars {output.aa_vars} \
             --codon_muts {output.codon_muts} \
+            --dominant_aa {output.dominant_aa} \
             -p {threads} > {log} 2>&1
         """
 
@@ -117,8 +119,8 @@ rule alleleome_preplot:
         aa_vars="data/processed/{name}/alleleome/{pan_core}/pan_amino_acid_vars_df.csv",
         dummy="data/interim/alleleome/{name}/pangenome_alignments/process_dummy_{pan_core}",
         codon_muts="data/processed/{name}/alleleome/{pan_core}/pan_gene_syno_non_syno_df.csv",
-    output:
         dominant_aa="data/interim/alleleome/{name}/{pan_core}/final_core_consensus_dominant_aa_count_df.csv",
+    output:
         variable_aa="data/interim/alleleome/{name}/{pan_core}/final_core_pan_aa_thresh_vars_all_substitutions_sep_df.csv",
         dom_var="data/interim/alleleome/{name}/{pan_core}/final_pan_aa_thresh_core_genes_dominant_variant_genome_count_pos.csv",
         gaps="data/interim/alleleome/{name}/{pan_core}/pan_aa_thresh_core_genes_aa_pos_with_gaps.csv",
@@ -129,7 +131,6 @@ rule alleleome_preplot:
     params:
         out_dir="data/interim/alleleome/{name}/pangenome_alignments/",
         per_gene_out_dir="data/processed/{name}/alleleome/gene_data/",
-    threads: workflow.cores
     log:
         "logs/alleleome/preplot_{name}_{pan_core}.log"
     conda:
@@ -151,6 +152,5 @@ rule alleleome_preplot:
             --dn_ds_json {output.dn_ds_json} \
             --hist {output.hist} \
             --aa_freq_dir {params.per_gene_out_dir} \
-            -p {threads} \
             > {log} 2>&1
         """
