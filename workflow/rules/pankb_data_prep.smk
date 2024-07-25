@@ -333,3 +333,17 @@ rule pankb_gzip:
         """
         gzip -c {input} > {output}
         """
+
+rule pankb_all:
+    input:
+        lambda _: expand(
+            [
+                "data/processed/{name}/pankb/genome_page/",
+                "data/processed/{name}/pankb/gene_locustag/",
+                "data/processed/{name}/pankb/gene_freq.json",
+                "data/processed/{name}/pankb/COG_distribution.json",
+                "data/processed/{name}/pankb/All.json",
+                "data/processed/{name}/pankb/heatmap_target.json",
+            ],
+            name=RULE_FUNCTIONS["pankb_data_prep"]["projects"](),
+        ),

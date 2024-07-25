@@ -74,15 +74,6 @@ def get_taxons():
     return TAXONS.index.to_list()
 def get_accessions_for_name(name):
     return get_accessions_for_taxon(name)
-# def get_fasta_inputs_for_name(name):
-#     return [f"data/interim/fasta/{s}.fna" for s in get_accessions_for_name(name)]
-# def filter_samples_qc(wildcards, df_samples):
-#     qc = pd.read_csv(checkpoints.qc.get().output[0], sep=",", index_col=0, header=0)
-#     df_samples_names = set(df_samples.index.to_list())
-#     # assert (df_samples_names == qc_samples_names)
-#     qc_samples_names = set(qc.index[qc["passed"] == True].to_list())
-#     sel = list(df_samples_names & qc_samples_names)
-#     return df_samples.loc[sel, :]
 def filter_sample_names_qc(sample_names):
     sample_names = set(sample_names)
     qc = pd.read_csv(checkpoints.qc.get().output[0], sep=",", index_col=0, header=0)
@@ -111,13 +102,8 @@ include: "rules/gtdbtk_simple.smk"
 
 RULE_FUNCTIONS["gtdb_improved"] = {"taxons": get_taxons}
 include: "rules/gtdb_improved.smk"
-# include: "rules/merge_taxonomy/gtdb_only.smk"
 include: "rules/merge_taxonomy/gtdb_and_gtdbtk.smk"
 include: "rules/split_species_into_projects.smk"
-# get_samples_df = get_species_projects_samples_df
-# get_projects = get_species_projects
-# get_samples_for_project = get_samples_for_species_project
-# get_samples_df_for_project = get_samples_for_species_project
 
 def filtered_accessions_for_project(name):
     return filter_sample_names_qc(get_samples_for_species_project(name))
@@ -130,13 +116,22 @@ RULE_FUNCTIONS["mash"] = {"accessions": filtered_accessions_for_project}
 include: "rules/mash.smk"
 RULE_FUNCTIONS["automlst_wrapper"] = {"accessions": filtered_accessions_for_project}
 include: "rules/automlst_wrapper.smk"
-RULE_FUNCTIONS["alleleome"] = {"samples": filtered_accessions_for_project}
+RULE_FUNCTIONS["alleleome"] = {
+        "samples": filtered_accessions_for_project,
+        "projects": get_species_projects,
+        "pan_core": (lambda: "Pan"),
+    }
 include: "rules/alleleome.smk"
-RULE_FUNCTIONS["pankb_data_prep"] = {"projects": get_species_projects, "genomes": filtered_accessions_for_project}
+RULE_FUNCTIONS["pankb_data_prep"] = {
+        "projects": get_species_projects,
+        "genomes": filtered_accessions_for_project
+    }
 include: "rules/pankb_data_prep.smk"
 
 rule all:
     input:
+        rules.pankb_all.input,
+        rules.alleleome_all.input,
         # "data/interim/ncbi_datasets/taxon/Moraxellaceae.tsv",
         # "data/interim/ncbi_datasets/taxon/Moraxellaceae.dummy",
         # "data/interim/fasta/GCF_000196795.1.fna",
@@ -151,12 +146,12 @@ rule all:
         # expand("data/interim/split/{taxon}/classification.csv", taxon=get_taxons()),
         # expand("data/interim/gtdb/{taxon}.jsonl", taxon=TAXONS.index.to_list()),
         # expand("data/interim/checkm/{taxon}_missing.txt", taxon=TAXONS.index.to_list()),
-        lambda _: expand("data/processed/{name}/alleleome/Pan/dn_ds.json", name=get_species_projects()),
+        # lambda _: expand("data/processed/{name}/alleleome/Pan/dn_ds.json", name=get_species_projects()),
 	    # "data/interim/alleleome/Lacticaseibacillus_paracasei/pangenome_alignments/process_dummy_Pan",
-        lambda _: expand("data/processed/{name}/pankb/genome_page/", name=get_species_projects()),
-        lambda _: expand("data/processed/{name}/pankb/gene_locustag/", name=get_species_projects()),
-        lambda _: expand("data/processed/{name}/pankb/gene_freq.json", name=get_species_projects()),
-        lambda _: expand("data/processed/{name}/pankb/COG_distribution.json", name=get_species_projects()),
-        lambda _: expand("data/processed/{name}/pankb/All.json", name=get_species_projects()),
-        lambda _: expand("data/processed/{name}/pankb/heatmap_target.json", name=get_species_projects()),
+        # lambda _: expand("data/processed/{name}/pankb/genome_page/", name=get_species_projects()),
+        # lambda _: expand("data/processed/{name}/pankb/gene_locustag/", name=get_species_projects()),
+        # lambda _: expand("data/processed/{name}/pankb/gene_freq.json", name=get_species_projects()),
+        # lambda _: expand("data/processed/{name}/pankb/COG_distribution.json", name=get_species_projects()),
+        # lambda _: expand("data/processed/{name}/pankb/All.json", name=get_species_projects()),
+        # lambda _: expand("data/processed/{name}/pankb/heatmap_target.json", name=get_species_projects()),
 
