@@ -154,3 +154,14 @@ rule alleleome_preplot:
             --aa_freq_dir {params.per_gene_out_dir} \
             > {log} 2>&1
         """
+
+rule alleleome_all:
+    input:
+        lambda _: expand(
+            [
+                "data/processed/{name}/alleleome/{pan_core}/dn_ds.json",
+                "data/processed/{name}/alleleome/{pan_core}/step_line.json",
+            ],
+            name=RULE_FUNCTIONS["alleleome"]["projects"](),
+            pan_core=RULE_FUNCTIONS["alleleome"]["pan_core"]()
+        ),
