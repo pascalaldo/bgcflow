@@ -1,3 +1,14 @@
+#%
+# final_output: data/processed/{name}/tables/df_checkm_stats.csv
+# description: Assess genome quality with CheckM.
+# category: QC and Data Selection
+# link:
+# - https://github.com/Ecogenomics/CheckM
+# references:
+# - 'Parks DH, Imelfort M, Skennerton CT, Hugenholtz P, Tyson GW. 2014. Assessing
+#   the quality of microbial genomes recovered from isolates, single cells, and metagenomes.
+#   [Genome Research, 25: 1043-1055.](https://genome.cshlp.org/content/25/7/1043.long)'
+#%
 rule install_checkm:
     output:
         checkm_db=directory("resources/checkm/"),

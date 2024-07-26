@@ -1,7 +1,13 @@
+#%
+# description: Generate pangenome, alleleome and PanKB files for a taxonomic family.
+# schema: schemas/family_config.schema.yaml
+#%
 report: "report/workflow.rst"
 
 include: "rules/basic.smk"
 configfile: "config/config.yaml"
+validate(config, schema="../schemas/family_config.schema.yaml")
+
 import pandas as pd
 import numpy as np
 from pathlib import Path
@@ -132,26 +138,3 @@ rule all:
     input:
         rules.pankb_all.input,
         rules.alleleome_all.input,
-        # "data/interim/ncbi_datasets/taxon/Moraxellaceae.tsv",
-        # "data/interim/ncbi_datasets/taxon/Moraxellaceae.dummy",
-        # "data/interim/fasta/GCF_000196795.1.fna",
-        # expand("data/interim/ncbi_datasets/taxon/{taxon}.csv", taxon=get_taxons()),
-        # expand("data/interim/ncbi_datasets/taxon/{taxon}.dummy", taxon=TAXONS.index.to_list()),
-        # expand("data/interim/fasta/{accession}.fna", accession=["GCF_000196795.1"]),
-        # lambda _: expand("data/interim/fasta/{accession}.fna", accession=get_all_accessions()),
-        # lambda _: expand("data/interim/gtdb/{accession}.json", accession=get_all_accessions()),
-        # expand("data/processed/{taxon}/tables/df_gtdb_meta.csv", taxon=get_taxons()),
-        # expand("data/processed/{taxon}/tables/gtdbtk.bac120.summary.tsv", taxon=TAXONS.index.to_list()),
-        # "data/processed/qc/qc_passed.csv",
-        # expand("data/interim/split/{taxon}/classification.csv", taxon=get_taxons()),
-        # expand("data/interim/gtdb/{taxon}.jsonl", taxon=TAXONS.index.to_list()),
-        # expand("data/interim/checkm/{taxon}_missing.txt", taxon=TAXONS.index.to_list()),
-        # lambda _: expand("data/processed/{name}/alleleome/Pan/dn_ds.json", name=get_species_projects()),
-	    # "data/interim/alleleome/Lacticaseibacillus_paracasei/pangenome_alignments/process_dummy_Pan",
-        # lambda _: expand("data/processed/{name}/pankb/genome_page/", name=get_species_projects()),
-        # lambda _: expand("data/processed/{name}/pankb/gene_locustag/", name=get_species_projects()),
-        # lambda _: expand("data/processed/{name}/pankb/gene_freq.json", name=get_species_projects()),
-        # lambda _: expand("data/processed/{name}/pankb/COG_distribution.json", name=get_species_projects()),
-        # lambda _: expand("data/processed/{name}/pankb/All.json", name=get_species_projects()),
-        # lambda _: expand("data/processed/{name}/pankb/heatmap_target.json", name=get_species_projects()),
-

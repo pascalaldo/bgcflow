@@ -1,3 +1,12 @@
+#%
+# final_output: "data/processed/{name}/ppanggolin/genome_roary/spot_modules"
+# description: Depicting microbial species diversity via a Partitioned PanGenome Graph Of Linked Neighbors
+# category: pangenome
+# link:
+# - https://github.com/labgem/PPanGGOLiN
+# references:
+# - "Gautreau G et al. (2020) PPanGGOLiN: Depicting microbial diversity via a partitioned pangenome graph. PLOS Computational Biology 16(3): e1007732. https://doi.org/10.1371/journal.pcbi.1007732"
+#%
 rule ppanggolin_genome_roary:
     input:
         gff=lambda wildcards: get_prokka_outputs(wildcards.name, DF_SAMPLES),

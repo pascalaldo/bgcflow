@@ -1,3 +1,12 @@
+#%
+# final_output: data/processed/{name}/tables/df_seqfu_stats.csv
+# description: Calculate sequence statistics using SeqFu.
+# category: QC and Data Selection
+# link:
+# - https://github.com/telatin/seqfu2
+# references:
+# - 'Telatin, A., Birolo, G., & Fariselli, P. SeqFu [Computer software]. GITHUB: [https://github.com/telatin/seqfu2](https://github.com/telatin/seqfu2)'
+#%
 rule seqfu_stats:
     input:
         fna="data/interim/fasta/{strains}.fna",

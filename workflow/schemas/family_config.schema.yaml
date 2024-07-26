@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+
+description: snakemake configuration file for family-based analyses
+
+type: object
+
+# possible entries of the config file and which type they should be
+properties:
+  taxons:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        reference_only:
+          type: boolean
+        custom_samples:
+          type: string
+    uniqueItems: true
+    required:
+      - name
+
+# entries that have to be in the config file for successful validation
+required:
+  - projects

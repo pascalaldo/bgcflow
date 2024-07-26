@@ -1,3 +1,15 @@
+#%
+# final_output: data/processed/{name}/roary/df_gene_presence_binary.csv
+# description: Build pangenome using Roary.
+# category: Comparative Genomics
+# link:
+# - https://github.com/sanger-pathogens/Roary
+# references:
+# - 'Andrew J. Page, Carla A. Cummins, Martin Hunt, Vanessa K. Wong, Sandra Reuter,
+#   Matthew T. G. Holden, Maria Fookes, Daniel Falush, Jacqueline A. Keane, Julian
+#   Parkhill, ''Roary: Rapid large-scale prokaryote pan genome analysis'', Bioinformatics,
+#   2015;31(22):3691-3693 [doi:10.1093/bioinformatics/btv421](https://academic.oup.com/bioinformatics/article/31/22/3691/240757)'
+#%
 rule roary:
     input:
         gff=lambda wildcards: expand("data/interim/prokka/{sample}/{sample}.gff", sample=RULE_FUNCTIONS["roary"]["samples"](wildcards.name)),

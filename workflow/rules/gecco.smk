@@ -1,3 +1,14 @@
+#%
+# final_output: "data/processed/{name}/gecco/{gecco_version}"
+# description: GEne Cluster prediction with COnditional random fields.
+# category: Genome Mining
+# link:
+# - https://github.com/zellerlab/GECCO
+# references:
+# - "Accurate de novo identification of biosynthetic gene clusters with GECCO. Laura M Carroll,
+#   Martin Larralde, Jonas Simon Fleck, Ruby Ponnudurai, Alessio Milanese, Elisa Cappio Barazzone,
+#   Georg Zeller. bioRxiv 2021.05.03.442509; doi:10.1101/2021.05.03.442509"
+#%
 rule gecco:
     input:
         genbank = "data/interim/processed-genbank/{strains}.gbk"

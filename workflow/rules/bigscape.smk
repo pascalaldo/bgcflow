@@ -1,3 +1,14 @@
+#%
+# final_output: data/processed/{name}/bigscape/result_as{version}/index.html
+# description: Cluster BGCs using BiG-SCAPE
+# category: Genome Mining
+# link:
+# - https://github.com/medema-group/BiG-SCAPE
+# references:
+# - Navarro-Muñoz, J.C., Selem-Mojica, N., Mullowney, M.W. et al. A computational
+#   framework to explore large-scale biosynthetic diversity. [Nat Chem Biol 16, 60–68
+#   (2020)](https://doi.org/10.1038/s41589-019-0400-9)
+#%
 rule install_bigscape:
     output:
         bigscape=directory("resources/BiG-SCAPE/"),

@@ -1,3 +1,12 @@
+#%
+# final_output: "data/processed/{name}/mmseqs2/{version}.tag"
+# description: ultra fast and sensitive search and clustering suite
+# category: Genome Mining
+# link:
+# - https://github.com/soedinglab/MMseqs2
+# references:
+# - 'Steinegger, M., Söding, J. MMseqs2 enables sensitive protein sequence searching for the analysis of massive data sets. Nat Biotechnol 35, 1026–1028 (2017). https://doi.org/10.1038/nbt.3988'
+#%
 rule prep_gbk_mmseqs2:
     input:
         gbk=lambda wildcards: get_bgc_inputs(PEP_PROJECTS[wildcards.name], wildcards.version),

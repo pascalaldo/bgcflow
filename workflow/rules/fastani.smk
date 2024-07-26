@@ -1,3 +1,15 @@
+#%
+# final_output: data/processed/{name}/fastani/df_fastani.csv
+# description: Do pairwise Average Nucleotide Identity (ANI) calculation across all
+#   samples.
+# category: QC and Data Selection
+# link:
+# - https://github.com/ParBLiSS/FastANI
+# references:
+# - 'Jain, C., Rodriguez-R, L.M., Phillippy, A.M. et al. High throughput ANI analysis
+#   of 90K prokaryotic genomes reveals clear species boundaries. Nat Commun 9, 5114
+#   (2018). [https://doi.org/10.1038/s41467-018-07641-9](https://doi.org/10.1038/s41467-018-07641-9)'
+#%
 rule fastani:
     input:
         fna=lambda wildcards: get_fasta_inputs(wildcards.name, DF_SAMPLES),

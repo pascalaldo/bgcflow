@@ -1,3 +1,12 @@
+#%
+# final_output: "data/processed/{name}/tables/interproscan_as_{version}.tsv"
+# description: scanning algorithms from the InterPro database
+# category: Genome Mining
+# link:
+# - https://github.com/ebi-pf-team/interproscan
+# references:
+# - 'Philip Jones, David Binns, Hsin-Yu Chang, Matthew Fraser, Weizhong Li, Craig McAnulla, Hamish McWilliam, John Maslen, Alex Mitchell, Gift Nuka, Sebastien Pesseat, Antony F. Quinn, Amaia Sangrador-Vegas, Maxim Scheremetjew, Siew-Yit Yong, Rodrigo Lopez, Sarah Hunter Bioinformatics (2014) InterProScan 5: genome-scale protein function classification, PMID: 24451626'
+#%
 interproscan_version = "5.60-92.0"
 
 rule install_interproscan:

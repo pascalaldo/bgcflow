@@ -1,3 +1,12 @@
+#%
+# final_output: "data/processed/{name}/clinker/{version}/clinker.csv"
+# description: Generate gene cluster comparison figure
+# category: Genome Mining
+# link:
+# - https://github.com/gamcil/clinker
+# references:
+# - 'Gilchrist, C., & Chooi, Y. (2021). clinker & clustermap.js: automatic generation of gene cluster comparison figures (Version 0.0.21) [Computer software]. https://doi.org/10.1093/bioinformatics/btab007'
+#%
 rule antismash_colourmap:
     output:
         colour_map = "data/interim/clinker/colours.txt"

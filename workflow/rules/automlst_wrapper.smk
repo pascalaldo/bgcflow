@@ -1,3 +1,14 @@
+#%
+# final_output: data/processed/{name}/automlst_wrapper/final.newick
+# description: Simplified Tree building using [autoMLST](https://github.com/NBChub/automlst-simplified-wrapper)
+# category: Phylogenomic Placement
+# link:
+# - https://github.com/KatSteinke/automlst-simplified-wrapper
+# references:
+# - 'Mohammad Alanjary, Katharina Steinke, Nadine Ziemert, AutoMLST: an automated
+#   web server for generating multi-locus species trees highlighting natural product
+#   potential,[Nucleic Acids Research, Volume 47, Issue W1, 02 July 2019, Pages W276–W282](https://doi.org/10.1093/nar/gkz282)'
+#%
 rule install_automlst_wrapper:
     output:
         folder=directory("resources/automlst-simplified-wrapper-main"),

@@ -1,3 +1,12 @@
+#%
+# final_output: "data/processed/{name}/getphylo/as_{version}"
+# description: Automated generation of phylogenetic trees from genbank files
+# category: Phylogenomic Placement
+# link:
+# - https://github.com/drboothtj/getphylo
+# references:
+# - 'getphylo: rapid and automatic generation of multi-locus phylogenetic trees. T. J. Booth, Simon Shaw, T. Weber. bioRxiv 2023.07.26.550493; doi: https://doi.org/10.1101/2023.07.26.550493'
+#%
 rule getphylo_prep:
     input:
         gbk=lambda wildcards: get_bgc_inputs(PEP_PROJECTS[wildcards.name], wildcards.version),

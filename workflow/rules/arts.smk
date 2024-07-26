@@ -1,3 +1,18 @@
+#%
+# final_output: "data/processed/{name}/tables/df_arts_allhits_as-{version}.csv"
+# description: Run Antibiotic Resistant Target Seeker (ARTS) on samples.
+# category: Genome Mining
+# link:
+# - https://bitbucket.org/ziemertlab/arts
+# references:
+# - 'Mungan,M.D., Alanjary,M., Blin,K., Weber,T., Medema,M.H. and Ziemert,N. (2020)
+#   ARTS 2.0: feature updates and expansion of the Antibiotic Resistant Target Seeker
+#   for comparative genome mining. [Nucleic Acids Res.,10.1093/nar/gkaa374](https://academic.oup.com/nar/article/48/W1/W546/5840579)'
+# - 'Alanjary,M., Kronmiller,B., Adamek,M., Blin,K., Weber,T., Huson,D., Philmus,B.
+#   and Ziemert,N. (2017) The Antibiotic Resistant Target Seeker (ARTS), an exploration
+#   engine for antibiotic cluster prioritization and novel drug target discovery.
+#   [Nucleic Acids Res.,10.1093/nar/gkx360](https://academic.oup.com/nar/article/45/W1/W42/3787867?login=false)'
+#%
 rule arts:
     input:
         antismash="data/interim/antismash/{version}/{strains}/{strains}.gbk",
