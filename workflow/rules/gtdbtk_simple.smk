@@ -1,3 +1,17 @@
+#%
+# final_output: data/processed/{name}/tables/gtdbtk.bac120.summary.tsv
+# description: Taxonomic placement with GTDB-Tk
+# category: Phylogenomic Placement
+# link:
+# - https://github.com/Ecogenomics/GTDBTk
+# references:
+# - 'Chaumeil PA, et al. 2019. GTDB-Tk: A toolkit to classify genomes with the Genome
+#   Taxonomy Database. Bioinformatics, btz848.'
+# - Parks DH, et al. 2020. A complete domain-to-species taxonomy for Bacteria and
+#   Archaea. Nature Biotechnology, [https://doi.org/10.1038/s41587-020-0501-8]([https://doi.org/10.1038/s41587-020-0501-8).
+# - Parks DH, et al. 2018. A standardized bacterial taxonomy based on genome phylogeny
+#   substantially revises the tree of life. Nature Biotechnology, [http://dx.doi.org/10.1038/nbt.4229](http://dx.doi.org/10.1038/nbt.4229).
+#%
 # Read release version from config
 try:
     gtdb_release = config["rule_parameters"]["install_gtdbtk"]["release"]

@@ -1,3 +1,12 @@
+#%
+# description: Annotate using Prokka.
+# category: Functional Annotation
+# link:
+# - https://github.com/tseemann/prokka
+# references:
+# - 'Seemann T. Prokka: rapid prokaryotic genome annotation. [Bioinformatics 2014 Jul
+#   15;30(14):2068-9. PMID:24642063](https://academic.oup.com/bioinformatics/article/30/14/2068/2390517?login=false)'
+#%
 try:
     if Path(config["resources_path"]["RNAmmer"]).is_file():
         prokka_params_rna = "--rnammer"

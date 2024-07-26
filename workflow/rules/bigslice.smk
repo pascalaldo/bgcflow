@@ -1,3 +1,14 @@
+#%
+# final_output: data/processed/{name}/bigslice/cluster_as_{version}/
+# description: Cluster BGCs using BiG-SLiCE (https://github.com/medema-group/bigslice)
+# category: Genome Mining
+# link:
+# - https://github.com/medema-group/bigslice
+# references:
+# - 'Satria A Kautsar, Justin J J van der Hooft, Dick de Ridder, Marnix H Medema,
+#   BiG-SLiCE: A highly scalable tool maps the diversity of 1.2 million biosynthetic
+#   gene clusters, [GigaScience, Volume 10, Issue 1, January 2021, giaa154](https://doi.org/10.1093/gigascience/giaa154)'
+#%
 rule bigslice_prep:
     input:
         dir="data/interim/bgcs/{name}/{version}/",

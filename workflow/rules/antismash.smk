@@ -1,3 +1,17 @@
+#%
+# final_output: data/processed/{name}/tables/df_antismash_{version}_summary.csv
+# description: Summarizes antiSMASH result.
+# category: Genome Mining
+# link:
+# - https://github.com/antismash/antismash
+# references:
+# - 'antiSMASH 6.0: improving cluster detection and comparison capabilities. Kai Blin,
+#   Simon Shaw, Alexander M Kloosterman, Zach Charlop-Powers, Gilles P van Weezel,
+#   Marnix H Medema, & Tilmann Weber. Nucleic Acids Research (2021) [doi: 10.1093/nar/gkab335.](https://academic.oup.com/nar/article/49/W1/W29/6274535?login=false)'
+# - 'antiSMASH 7.0: new and improved predictions for detection, regulation, chemical structures and visualisation. Kai Blin,
+#   Simon Shaw, Hannah E Augustijn, Zachary L Reitz, Friederike Biermann, Mohammad Alanjary, Artem Fetter, Barbara R Terlouw,
+#   William W Metcalf, Eric J N Helfrich, Gilles P van Wezel, Marnix H Medema, Tilmann Weber. Nucleic Acids Research (2023) [doi: 10.1093/nar/gkad344](https://doi.org/10.1093/nar/gkad344)'
+#%
 antismash_db_path = Path(f"resources/antismash_db")
 
 if antismash_major_version <= 6:

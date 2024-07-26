@@ -1,3 +1,17 @@
+#%
+# final_output: data/processed/{name}/cblaster/genomes/
+# description: Build diamond database of genomes for cblaster search.
+# category: Genome Mining
+# link:
+# - https://github.com/gamcil/cblaster
+# references:
+# - 'Gilchrist, C., Booth, T. J., van Wersch, B., van Grieken, L., Medema, M. H.,
+#   & Chooi, Y. (2021). cblaster: a remote search tool for rapid identification and
+#   visualisation of homologous gene clusters (Version 1.3.9) [Computer software].
+#   [https://doi.org/10.1101/2020.11.08.370601](https://doi.org/10.1101/2020.11.08.370601)'
+# - 'Buchfink, B., Xie, C. & Huson, D. H. Fast and sensitive protein alignment using DIAMOND.
+#   [Nat. Methods 12, 59–60 (2015)](https://www.nature.com/articles/nmeth.3176).'
+#%
 rule cblaster_genome_db:
     input:
         gbk=lambda wildcards: get_prokka_outputs(wildcards.name, DF_SAMPLES, ext="gbk", path="processed-genbank"),

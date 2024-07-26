@@ -1,3 +1,13 @@
+#%
+# final_output: data/processed/{name}/tables/df_deeptfactor.csv
+# description: Use deep learning to find Transcription Factors.
+# category: Functional Annotation
+# link:
+# - https://bitbucket.org/kaistsystemsbiology/deeptfactor
+# references:
+# - 'Kim G.B., Gao Y., Palsson B.O., Lee S.Y. 2020. DeepTFactor: A deep learning-based
+#   tool for the prediction of transcription factors. [PNAS. doi: 10.1073/pnas.2021171118](https://www.pnas.org/doi/10.1073/pnas.2021171118)'
+#%
 rule deeptfactor_setup:
     output:
         folder=directory("resources/deeptfactor/"),

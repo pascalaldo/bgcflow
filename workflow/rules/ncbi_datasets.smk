@@ -1,6 +1,6 @@
 rule ncbi_dataset_for_taxon:
     output:
-        tsv="data/interim/ncbi_datasets/taxon/{taxon}_original.tsv",
+        tsv="data/interim/ncbi_datasets/taxon/{taxon}.tsv",
     params:
         taxon=lambda wildcards: wildcards.taxon.replace('_', ' '),
         fields=",".join([
