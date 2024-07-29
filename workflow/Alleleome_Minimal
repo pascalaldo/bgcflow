@@ -1,3 +1,7 @@
+#%
+# description: Generate alleleome and corresponding PanKB files for previously generated pangenomes using BGCFlow.
+# schema: schemas/config.schema.yaml
+#%
 report: "report/workflow.rst"
 
 
@@ -88,5 +92,9 @@ custom_resource_dir(config["resources_path"], resource_mapping)
 # include: "rules/gtdb.smk"
 # RULE_FUNCTIONS["roary"] = {"samples": get_samples_for_project}
 # include: "rules/roary.smk"
-RULE_FUNCTIONS["alleleome"] = {"samples": get_samples_for_project}
+RULE_FUNCTIONS["alleleome"] = {
+        "samples": get_samples_for_project,
+        "projects": (lambda: PROJECT_IDS),
+        "pan_core": (lambda: "Pan"),
+    }
 include: "rules/alleleome.smk"
