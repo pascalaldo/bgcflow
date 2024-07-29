@@ -6,6 +6,7 @@ report: "report/workflow.rst"
 
 include: "rules/basic.smk"
 configfile: "config/config.yaml"
+from snakemake.utils import validate
 validate(config, schema="../schemas/family_config.schema.yaml")
 
 import pandas as pd
