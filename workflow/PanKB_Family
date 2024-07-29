@@ -137,7 +137,7 @@ include: "rules/pankb_data_prep.smk"
 all_target_rules = ["pankb", "alleleome"]
 def get_targets():
     defined_targets = config.get("rules", {})
-    targets = [x for x in all_target_rules if not defined_targets.get(x, True)]
+    targets = [x for x in all_target_rules if defined_targets.get(x, True)]
     print(f"Active target rules: {', '.join(targets)}")
     inputs = []
     for target in targets:
