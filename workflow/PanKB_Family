@@ -73,7 +73,6 @@ wildcard_constraints:
     assembly_source="all|RefSeq|GenBank",
     taxon="|".join(TAXONS.index.to_list()),
 
-include: "rules/preselect_genomes/preselect_all_genomes.smk"
 include: "rules/select_genomes/select_all_genomes.smk"
 
 def get_taxons():
@@ -134,7 +133,17 @@ RULE_FUNCTIONS["pankb_data_prep"] = {
     }
 include: "rules/pankb_data_prep.smk"
 
+all_target_rules = ["pankb", "alleleome"]
+def get_targets():
+    defined_targets = config.get("rules", {})
+    targets = [x for x in all_target_rules if not defined_targets.get(x, True)]
+    print(f"Active target rules: {', '.join(targets)}")
+    inputs = []
+    for target in targets:
+        target_inputs = get_attr(rules, f"{target}_all").input
+        inputs.extend(target_inputs)
+    return inputs
+
 rule all:
     input:
-        rules.pankb_all.input,
-        rules.alleleome_all.input,
+        get_targets()
