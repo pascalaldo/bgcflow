@@ -141,7 +141,7 @@ def get_targets():
     print(f"Active target rules: {', '.join(targets)}")
     inputs = []
     for target in targets:
-        target_inputs = get_attr(rules, f"{target}_all").input
+        target_inputs = getattr(rules, f"{target}_all").input
         inputs.extend(target_inputs)
     return inputs
 
