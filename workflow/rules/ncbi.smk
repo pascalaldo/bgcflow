@@ -93,3 +93,23 @@ else:
             python workflow/bgcflow/bgcflow/data/extract_patric_meta.py \
                 {input.ncbi_meta_path} {input.patric_genome_summary} {input.patric_genome_metadata} {output.patric_meta_path} 2>> {log}
             """
+
+if len(CUSTOM_FNA) > 0:
+    rule copy_custom_fasta:
+        input:
+            fna = lambda wildcards: DF_SAMPLES.loc[wildcards, "input_file"]
+        output:
+            fna = "data/interim/fasta/{custom_fna}.fna"
+        conda:
+            "../envs/bgc_analytics.yaml"
+        log: "logs/prokka/copy_custom_fasta/copy_custom_fasta-{custom_fna}.log"
+        shell:
+            """
+            if [[ {input} == *.fna || {input} == *.fasta || {input} == *.fa ]]
+            then
+                cp {input} {output} 2>> {log}
+            else
+                echo "ERROR: Wrong Extension:" {input} >> {log}
+                exit 1
+            fi
+            """
