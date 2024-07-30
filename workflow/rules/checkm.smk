@@ -26,18 +26,18 @@ rule install_checkm:
 
 rule checkm:
     input:
-        fna=lambda wildcards: expand("data/interim/fasta/{accession}.fna", accession=RULE_FUNCTIONS["checkm"]["accessions"](wildcards.name)),
+        fna=lambda wildcards: expand("data/interim/all/fasta/{accession}.fna", accession=RULE_FUNCTIONS["checkm"][wildcards.stage]["accessions"](wildcards.name)),
         checkm_db="resources/checkm/",
     output:
-        fna=temp(directory("data/interim/checkm/{name}_fna")),
-        stat="data/interim/checkm/{name}/storage/bin_stats_ext.tsv",
-        checkm_dir=directory("data/interim/checkm/{name}"),
+        fna=temp(directory("data/interim/{stage}/checkm/{name}_fna")),
+        stat="data/interim/{stage}/checkm/{name}/storage/bin_stats_ext.tsv",
+        checkm_dir=directory("data/interim/{stage}/checkm/{name}"),
     conda:
         "../envs/checkm.yaml"
     log:
-        "logs/checkm/checkm_{name}.log",
+        "logs/{stage}/checkm/checkm_{name}.log",
     params:
-        checkm_log="data/interim/checkm/{name}/checkm_{name}.log",
+        checkm_log="data/interim/{stage}/checkm/{name}/checkm_{name}.log",
     threads: 16
     shell:
         """
@@ -49,17 +49,17 @@ rule checkm:
 
 rule checkm_out:
     input:
-        stat="data/interim/checkm/{name}/storage/bin_stats_ext.tsv",
+        stat="data/interim/{stage}/checkm/{name}/storage/bin_stats_ext.tsv",
     output:
         stat_processed=report(
-            "data/processed/{name}/tables/df_checkm_stats.csv",
+            "data/processed/{stage}/{name}/tables/df_checkm_stats.csv",
             caption="../report/table-checkm.rst",
             category="Quality Control",
         ),
     log:
-        "logs/checkm/checkm_out_{name}.log",
+        "logs/{stage}/checkm/checkm_out_{name}.log",
     params:
-        checkm_json=directory("data/interim/checkm/{name}/json/"),
+        checkm_json=directory("data/interim/{stage}/checkm/{name}/json/"),
     conda:
         "../envs/bgc_analytics.yaml"
     shell:

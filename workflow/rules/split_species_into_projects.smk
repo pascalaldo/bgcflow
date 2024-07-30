@@ -2,16 +2,16 @@ import pandas as pd
 
 checkpoint species_split:
     input:
-        gtdb="data/processed/{taxon}/tables/df_gtdb_meta.csv",
+        gtdb="data/processed/taxon/{taxon}/tables/df_gtdb_meta.csv",
         qc="data/processed/qc/qc_passed.csv",
-        overview="data/interim/ncbi_datasets/taxon/{taxon}.csv",
+        overview="data/interim/taxon/ncbi_datasets/{taxon}.csv",
     output:
-        classification="data/interim/split/{taxon}/classification.csv",
+        classification="data/interim/taxon/split/{taxon}/classification.csv",
     params:
         min_clas_size=30,
     conda:
         "../envs/data_processing.yaml"
-    log: "log/split/species_split_{taxon}.log",
+    log: "log/taxon/split/species_split_{taxon}.log",
     shell:
         """
             python workflow/scripts/species_split.py \
@@ -24,9 +24,9 @@ checkpoint species_split:
 
 checkpoint extract_species_split_samples:
     input:
-        classification=lambda wildcards: f"data/interim/split/{get_taxon_for_species_project(wildcards.name)}/classification.csv",
+        classification=lambda wildcards: f"data/interim/taxon/split/{get_taxon_for_species_project(wildcards.name)}/classification.csv",
     output:
-        samples="data/processed/samples/{name}.csv",
+        samples="data/processed/species/samples/{name}.csv",
     run:
         import pandas as pd
         taxon = get_taxon_for_species_project(wildcards.name)
@@ -44,7 +44,7 @@ def get_samples_df_for_species_project(name):
 
 rule extract_species_split_all_samples:
     input:
-        classification=expand("data/interim/split/{taxon}/classification.csv", taxon=TAXONS.index.to_list()),
+        classification=expand("data/interim/taxon/split/{taxon}/classification.csv", taxon=TAXONS.index.to_list()),
     output:
         samples="data/interim/bgcflow_utils/samples.csv",
     run:
@@ -53,10 +53,10 @@ rule extract_species_split_all_samples:
 
 rule extract_species_split_gtdb_meta:
     input:
-        gtdb=lambda wildcards: f"data/processed/{get_taxon_for_species_project(wildcards.name)}/tables/df_gtdb_meta.csv",
-        samples="data/processed/samples/{name}.csv",
+        gtdb=lambda wildcards: f"data/processed/taxon/{get_taxon_for_species_project(wildcards.name)}/tables/df_gtdb_meta.csv",
+        samples="data/processed/species/samples/{name}.csv",
     output:
-        gtdb="data/processed/{name,[A-Za-z]+_[A-Za-z_]+}/tables/df_gtdb_meta.csv",
+        gtdb="data/processed/species/{name}/tables/df_gtdb_meta.csv",
     run:
         import pandas as pd
         df_gtdb = pd.read_csv(input.gtdb, header=0, index_col=0, low_memory=False)
@@ -66,10 +66,10 @@ rule extract_species_split_gtdb_meta:
 
 rule extract_species_split_seqfu_stats:
     input:
-        seqfu_stats=lambda wildcards: f"data/processed/{get_taxon_for_species_project(wildcards.name)}/tables/df_seqfu_stats.csv",
-        samples="data/processed/samples/{name}.csv",
+        seqfu_stats=lambda wildcards: f"data/processed/taxon/{get_taxon_for_species_project(wildcards.name)}/tables/df_seqfu_stats.csv",
+        samples="data/processed/species/samples/{name}.csv",
     output:
-        seqfu_stats="data/processed/{name,[A-Za-z]+_[A-Za-z_]+}/tables/df_seqfu_stats.csv",
+        seqfu_stats="data/processed/species/{name}/tables/df_seqfu_stats.csv",
     run:
         import pandas as pd
         df_seqfu_stats = pd.read_csv(input.seqfu_stats, header=0, index_col=0, low_memory=False)
@@ -92,10 +92,10 @@ rule extract_species_split_seqfu_stats:
 
 rule extract_species_split_overview:
     input:
-        overview=lambda wildcards: f"data/interim/ncbi_datasets/taxon/{get_taxon_for_species_project(wildcards.name)}.csv",
-        samples="data/processed/samples/{name}.csv",
+        overview=lambda wildcards: f"data/interim/taxon/ncbi_datasets/{get_taxon_for_species_project(wildcards.name)}.csv",
+        samples="data/processed/species/samples/{name}.csv",
     output:
-        overview="data/processed/samples/overview_{name, [A-Za-z]+_[A-Za-z_]+}.csv",
+        overview="data/processed/species/samples/overview_{name}.csv",
     run:
         import pandas as pd
         df_overview = pd.read_csv(input.overview, header=0, index_col=0, low_memory=False)

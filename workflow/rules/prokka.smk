@@ -45,14 +45,14 @@ rule prokka_db_setup:
         """
 rule extract_meta_prokka:
     input:
-        fna = "data/interim/fasta/{strains_fna}.fna",
+        fna = "data/interim/all/fasta/{strains_fna}.fna",
         samples_path = bgcflow_util_dir / "samples.csv",
-        assembly_report= "data/interim/assembly_report/{strains_fna}.json",
+        assembly_report= "data/interim/all/assembly_report/{strains_fna}.json",
     output:
-        org_info = "data/interim/prokka/{strains_fna}/organism_info.txt",
+        org_info = "data/interim/{stage}/prokka/{strains_fna}/organism_info.txt",
     conda:
         "../envs/bgc_analytics.yaml"
-    log: "logs/prokka/extract_meta_prokka/extract_meta_prokka-{strains_fna}.log"
+    log: "logs/{stage}/prokka/extract_meta_prokka/extract_meta_prokka-{strains_fna}.log"
     shell:
         """
         python workflow/bgcflow/bgcflow/data/get_organism_info.py {wildcards.strains_fna} \
@@ -68,22 +68,22 @@ except KeyError:
 
 rule prokka:
     input:
-        fna = "data/interim/fasta/{strains_fna}.fna",
-        org_info = "data/interim/prokka/{strains_fna}/organism_info.txt",
+        fna = "data/interim/all/fasta/{strains_fna}.fna",
+        org_info = "data/interim/all/prokka/{strains_fna}/organism_info.txt",
         refgbff = lambda wildcards: get_prokka_refdb(wildcards, "file", RULE_FUNCTIONS["prokka"]["samples"](), PROKKA_DB_MAP)
     output:
-        gff = "data/interim/prokka/{strains_fna}/{strains_fna}.gff",
-        faa = "data/interim/prokka/{strains_fna}/{strains_fna}.faa",
-        gbk = temp("data/interim/prokka/{strains_fna}/{strains_fna}.gbk"), # Temporary file now, use processed-genbank files in other rules
-        txt = "data/interim/prokka/{strains_fna}/{strains_fna}.txt",
-        tsv = "data/interim/prokka/{strains_fna}/{strains_fna}.tsv",
-        fna = temp("data/interim/prokka/{strains_fna}/{strains_fna}.fna"),
-        sqn = temp("data/interim/prokka/{strains_fna}/{strains_fna}.sqn"),
-        fsa = temp("data/interim/prokka/{strains_fna}/{strains_fna}.fsa"),
-        tbl = temp("data/interim/prokka/{strains_fna}/{strains_fna}.tbl"),
+        gff = "data/interim/{stage}/prokka/{strains_fna}/{strains_fna}.gff",
+        faa = "data/interim/{stage}/prokka/{strains_fna}/{strains_fna}.faa",
+        gbk = temp("data/interim/{stage}/prokka/{strains_fna}/{strains_fna}.gbk"), # Temporary file now, use processed-genbank files in other rules
+        txt = "data/interim/{stage}/prokka/{strains_fna}/{strains_fna}.txt",
+        tsv = "data/interim/{stage}/prokka/{strains_fna}/{strains_fna}.tsv",
+        fna = temp("data/interim/{stage}/prokka/{strains_fna}/{strains_fna}.fna"),
+        sqn = temp("data/interim/{stage}/prokka/{strains_fna}/{strains_fna}.sqn"),
+        fsa = temp("data/interim/{stage}/prokka/{strains_fna}/{strains_fna}.fsa"),
+        tbl = temp("data/interim/{stage}/prokka/{strains_fna}/{strains_fna}.tbl"),
     conda:
         "../envs/prokka.yaml"
-    log: "logs/prokka/prokka/prokka-{strains_fna}.log"
+    log: "logs/{stage}/prokka/prokka/prokka-{strains_fna}.log"
     params:
         increment = 10,
         evalue = "1e-05",
@@ -104,15 +104,15 @@ rule prokka:
 
 rule format_gbk:
     input:
-        gbk_prokka = "data/interim/prokka/{strains_fna}/{strains_fna}.gbk",
-        gtdb_json = "data/interim/gtdb/{strains_fna}.json",
+        gbk_prokka = "data/interim/{stage}/prokka/{strains_fna}/{strains_fna}.gbk",
+        gtdb_json = "data/interim/{stage}/gtdb/{strains_fna}.json",
     output:
-        gbk_processed = "data/interim/processed-genbank/{strains_fna}.gbk"
+        gbk_processed = "data/interim/{stage}/processed-genbank/{strains_fna}.gbk"
     conda:
         "../envs/bgc_analytics.yaml"
     params:
         version = __version__,
-    log: "logs/prokka/format_gbk/format_gbk-{strains_fna}.log"
+    log: "logs/{stage}/prokka/format_gbk/format_gbk-{strains_fna}.log"
     shell:
         """
         python workflow/bgcflow/bgcflow/data/format_genbank_meta.py {input.gbk_prokka} \
@@ -121,17 +121,17 @@ rule format_gbk:
 
 rule copy_prokka_gbk:
     input:
-        gbk = "data/interim/processed-genbank/{strains_fna}.gbk",
-        summary = "data/interim/prokka/{strains_fna}/{strains_fna}.txt",
-        tsv = "data/interim/prokka/{strains_fna}/{strains_fna}.tsv",
+        gbk = "data/interim/{stage}/processed-genbank/{strains_fna}.gbk",
+        summary = "data/interim/{stage}/prokka/{strains_fna}/{strains_fna}.txt",
+        tsv = "data/interim/{stage}/prokka/{strains_fna}/{strains_fna}.tsv",
     output:
-        gbk = report("data/processed/{name}/genbank/{strains_fna}.gbk", \
+        gbk = report("data/processed/{stage}/{name}/genbank/{strains_fna}.gbk", \
             caption="../report/file-genbank.rst", category="{name}", subcategory="Annotated Genbanks"),
-        summary = "data/processed/{name}/genbank/{strains_fna}.txt",
-        tsv = "data/processed/{name}/genbank/{strains_fna}.tsv",
+        summary = "data/processed/{stage}/{name}/genbank/{strains_fna}.txt",
+        tsv = "data/processed/{stage}/{name}/genbank/{strains_fna}.tsv",
     conda:
         "../envs/bgc_analytics.yaml"
-    log: "logs/prokka/copy_prokka_gbk/copy_prokka_gbk_-{strains_fna}-{name}.log"
+    log: "logs/{stage}/prokka/copy_prokka_gbk/copy_prokka_gbk_-{strains_fna}-{name}.log"
     shell:
         """
         cp {input.gbk} {output.gbk} 2>> {log}

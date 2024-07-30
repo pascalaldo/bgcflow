@@ -2,21 +2,21 @@ import pandas as pd
 
 rule alleleome_prepare:
     input:
-        gp_binary="data/interim/roary/{name}/df_gene_presence_binary.csv",
-        gp_locustag="data/interim/roary/{name}/df_gene_presence_locustag.csv",
-        summary="data/interim/roary/{name}/df_pangene_summary.csv",
+        gp_binary="data/interim/{stage}/roary/{name}/df_gene_presence_binary.csv",
+        gp_locustag="data/interim/{stage}/roary/{name}/df_gene_presence_locustag.csv",
+        summary="data/interim/{stage}/roary/{name}/df_pangene_summary.csv",
         # gbk_files=lambda wildcards: get_prokka_outputs(wildcards.name, filter_samples_qc(wildcards, get_samples_df()), ext="gbk", path="processed-genbank"),
-        gbk_files=lambda wildcards: expand("data/interim/processed-genbank/{sample}.gbk", sample=RULE_FUNCTIONS["alleleome"]["samples"](wildcards.name)),
+        gbk_files=lambda wildcards: expand("data/interim/{{stage}}/processed-genbank/{sample}.gbk", sample=RULE_FUNCTIONS["alleleome"][wildcards.stage]["samples"](wildcards.name)),
     output:
-        summary_v2="data/interim/alleleome/{name}/pangene_v2.csv",
-        all_locustag="data/interim/alleleome/{name}/all_locustag.csv",
-        all_genes="data/interim/alleleome/{name}/all_genes.csv",
-        sel_locustag="data/interim/alleleome/{name}/sel_locustag.csv",
-        sel_genes="data/interim/alleleome/{name}/sel_genes.csv",
+        summary_v2="data/interim/{stage}/alleleome/{name}/pangene_v2.csv",
+        all_locustag="data/interim/{stage}/alleleome/{name}/all_locustag.csv",
+        all_genes="data/interim/{stage}/alleleome/{name}/all_genes.csv",
+        sel_locustag="data/interim/{stage}/alleleome/{name}/sel_locustag.csv",
+        sel_genes="data/interim/{stage}/alleleome/{name}/sel_genes.csv",
     params:
-        gbk_folder="data/interim/processed-genbank/",
+        gbk_folder="data/interim/{stage}/processed-genbank/",
     log:
-        "logs/alleleome/prepare_{name}.log"
+        "logs/{stage}/alleleome/prepare_{name}.log"
     conda:
         "../envs/alleleome.yaml"
     shell:
@@ -35,20 +35,20 @@ rule alleleome_prepare:
 
 rule alleleome_fasta:
     input:
-        all_locustag="data/interim/alleleome/{name}/all_locustag.csv",
-        all_genes="data/interim/alleleome/{name}/all_genes.csv",
-        sel_locustag="data/interim/alleleome/{name}/sel_locustag.csv",
-        sel_genes="data/interim/alleleome/{name}/sel_genes.csv",
-        gbk_files=lambda wildcards: expand("data/interim/processed-genbank/{sample}.gbk", sample=RULE_FUNCTIONS["alleleome"]["samples"](wildcards.name)),
+        all_locustag="data/interim/{stage}/alleleome/{name}/all_locustag.csv",
+        all_genes="data/interim/{stage}/alleleome/{name}/all_genes.csv",
+        sel_locustag="data/interim/{stage}/alleleome/{name}/sel_locustag.csv",
+        sel_genes="data/interim/{stage}/alleleome/{name}/sel_genes.csv",
+        gbk_files=lambda wildcards: expand("data/interim/{{stage}}/processed-genbank/{sample}.gbk", sample=RULE_FUNCTIONS["alleleome"][wildcards.stage]["samples"](wildcards.name)),
     output:
-        dummy="data/interim/alleleome/{name}/pangenome_alignments/fasta_dummy_{pan_core}",
-        gene_list="data/processed/{name}/alleleome/{pan_core}/gene_list.txt",
+        dummy="data/interim/{stage}/alleleome/{name}/pangenome_alignments/fasta_dummy_{pan_core}",
+        gene_list="data/processed/{stage}/{name}/alleleome/{pan_core}/gene_list.txt",
     params:
-        out_dir="data/interim/alleleome/{name}/pangenome_alignments/",
-        gbk_folder="data/interim/processed-genbank/",
+        out_dir="data/interim/{stage}/alleleome/{name}/pangenome_alignments/",
+        gbk_folder="data/interim/{stage}/processed-genbank/",
         pan_core_flag=lambda wildcards: ("--pan" if wildcards.pan_core == "Pan" else "--no-pan"),
     log:
-        "logs/alleleome/fasta_{name}_{pan_core}.log"
+        "logs/{stage}/alleleome/fasta_{name}_{pan_core}.log"
     conda:
         "../envs/alleleome.yaml"
     shell:
@@ -67,15 +67,15 @@ rule alleleome_fasta:
 
 rule alleleome_process:
     input:
-        gene_list="data/processed/{name}/alleleome/{pan_core}/gene_list.txt",
-        dummy="data/interim/alleleome/{name}/pangenome_alignments/fasta_dummy_{pan_core}",
+        gene_list="data/processed/{stage}/{name}/alleleome/{pan_core}/gene_list.txt",
+        dummy="data/interim/{stage}/alleleome/{name}/pangenome_alignments/fasta_dummy_{pan_core}",
     output:
-        dummy="data/interim/alleleome/{name}/pangenome_alignments/process_dummy_{pan_core}",
+        dummy="data/interim/{stage}/alleleome/{name}/pangenome_alignments/process_dummy_{pan_core}",
     params:
-        out_dir="data/interim/alleleome/{name}/pangenome_alignments/",
+        out_dir="data/interim/{stage}/alleleome/{name}/pangenome_alignments/",
     threads: workflow.cores
     log:
-        "logs/alleleome/process_{name}_{pan_core}.log"
+        "logs/{stage}/alleleome/process_{name}_{pan_core}.log"
     conda:
         "../envs/alleleome.yaml"
     shell:
@@ -89,17 +89,17 @@ rule alleleome_process:
 
 rule alleleome_analyze:
     input:
-        gene_list="data/processed/{name}/alleleome/{pan_core}/gene_list.txt",
-        dummy="data/interim/alleleome/{name}/pangenome_alignments/process_dummy_{pan_core}",
+        gene_list="data/processed/{stage}/{name}/alleleome/{pan_core}/gene_list.txt",
+        dummy="data/interim/{stage}/alleleome/{name}/pangenome_alignments/process_dummy_{pan_core}",
     output:
-        aa_vars="data/processed/{name}/alleleome/{pan_core}/pan_amino_acid_vars_df.csv",
-        codon_muts="data/processed/{name}/alleleome/{pan_core}/pan_gene_syno_non_syno_df.csv",
-        dominant_aa="data/interim/alleleome/{name}/{pan_core}/final_core_consensus_dominant_aa_count_df.csv",
+        aa_vars="data/processed/{stage}/{name}/alleleome/{pan_core}/pan_amino_acid_vars_df.csv",
+        codon_muts="data/processed/{stage}/{name}/alleleome/{pan_core}/pan_gene_syno_non_syno_df.csv",
+        dominant_aa="data/interim/{stage}/alleleome/{name}/{pan_core}/final_core_consensus_dominant_aa_count_df.csv",
     params:
-        out_dir="data/interim/alleleome/{name}/pangenome_alignments/",
+        out_dir="data/interim/{stage}/alleleome/{name}/pangenome_alignments/",
     threads: workflow.cores
     log:
-        "logs/alleleome/analyze_{name}_{pan_core}.log"
+        "logs/{stage}/alleleome/analyze_{name}_{pan_core}.log"
     conda:
         "../envs/alleleome.yaml"
     shell:
@@ -115,24 +115,24 @@ rule alleleome_analyze:
 
 rule alleleome_preplot:
     input:
-        gene_list="data/processed/{name}/alleleome/{pan_core}/gene_list.txt",
-        aa_vars="data/processed/{name}/alleleome/{pan_core}/pan_amino_acid_vars_df.csv",
-        dummy="data/interim/alleleome/{name}/pangenome_alignments/process_dummy_{pan_core}",
-        codon_muts="data/processed/{name}/alleleome/{pan_core}/pan_gene_syno_non_syno_df.csv",
-        dominant_aa="data/interim/alleleome/{name}/{pan_core}/final_core_consensus_dominant_aa_count_df.csv",
+        gene_list="data/processed/{stage}/{name}/alleleome/{pan_core}/gene_list.txt",
+        aa_vars="data/processed/{stage}/{name}/alleleome/{pan_core}/pan_amino_acid_vars_df.csv",
+        dummy="data/interim/{stage}/alleleome/{name}/pangenome_alignments/process_dummy_{pan_core}",
+        codon_muts="data/processed/{stage}/{name}/alleleome/{pan_core}/pan_gene_syno_non_syno_df.csv",
+        dominant_aa="data/interim/{stage}/alleleome/{name}/{pan_core}/final_core_consensus_dominant_aa_count_df.csv",
     output:
-        variable_aa="data/interim/alleleome/{name}/{pan_core}/final_core_pan_aa_thresh_vars_all_substitutions_sep_df.csv",
-        dom_var="data/interim/alleleome/{name}/{pan_core}/final_pan_aa_thresh_core_genes_dominant_variant_genome_count_pos.csv",
-        gaps="data/interim/alleleome/{name}/{pan_core}/pan_aa_thresh_core_genes_aa_pos_with_gaps.csv",
-        filt_norm="data/processed/{name}/alleleome/{pan_core}/final_pan_aa_thresh_core_genes_dom_var_genome_count_pos_normalized.csv",
-        dn_ds="data/processed/{name}/alleleome/{pan_core}/final_dn_ds_count_per_gene.csv",
-        dn_ds_json="data/processed/{name}/alleleome/{pan_core}/dn_ds.json",
-        hist="data/processed/{name}/alleleome/{pan_core}/step_line.json",
+        variable_aa="data/interim/{stage}/alleleome/{name}/{pan_core}/final_core_pan_aa_thresh_vars_all_substitutions_sep_df.csv",
+        dom_var="data/interim/{stage}/alleleome/{name}/{pan_core}/final_pan_aa_thresh_core_genes_dominant_variant_genome_count_pos.csv",
+        gaps="data/interim/{stage}/alleleome/{name}/{pan_core}/pan_aa_thresh_core_genes_aa_pos_with_gaps.csv",
+        filt_norm="data/processed/{stage}/{name}/alleleome/{pan_core}/final_pan_aa_thresh_core_genes_dom_var_genome_count_pos_normalized.csv",
+        dn_ds="data/processed/{stage}/{name}/alleleome/{pan_core}/final_dn_ds_count_per_gene.csv",
+        dn_ds_json="data/processed/{stage}/{name}/alleleome/{pan_core}/dn_ds.json",
+        hist="data/processed/{stage}/{name}/alleleome/{pan_core}/step_line.json",
     params:
-        out_dir="data/interim/alleleome/{name}/pangenome_alignments/",
-        per_gene_out_dir="data/processed/{name}/alleleome/gene_data/",
+        out_dir="data/interim/{stage}/alleleome/{name}/pangenome_alignments/",
+        per_gene_out_dir="data/processed/{stage}/{name}/alleleome/gene_data/",
     log:
-        "logs/alleleome/preplot_{name}_{pan_core}.log"
+        "logs/{stage}/alleleome/preplot_{name}_{pan_core}.log"
     conda:
         "../envs/alleleome.yaml"
     shell:
@@ -159,9 +159,10 @@ rule alleleome_all:
     input:
         lambda _: expand(
             [
-                "data/processed/{name}/alleleome/{pan_core}/dn_ds.json",
-                "data/processed/{name}/alleleome/{pan_core}/step_line.json",
+                "data/processed/{stage}/{name}/alleleome/{pan_core}/dn_ds.json",
+                "data/processed/{stage}/{name}/alleleome/{pan_core}/step_line.json",
             ],
+            stage=RULE_FUNCTIONS["alleleome"]["stages"](),
             name=RULE_FUNCTIONS["alleleome"]["projects"](),
             pan_core=RULE_FUNCTIONS["alleleome"]["pan_core"]()
         ),

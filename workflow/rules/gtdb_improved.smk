@@ -83,11 +83,11 @@ rule gtdb_install_table:
 rule gtdb_prep:
     input:
         table=f"resources/gtdb_download/bac120_metadata_r{str(gtdb_release).split('.')[0]}.tsv",
-        samples_csv="data/interim/ncbi_datasets/taxon/{taxon}.csv",
+        samples_csv="data/interim/{stage}/ncbi_datasets/taxon/{taxon}.csv",
     output:
-        gtdb_jsonl="data/interim/gtdb/{taxon}.jsonl",
+        gtdb_jsonl="data/interim/{stage}/gtdb/{taxon}.jsonl",
     log:
-        "logs/gtdb/gtdb_prep/gtdb_prep-{taxon}.log",
+        "logs/{stage}/gtdb/gtdb_prep/gtdb_prep-{taxon}.log",
     conda:
         "../envs/bgc_analytics.yaml"
     params:
@@ -104,9 +104,9 @@ rule gtdb_prep:
 
 rule gtdb_jsonl_combine:
     input:
-        gtdb_jsonl=expand("data/interim/gtdb/{taxon}.jsonl", taxon=RULE_FUNCTIONS["gtdb_improved"]["taxons"]()),
+        gtdb_jsonl=expand("data/interim/{stage}/gtdb/{taxon}.jsonl", taxon=RULE_FUNCTIONS["gtdb_improved"][wildcars.stage]["taxons"]()),
     output:
-        gtdb_jsonl="data/interim/gtdb/all/gtdb.jsonl",
+        gtdb_jsonl="data/interim/{stage}/gtdb/all/gtdb.jsonl",
     shell:
         """
             touch {output.gtdb_jsonl}
@@ -117,9 +117,9 @@ rule gtdb_jsonl_combine:
         """
 rule gtdb_jsonl_to_json:
     input:
-        gtdb_jsonl="data/interim/gtdb/all/gtdb.jsonl",
+        gtdb_jsonl="data/interim/{stage}/gtdb/all/gtdb.jsonl",
     output:
-        gtdb_json="data/interim/gtdb/{accession}.json",
+        gtdb_json="data/interim/{stage}/gtdb/{accession}.json",
     shell:
         """
             grep '^{{"genome_id": "{wildcards.accession}"' {input.gtdb_jsonl} > {output.gtdb_json}
@@ -128,9 +128,9 @@ rule gtdb_jsonl_to_json:
 
 checkpoint fix_gtdb_taxonomy:
     input:
-        gtdb_jsonl="data/interim/gtdb/{taxon}.jsonl",
+        gtdb_jsonl="data/interim/{stage}/gtdb/{taxon}.jsonl",
     output:
-        meta="data/interim/gtdb/{taxon}/tables/df_gtdb_meta.csv",
+        meta="data/interim/{stage}/gtdb/{taxon}/tables/df_gtdb_meta.csv",
     conda:
         "../envs/bgc_analytics.yaml"
     log:
