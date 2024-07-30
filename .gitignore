@@ -1,9 +1,8 @@
 .git/
 .snakemake/
 .examples/
-.test/
-data/
-resources/
+/.test/
+/data/
 config/
 workflow/report/*
 !workflow/report/images/rulegraph.svg
@@ -26,8 +25,9 @@ plugins/
 metabase.db*
 pytest-coverage.txt
 .coverage
-data.*/
+/data.*/
 config.*/
-logs/
-resources/
 nohup.out
+/resources/
+/log/
+/logs/

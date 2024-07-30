@@ -82,7 +82,7 @@ rule eggnog_roary:
         "../envs/eggnog.yaml"
     threads: 8
     log:
-        "logs/eggnog-roary/eggnog-{name}.log",
+        "logs/{stage}/eggnog-roary/eggnog-{name}.log",
     shell:
         """
         mkdir -p {output.temp_dir}

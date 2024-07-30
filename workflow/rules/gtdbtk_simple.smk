@@ -19,14 +19,17 @@ try:
         "release_version"
     ]
 except KeyError:
-    gtdb_release = "207.0"
-    gtdb_release_version = "r207_v2"
+    gtdb_release = "220.0"
+    gtdb_release_version = "r220"
 
 if "." in str(gtdb_release):
     gtdb_release_major, gtdb_release_minor = str(gtdb_release).split(".")
 else:
     gtdb_release_major = gtdb_release
     gtdb_release_minor = "0"
+gtdb_extra_path = ""
+if int(gtdb_release_major) >= 220:
+    gtdb_extra_path = "gtdbtk_package/full_package/"
 
 # Decide to use ani screen or not
 try:
@@ -40,6 +43,7 @@ except KeyError:
 rule install_gtdbtk:
     output:
         gtdbtk=directory("resources/gtdbtk/"),
+    priority: 40
     conda:
         "../envs/gtdbtk.yaml"
     log:
@@ -48,9 +52,10 @@ rule install_gtdbtk:
         release_major=gtdb_release_major,
         release_minor=gtdb_release_minor,
         release_version=gtdb_release_version,
+        extra_path=gtdb_extra_path,
     shell:
         """
-        (cd resources && wget https://data.gtdb.ecogenomic.org/releases/release{params.release_major}/{params.release_major}.{params.release_minor}/auxillary_files/gtdbtk_{params.release_version}_data.tar.gz -nc) 2>> {log}
+        (cd resources && wget https://data.gtdb.ecogenomic.org/releases/release{params.release_major}/{params.release_major}.{params.release_minor}/auxillary_files/{params.extra_path}gtdbtk_{params.release_version}_data.tar.gz -nc) 2>> {log}
         (cd resources && mkdir -p gtdbtk && tar -xvzf gtdbtk_{params.release_version}_data.tar.gz -C "gtdbtk" --strip 1 && rm gtdbtk_{params.release_version}_data.tar.gz) &>> {log}
         """
 

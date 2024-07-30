@@ -68,14 +68,17 @@ sys.stderr.write(f" - GTDB API | Searching in offline mode: {gtdb_offline_mode}\
 rule gtdb_install_table:
     output:
         table=f"resources/gtdb_download/bac120_metadata_r{str(gtdb_release).split('.')[0]}.tsv"
+    priority: 50
+    log:
+        "logs/gtdb/gtdb_install_table/gtdb_install_table.log",
     params:
         gtdb_link=f"https://data.gtdb.ecogenomic.org/releases/release{str(gtdb_release).split('.')[0]}/{gtdb_release}/bac120_metadata_r{str(gtdb_release).split('.')[0]}.tsv.gz",
         table_gz=lambda wildcards, output: f"{output.table}.gz",
         download_dir=lambda wildcards, output: Path(output.table).parent,
     shell:
         """
-            echo "Downloading GTDB table from {params.gtdb_link}" >> {log}
-            wget -P {params.download_dir} {params.gtdb_link} -nc 2>> {log}
+            echo "Downloading GTDB table from {params.gtdb_link}" > {log} 2>&1
+            wget -P {params.download_dir} {params.gtdb_link} -nc >> {log} 2>&1
             gunzip -c '{params.table_gz}' > {output.table} 2>> {log}
             rm '{params.table_gz}'
         """
@@ -83,7 +86,7 @@ rule gtdb_install_table:
 rule gtdb_prep:
     input:
         table=f"resources/gtdb_download/bac120_metadata_r{str(gtdb_release).split('.')[0]}.tsv",
-        samples_csv="data/interim/{stage}/ncbi_datasets/taxon/{taxon}.csv",
+        samples_csv="data/interim/{stage}/ncbi_datasets/{taxon}.csv",
     output:
         gtdb_jsonl="data/interim/{stage}/gtdb/{taxon}.jsonl",
     log:
@@ -99,12 +102,12 @@ rule gtdb_prep:
         api_base="https://gtdb-api.ecogenomic.org",
     shell:
         """
-            python workflow/bgcflow/bgcflow/data/gtdb_prep_from_table_or_api.py {input.samples_csv} {input.table} {params.version} {output.gtdb_jsonl} '{params.gtdb_paths}' {params.offline} {params.api_base} 2>> {log}
+            python workflow/bgcflow/bgcflow/data/gtdb_prep_from_table_or_api.py {input.samples_csv} {input.table} {params.version} {output.gtdb_jsonl} '{params.gtdb_paths}' {params.offline} {params.api_base} > {log}
         """
 
 rule gtdb_jsonl_combine:
     input:
-        gtdb_jsonl=expand("data/interim/{stage}/gtdb/{taxon}.jsonl", taxon=RULE_FUNCTIONS["gtdb_improved"][wildcars.stage]["taxons"]()),
+        gtdb_jsonl=lambda wildcards: expand("data/interim/{stage}/gtdb/{taxon}.jsonl", taxon=RULE_FUNCTIONS["gtdb_improved"][wildcards.stage]["taxons"]()),
     output:
         gtdb_jsonl="data/interim/{stage}/gtdb/all/gtdb.jsonl",
     shell:
@@ -134,7 +137,7 @@ checkpoint fix_gtdb_taxonomy:
     conda:
         "../envs/bgc_analytics.yaml"
     log:
-        "logs/gtdb/fix_gtdb_taxonomy/fix_gtdb_taxonomy-{taxon}.log",
+        "logs/{stage}/gtdb/fix_gtdb_taxonomy/fix_gtdb_taxonomy-{taxon}.log",
     priority: 50
     shell:
         """
