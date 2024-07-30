@@ -63,8 +63,6 @@ KINGDOM = "bacteria"
 # TAXONS = extract_project_information(config)
 
 GTDB_PATHS = []
-CUSTOM_FNA = []
-STRAINS_FNA = ["Dummy"]
 PROKKA_DB_MAP = {}
 
 RULE_FUNCTIONS = {}
