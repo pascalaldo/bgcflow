@@ -14,18 +14,18 @@
 #%
 rule mash:
     input:
-        fna=lambda wildcards: expand("data/interim/fasta/{accession}.fna", accession=RULE_FUNCTIONS["mash"]["accessions"](wildcards.name)),
+        fna=lambda wildcards: expand("data/interim/all/fasta/{accession}.fna", accession=RULE_FUNCTIONS["mash"][wildcards.stage]["accessions"](wildcards.name)),
         # fna=lambda wildcards: get_fasta_inputs(wildcards.name, get_samples_df()),
     output:
-        mash_infile="data/interim/mash/{name}/mash_in.txt",
-        triangle_dist="data/interim/mash/{name}/triangle_distance_matrix.tsv",
+        mash_infile="data/interim/{stage}/mash/{name}/mash_in.txt",
+        triangle_dist="data/interim/{stage}/mash/{name}/triangle_distance_matrix.tsv",
     conda:
         "../envs/mash.yaml"
     threads: 32
     params:
         sketch_size=1000,
     log:
-        "logs/mash/mash-triangle-{name}.log",
+        "logs/{stage}/mash/mash-triangle-{name}.log",
     shell:
         """
         for fna in {input.fna}
@@ -38,11 +38,11 @@ rule mash:
 
 rule mash_convert:
     input:
-        mash_matrix="data/interim/mash/{name}/triangle_distance_matrix.tsv",
+        mash_matrix="data/interim/{stage}/mash/{name}/triangle_distance_matrix.tsv",
     output:
-        df_mash="data/processed/{name}/mash/df_mash.csv",
+        df_mash="data/processed/{stage}/{name}/mash/df_mash.csv",
     log:
-        "logs/mash/mash-convert-{name}.log",
+        "logs/{stage}/mash/mash-convert-{name}.log",
     conda:
         "../envs/bgc_analytics.yaml"
     shell:

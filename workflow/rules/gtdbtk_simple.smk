@@ -56,14 +56,14 @@ rule install_gtdbtk:
 
 checkpoint prepare_gtdbtk_input:
     input:
-        gtdb_meta="data/interim/gtdb/{name}/tables/df_gtdb_meta.csv",
-        json_list=lambda wildcards: expand("data/interim/assembly_report/{accession}.json", accession=RULE_FUNCTIONS["gtdbtk_simple"]["accessions"](wildcards.name)),
-        fna=lambda wildcards: expand("data/interim/fasta/{accession}.fna", accession=RULE_FUNCTIONS["gtdbtk_simple"]["accessions"](wildcards.name)),
+        gtdb_meta="data/interim/{stage}/gtdb/{name}/tables/df_gtdb_meta.csv",
+        json_list=lambda wildcards: expand("data/interim/all/assembly_report/{accession}.json", accession=RULE_FUNCTIONS["gtdbtk_simple"][wildcards.stage]["accessions"](wildcards.name)),
+        fna=lambda wildcards: expand("data/interim/all/fasta/{accession}.fna", accession=RULE_FUNCTIONS["gtdbtk_simple"][wildcards.stage]["accessions"](wildcards.name)),
     output:
-        fnadir=directory("data/interim/gtdbtk/{name}/fasta/"),
-        fnalist="data/interim/gtdbtk/{name}/fasta_list.txt",
+        fnadir=directory("data/interim/{stage}/gtdbtk/{name}/fasta/"),
+        fnalist="data/interim/{stage}/gtdbtk/{name}/fasta_list.txt",
     log:
-        "logs/gtdbtk/prepare_gtdbtk_input/{name}.log",
+        "logs/{stage}/gtdbtk/prepare_gtdbtk_input/{name}.log",
     conda:
         "../envs/bgc_analytics.yaml"
     shell:
@@ -82,16 +82,16 @@ checkpoint prepare_gtdbtk_input:
 rule gtdbtk:
     input:
         gtdbtk="resources/gtdbtk/",
-        fnadir="data/interim/gtdbtk/{name}/fasta/",
+        fnadir="data/interim/{stage}/gtdbtk/{name}/fasta/",
     output:
-        fnalist="data/interim/gtdbtk/{name}/fasta_list_success.txt",
-        gtdbtk_dir=directory("data/interim/gtdbtk/{name}/result/"),
-        tmpdir=temp(directory("data/interim/gtdbtk/{name}_tmp/")),
-        summary_interim="data/interim/gtdbtk/{name}/result/classify/gtdbtk.bac120.summary.tsv",
+        fnalist="data/interim/{stage}/gtdbtk/{name}/fasta_list_success.txt",
+        gtdbtk_dir=directory("data/interim/{stage}/gtdbtk/{name}/result/"),
+        tmpdir=temp(directory("data/interim/{stage}/gtdbtk/{name}_tmp/")),
+        summary_interim="data/interim/{stage}/gtdbtk/{name}/result/classify/gtdbtk.bac120.summary.tsv",
     conda:
         "../envs/gtdbtk.yaml"
     log:
-        "logs/gtdbtk/gtdbtk/gtdbtk_{name}.log",
+        "logs/{stage}/gtdbtk/gtdbtk/gtdbtk_{name}.log",
     threads: 32
     params:
         ani_screen=ani_screen,
@@ -105,9 +105,9 @@ rule gtdbtk:
 
 rule gtdbtk_fna_fail:
     output:
-        "data/interim/gtdbtk/{name}/fasta_list_fail.txt",
+        "data/interim/{stage}/gtdbtk/{name}/fasta_list_fail.txt",
     log:
-        "logs/gtdbtk/gtdbtk/gtdbtk_{name}.log",
+        "logs/gtdbtk/{stage}/gtdbtk/gtdbtk_{name}.log",
     shell:
         """
         echo "WARNING: No genomes are eligible for GTDB-Tk classification. Please check if the genome ids already exists in GTDB. Returning empty ouput." > {log}
@@ -129,7 +129,7 @@ def evaluate_gtdbtk_input(wildcards):
         str: The path to the `fasta_list_success.txt` file if the file has content, otherwise the path to the
         `fasta_list_fail.txt` file.
     """
-    gtdtbk_input = checkpoints.prepare_gtdbtk_input.get(name=wildcards.name).output["fnalist"]
+    gtdtbk_input = checkpoints.prepare_gtdbtk_input.get(stage=wildcards.stage, name=wildcards.name).output["fnalist"]
     sys.stderr.write(f"GTDB-Tk checkpoint - Reading input file: {gtdtbk_input}\n")
     with gtdtbk_input.open() as f:
         textfile = f.readlines()
@@ -145,8 +145,8 @@ rule evaluate_gtdbtk_input:
     input:
         evaluate_gtdbtk_input
     output:
-        summary_processed="data/processed/{name}/tables/gtdbtk.bac120.summary.tsv"
+        summary_processed="data/processed/{stage}/{name}/tables/gtdbtk.bac120.summary.tsv"
     log:
-        "logs/gtdbtk/gtdbtk/evaluate_gtdbtk_{name}.log",
+        "logs/{stage}/gtdbtk/gtdbtk/evaluate_gtdbtk_{name}.log",
     shell:
         "cp {input} {output.summary_processed} 2>> {log}"

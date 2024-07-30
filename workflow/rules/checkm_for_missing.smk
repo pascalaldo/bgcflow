@@ -12,11 +12,11 @@ CHECKM_COLMAPPING = {
 if config.get("use_ncbi_data_for_checkm", False):
     checkpoint checkm_find_missing_data:
         input:
-            overview_csv="data/interim/ncbi_datasets/taxon/{taxon}.csv",
+            overview_csv="data/interim/{stage}/ncbi_datasets/taxon/{taxon}.csv",
         output:
-            missing="data/interim/checkm/{taxon}_missing.txt",
+            missing="data/interim/{stage}/checkm/{taxon}_missing.txt",
         log:
-            "logs/checkm/checkm_missing_{taxon}.log",
+            "logs/{stage}/checkm/checkm_missing_{taxon}.log",
         run:
             import pandas as pd
             df = pd.read_csv(input.overview_csv, low_memory=False, index_col=0, header=0)
@@ -26,26 +26,26 @@ if config.get("use_ncbi_data_for_checkm", False):
                 missing = df.index[pd.isna(df[list(CHECKM_COLMAPPING.keys())]).any(axis="columns")].to_series()
             missing.to_csv(output.missing, index=False, header=False)
 
-    def get_checkm_missing_fasta_inputs_for_name(name):
-        accessions = pd.read_csv(checkpoints.checkm_find_missing_data.get(taxon=name).output.missing, header=None, index_col=False)
+    def get_checkm_missing_fasta_inputs_for_name(stage, name):
+        accessions = pd.read_csv(checkpoints.checkm_find_missing_data.get(stage=stage, taxon=name).output.missing, header=None, index_col=False)
         accessions = accessions[accessions.columns[0]].to_list()
-        return [f"data/interim/fasta/{s}.fna" for s in accessions]
+        return [f"data/interim/all/fasta/{s}.fna" for s in accessions]
 
     rule checkm_for_missing:
         input:
-            fna=lambda wildcards: get_checkm_missing_fasta_inputs_for_name(wildcards.name),
+            fna=lambda wildcards: get_checkm_missing_fasta_inputs_for_name(wildcards.stage, wildcards.name),
             checkm_db="resources/checkm/",
-            missing="data/interim/checkm/{name}_missing.txt",
+            missing="data/interim/{stage}/checkm/{name}_missing.txt",
         output:
-            fna=temp(directory("data/interim/checkm_missing/{name}_fna")),
-            stat="data/interim/checkm_missing/{name}/storage/bin_stats_ext.tsv",
-            checkm_dir=directory("data/interim/checkm_missing/{name}"),
+            fna=temp(directory("data/interim/{stage}/checkm_missing/{name}_fna")),
+            stat="data/interim/{stage}/checkm_missing/{name}/storage/bin_stats_ext.tsv",
+            checkm_dir=directory("data/interim/{stage}/checkm_missing/{name}"),
         conda:
             "../envs/checkm.yaml"
         log:
-            "logs/checkm/checkm_{name}.log",
+            "logs/{stage}/checkm/checkm_{name}.log",
         params:
-            checkm_log="data/interim/checkm/{name}/checkm_missing_{name}.log",
+            checkm_log="data/interim/{stage}/checkm/{name}/checkm_missing_{name}.log",
         threads: 16
         shell:
             """
@@ -60,13 +60,13 @@ if config.get("use_ncbi_data_for_checkm", False):
 
     rule checkm_missing_out:
         input:
-            stat="data/interim/checkm_missing/{name}/storage/bin_stats_ext.tsv",
+            stat="data/interim/{stage}/checkm_missing/{name}/storage/bin_stats_ext.tsv",
         output:
-            stat_processed="data/interim/checkm_missing/{name}_stats.csv",
+            stat_processed="data/interim/{stage}/checkm_missing/{name}_stats.csv",
         log:
-            "logs/checkm/checkm_missing_out_{name}.log",
+            "logs/{stage}/checkm/checkm_missing_out_{name}.log",
         params:
-            checkm_json=directory("data/interim/checkm_missing/{name}/json/"),
+            checkm_json=directory("data/interim/{stage}/checkm_missing/{name}/json/"),
         conda:
             "../envs/bgc_analytics.yaml"
         shell:
@@ -81,12 +81,12 @@ if config.get("use_ncbi_data_for_checkm", False):
 
     rule checkm_missing_combine:
         input:
-            checkm_stats="data/interim/checkm_missing/{name}_stats.csv",
-            overview_csv="data/interim/ncbi_datasets/taxon/{name}.csv",
+            checkm_stats="data/interim/{stage}/checkm_missing/{name}_stats.csv",
+            overview_csv="data/interim/{stage}/ncbi_datasets/taxon/{name}.csv",
         output:
-            stats="data/processed/{name}/tables/df_combined_stats.csv",
+            stats="data/processed/{stage}/{name}/tables/df_combined_stats.csv",
         log:
-            "logs/checkm/checkm_missing_combine_{name}.log",
+            "logs/{stage}/checkm/checkm_missing_combine_{name}.log",
         run:
             import pandas as pd
             df = pd.read_csv(input.overview_csv, low_memory=False, index_col=0, header=0)
@@ -110,11 +110,11 @@ if config.get("use_ncbi_data_for_checkm", False):
 else:
     rule use_checkm:
         input:
-            checkm_stats="data/processed/{name}/tables/df_checkm_stats.csv",
+            checkm_stats="data/processed/{stage}/{name}/tables/df_checkm_stats.csv",
         output:
-            stats="data/processed/{name}/tables/df_combined_stats.csv",
+            stats="data/processed/{stage}/{name}/tables/df_combined_stats.csv",
         log:
-            "logs/checkm/checkm_missing_use_checkm_{name}.log",
+            "logs/{stage}/checkm/checkm_missing_use_checkm_{name}.log",
         run:
             import pandas as pd
             df_checkm[list(CHECKM_COLMAPPING.values())].to_csv(output.stats)

@@ -89,8 +89,8 @@ def get_samples_for_project_from_df(df_samples, name):
     df_exploded = df_samples.explode(cols)
     return df_exploded.loc[df_exploded["name"] == name, :]
 
-def get_unclassified_accessions(taxon):
+def get_unclassified_accessions(stage, taxon):
     import pandas as pd
-    df = pd.read_csv(checkpoints.fix_gtdb_taxonomy.get(taxon=taxon).output.meta, low_memory=False, header=0, index_col=0)
+    df = pd.read_csv(checkpoints.fix_gtdb_taxonomy.get(stage=stage, taxon=taxon).output.meta, low_memory=False, header=0, index_col=0)
     unclassified = df.loc[df["Species"] == "s__", :]
     return unclassified.index.tolist()

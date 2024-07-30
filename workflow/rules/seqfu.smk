@@ -9,13 +9,13 @@
 #%
 rule seqfu_stats:
     input:
-        fna="data/interim/fasta/{strains}.fna",
+        fna="data/interim/all/fasta/{strains}.fna",
     output:
-        json="data/interim/seqfu/{strains}.json",
+        json="data/interim/{stage}/seqfu/{strains}.json",
     conda:
         "../envs/seqfu.yaml"
     log:
-        "logs/seqfu/seqfu/seqfu-{strains}.log",
+        "logs/{stage}/seqfu/seqfu/seqfu-{strains}.log",
     params:
         precision=3,
     shell:
@@ -27,12 +27,12 @@ rule seqfu_stats:
 rule seqfu_combine:
     input:
         json=lambda wildcards: expand(
-            "data/interim/seqfu/{strains}.json",
-            strains=RULE_FUNCTIONS["seqfu"]["strains"](wildcards.name),
+            "data/{{stage}}/interim/seqfu/{strains}.json",
+            strains=RULE_FUNCTIONS["seqfu"][wildcards.stage]["strains"](wildcards.name),
         ),
     output:
         all_csv=report(
-            "data/processed/{name}/tables/df_seqfu_stats.csv",
+            "data/processed/{stage}/{name}/tables/df_seqfu_stats.csv",
             caption="../report/table-seqfu.rst",
             category="{name}",
             subcategory="Quality Control",
@@ -40,10 +40,10 @@ rule seqfu_combine:
     conda:
         "../envs/bgc_analytics.yaml"
     log:
-        "logs/seqfu/seqfu-{name}.log",
+        "logs/{stage}/seqfu/seqfu-{name}.log",
     shell:
         """
-        TMPDIR="data/interim/tmp/{wildcards.name}"
+        TMPDIR="data/interim/{wildcards.stage}/tmp/{wildcards.name}"
         mkdir -p $TMPDIR
         INPUT_JSON="$TMPDIR/df_seqfu.txt"
         echo '{input.json}' > $INPUT_JSON

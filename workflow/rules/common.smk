@@ -476,7 +476,7 @@ def get_fasta_inputs(name, df_samples):
         output {list} -- list of fasta files
     """
     selection = [i for i in df_samples.index if name in df_samples.loc[i, "name"]]
-    output = [f"data/interim/fasta/{s}.fna" for s in selection]
+    output = [f"data/interim/all/fasta/{s}.fna" for s in selection]
     return output
 
 
@@ -529,7 +529,7 @@ def get_ncbi_assembly_inputs(name, df_samples):
     """
     selection = [i for i in df_samples.index if name in df_samples.loc[i, "name"]]
     selection_ncbi = df_samples[df_samples["source"] == "ncbi"].genome_id.values
-    output = [f"data/interim/assembly_report/{s}.json" for s in selection_ncbi]
+    output = [f"data/interim/all/assembly_report/{s}.json" for s in selection_ncbi]
     return output
 
 

@@ -11,20 +11,20 @@ rule pankb_genome_list:
     input:
         rules.qc.output
     output:
-        genomes="data/processed/{name}/pankb/genomes.txt"
+        genomes="data/processed/{stage}/{name}/pankb/genomes.txt"
     log:
-        "logs/pankb_data_prep/pankb_genome_list_{name}.log"
+        "logs/{stage}/pankb_data_prep/pankb_genome_list_{name}.log"
     run:
         # genomes = get_genome_ids(wildcards.name, filter_samples_qc(wildcards, get_samples_df()))
-        genomes = RULE_FUNCTIONS["pankb_data_prep"]["genomes"](wildcards.name)
+        genomes = RULE_FUNCTIONS["pankb_data_prep"][wildcards.stage]["genomes"](wildcards.name)
         with open(output.genomes, "w") as f:
             f.writelines(f"{genome}\n" for genome in genomes)
 
 rule pankb_select_and_merge:
     input:
-        genomes=lambda _: expand("data/processed/{name}/pankb/genomes.txt", name=RULE_FUNCTIONS["pankb_data_prep"]["projects"]()),
-        csv=lambda _: expand("data/processed/{name}/{{directory}}/{{filename}}.csv", name=RULE_FUNCTIONS["pankb_data_prep"]["projects"]()),
-    output: "data/processed/pankb/{directory}/{filename}.csv",
+        genomes=lambda wildcards: expand("data/processed/{{stage}}/{name}/pankb/genomes.txt", name=RULE_FUNCTIONS["pankb_data_prep"][wildcards.stage]["projects"]()),
+        csv=lambda wildcards: expand("data/processed/{{stage}}/{name}/{{directory}}/{{filename}}.csv", name=RULE_FUNCTIONS["pankb_data_prep"][wildcards.stage]["projects"]()),
+    output: "data/processed/{stage}/pankb/{directory}/{filename}.csv",
     run:
         import pandas as pd
 
@@ -40,9 +40,9 @@ rule pankb_select_and_merge:
 
 checkpoint pankb_family_list:
     input:
-        gtdb_merged="data/processed/pankb/tables/df_gtdb_meta.csv"
+        gtdb_merged="data/processed/{stage}/pankb/tables/df_gtdb_meta.csv"
     output:
-        families="data/processed/pankb/families.txt"
+        families="data/processed/{stage}/pankb/families.txt"
     run:
         import pandas as pd
 
@@ -53,11 +53,11 @@ checkpoint pankb_family_list:
 
 rule pankb_isosource:
     input:
-        genomes="data/processed/{name}/pankb/genomes.txt"
+        genomes="data/processed/{stage}/{name}/pankb/genomes.txt"
     output:
-        isosource="data/processed/{name}/pankb/source_info/df_ncbi_isolation_src.csv"
+        isosource="data/processed/{stage}/{name}/pankb/source_info/df_ncbi_isolation_src.csv"
     log:
-        "logs/pankb_data_prep/pankb_isosource_{name}.log"
+        "logs/{stage}/pankb_data_prep/pankb_isosource_{name}.log"
     conda:
         "../envs/pankb_data_prep.yaml"
     shell:
@@ -69,14 +69,14 @@ rule pankb_isosource:
 
 rule pankb_species_summary:
     input:
-        gtdb_meta="data/processed/{name}/tables/df_gtdb_meta.csv",
-        summary_v2="data/interim/alleleome/{name}/pangene_v2.csv",
-        gp_binary="data/interim/roary/{name}/df_gene_presence_binary.csv",
+        gtdb_meta="data/processed/{stage}/{name}/tables/df_gtdb_meta.csv",
+        summary_v2="data/interim/{stage}/alleleome/{name}/pangene_v2.csv",
+        gp_binary="data/interim/{stage}/roary/{name}/df_gene_presence_binary.csv",
     output:
-        csv="data/processed/{name}/pankb/summary.csv",
-        json="data/processed/{name}/pankb/summary.json",
+        csv="data/processed/{stage}/{name}/pankb/summary.csv",
+        json="data/processed/{stage}/{name}/pankb/summary.json",
     log:
-        "logs/pankb_data_prep/pankb_species_{name}.log"
+        "logs/{stage}/pankb_data_prep/pankb_species_{name}.log"
     conda:
         "../envs/pankb_data_prep.yaml"
     shell:
@@ -91,12 +91,12 @@ rule pankb_species_summary:
 
 rule pankb_family_summary:
     input:
-        gtdb_merged="data/processed/pankb/tables/df_gtdb_meta.csv",
-        seqfu_stats="data/processed/pankb/tables/df_seqfu_stats.csv",
+        gtdb_merged="data/processed/{stage}/pankb/tables/df_gtdb_meta.csv",
+        seqfu_stats="data/processed/{stage}/pankb/tables/df_seqfu_stats.csv",
     output:
-        summary="data/processed/pankb/family/{family}/summary.csv"
+        summary="data/processed/{stage}/pankb/family/{family}/summary.csv"
     log:
-        "logs/pankb_data_prep/pankb_family_{family}.log"
+        "logs/{stage}/pankb_data_prep/pankb_family_{family}.log"
     conda:
         "../envs/pankb_data_prep.yaml"
     shell:
@@ -109,12 +109,12 @@ rule pankb_family_summary:
 
 rule pankb_full_summary:
     input:
-        gtdb_merged="data/processed/pankb/tables/df_gtdb_meta.csv",
-        seqfu_stats="data/processed/pankb/tables/df_seqfu_stats.csv",
+        gtdb_merged="data/processed/{stage}/pankb/tables/df_gtdb_meta.csv",
+        seqfu_stats="data/processed/{stage}/pankb/tables/df_seqfu_stats.csv",
     output:
-        summary="data/processed/pankb/pankb/full_summary.csv"
+        summary="data/processed/{stage}/pankb/pankb/full_summary.csv"
     log:
-        "logs/pankb_data_prep/pankb_full_summary.log"
+        "logs/{stage}/pankb_data_prep/pankb_full_summary.log"
     conda:
         "../envs/pankb_data_prep.yaml"
     shell:
@@ -127,13 +127,13 @@ rule pankb_full_summary:
 
 rule pankb_pangenome_summary:
     input:
-        species_summary="data/processed/pankb/pankb/summary.csv",
+        species_summary="data/processed/{stage}/pankb/pankb/summary.csv",
     output:
-        species_list="data/processed/pankb/pankb/species_list.json",
-        genome_count="data/processed/pankb/pankb/organism_genome_count.json",
-        gene_count="data/processed/pankb/pankb/organism_gene_count.json",
+        species_list="data/processed/{stage}/pankb/pankb/species_list.json",
+        genome_count="data/processed/{stage}/pankb/pankb/organism_genome_count.json",
+        gene_count="data/processed/{stage}/pankb/pankb/organism_gene_count.json",
     log:
-        "logs/pankb_data_prep/pankb_all.log"
+        "logs/{stage}/pankb_data_prep/pankb_all.log"
     conda:
         "../envs/pankb_data_prep.yaml"
     shell:
@@ -147,13 +147,13 @@ rule pankb_pangenome_summary:
 
 rule pankb_mash:
     input:
-        genomes="data/processed/{name}/pankb/genomes.txt",
-        gtdb_meta="data/processed/{name}/tables/df_gtdb_meta.csv",
-        mash_file="data/processed/{name}/mash/df_mash.csv",
+        genomes="data/processed/{stage}/{name}/pankb/genomes.txt",
+        gtdb_meta="data/processed/{stage}/{name}/tables/df_gtdb_meta.csv",
+        mash_file="data/processed/{stage}/{name}/mash/df_mash.csv",
     output:
-        mash_list="data/processed/{name}/pankb/mash_list.csv",
+        mash_list="data/processed/{stage}/{name}/pankb/mash_list.csv",
     log:
-        "logs/pankb_data_prep/pankb_mash_{name}.log"
+        "logs/{stage}/pankb_data_prep/pankb_mash_{name}.log"
     conda:
         "../envs/pankb_data_prep.yaml"
     shell:
@@ -167,14 +167,14 @@ rule pankb_mash:
 
 rule pankb_eggnog:
     input:
-        gp_binary="data/interim/roary/{name}/df_gene_presence_binary.csv",
-        summary_v2="data/interim/alleleome/{name}/pangene_v2.csv",
-        eggnog_table="data/processed/{name}/eggnog_roary/emapper.annotations",
-        reference="data/interim/roary/{name}/pan_genome_reference.fa",
+        gp_binary="data/interim/{stage}/roary/{name}/df_gene_presence_binary.csv",
+        summary_v2="data/interim/{stage}/alleleome/{name}/pangene_v2.csv",
+        eggnog_table="data/processed/{stage}/{name}/eggnog_roary/emapper.annotations",
+        reference="data/interim/{stage}/roary/{name}/pan_genome_reference.fa",
     output:
-        eggnog_summary="data/processed/{name}/pankb/df_pangene_eggnog_summary.csv"
+        eggnog_summary="data/processed/{stage}/{name}/pankb/df_pangene_eggnog_summary.csv"
     log:
-        "logs/pankb_data_prep/pankb_eggnog_{name}.log"
+        "logs/{stage}/pankb_data_prep/pankb_eggnog_{name}.log"
     conda:
         "../envs/pankb_data_prep.yaml"
     shell:
@@ -188,17 +188,17 @@ rule pankb_eggnog:
         """
 rule pankb_heatmap:
     input:
-        gp_binary="data/interim/roary/{name}/df_gene_presence_binary.csv",
-        gp_locustag="data/interim/roary/{name}/df_gene_presence_locustag.csv",
-        summary_v2="data/interim/alleleome/{name}/pangene_v2.csv",
-        eggnog_summary="data/processed/{name}/pankb/df_pangene_eggnog_summary.csv",
-        mash_list="data/processed/{name}/pankb/mash_list.csv",
-        isosource="data/processed/{name}/pankb/source_info/df_ncbi_isolation_src.csv",
+        gp_binary="data/interim/{stage}/roary/{name}/df_gene_presence_binary.csv",
+        gp_locustag="data/interim/{stage}/roary/{name}/df_gene_presence_locustag.csv",
+        summary_v2="data/interim/{stage}/alleleome/{name}/pangene_v2.csv",
+        eggnog_summary="data/processed/{stage}/{name}/pankb/df_pangene_eggnog_summary.csv",
+        mash_list="data/processed/{stage}/{name}/pankb/mash_list.csv",
+        isosource="data/processed/{stage}/{name}/pankb/source_info/df_ncbi_isolation_src.csv",
         # species_info="data/processed/{name}/tables/df_ncbi_meta.csv",
     output:
-        heatmap="data/processed/{name}/pankb/heatmap_target.json",
+        heatmap="data/processed/{stage}/{name}/pankb/heatmap_target.json",
     log:
-        "logs/pankb_data_prep/pankb_heatmap_{name}.log"
+        "logs/{stage}/pankb_data_prep/pankb_heatmap_{name}.log"
     conda:
         "../envs/pankb_data_prep.yaml"
     shell:
@@ -215,12 +215,12 @@ rule pankb_heatmap:
 
 rule pankb_cog:
     input:
-        gp_binary="data/interim/roary/{name}/df_gene_presence_binary.csv",
-        eggnog_summary="data/processed/{name}/pankb/df_pangene_eggnog_summary.csv",
+        gp_binary="data/interim/{stage}/roary/{name}/df_gene_presence_binary.csv",
+        eggnog_summary="data/processed/{stage}/{name}/pankb/df_pangene_eggnog_summary.csv",
     output:
-        all_cog="data/processed/{name}/pankb/All.json",
+        all_cog="data/processed/{stage}/{name}/pankb/All.json",
     log:
-        "logs/pankb_data_prep/pankb_cog_{name}.log"
+        "logs/{stage}/pankb_data_prep/pankb_cog_{name}.log"
     conda:
         "../envs/pankb_data_prep.yaml"
     shell:
@@ -233,12 +233,12 @@ rule pankb_cog:
 
 rule pankb_cog_distribution:
     input:
-        summary_v2="data/interim/alleleome/{name}/pangene_v2.csv",
-        eggnog_summary="data/processed/{name}/pankb/df_pangene_eggnog_summary.csv",
+        summary_v2="data/interim/{stage}/alleleome/{name}/pangene_v2.csv",
+        eggnog_summary="data/processed/{stage}/{name}/pankb/df_pangene_eggnog_summary.csv",
     output:
-        cog_distribution="data/processed/{name}/pankb/COG_distribution.json",
+        cog_distribution="data/processed/{stage}/{name}/pankb/COG_distribution.json",
     log:
-        "logs/pankb_data_prep/pankb_distribution_{name}.log"
+        "logs/{stage}/pankb_data_prep/pankb_distribution_{name}.log"
     conda:
         "../envs/pankb_data_prep.yaml"
     shell:
@@ -251,11 +251,11 @@ rule pankb_cog_distribution:
 
 rule pankb_heaps:
     input:
-        gp_binary="data/interim/roary/{name}/df_gene_presence_binary.csv",
+        gp_binary="data/interim/{stage}/roary/{name}/df_gene_presence_binary.csv",
     output:
-        gene_freq="data/processed/{name}/pankb/gene_freq.json",
+        gene_freq="data/processed/{stage}/{name}/pankb/gene_freq.json",
     log:
-        "logs/pankb_data_prep/pankb_heaps_{name}.log"
+        "logs/{stage}/pankb_data_prep/pankb_heaps_{name}.log"
     conda:
         "../envs/pankb_data_prep.yaml"
     shell:
@@ -267,12 +267,12 @@ rule pankb_heaps:
 
 rule pankb_locustag:
     input:
-        gp_locustag="data/interim/roary/{name}/df_gene_presence_locustag.csv",
-        all_locustag="data/interim/alleleome/{name}/all_locustag.csv",
+        gp_locustag="data/interim/{stage}/roary/{name}/df_gene_presence_locustag.csv",
+        all_locustag="data/interim/{stage}/alleleome/{name}/all_locustag.csv",
     output:
-        locustag=directory("data/processed/{name}/pankb/gene_locustag/"),
+        locustag=directory("data/processed/{stage}/{name}/pankb/gene_locustag/"),
     log:
-        "logs/pankb_data_prep/pankb_locustag_{name}.log"
+        "logs/{stage}/pankb_data_prep/pankb_locustag_{name}.log"
     conda:
         "../envs/pankb_data_prep.yaml"
     shell:
@@ -285,16 +285,16 @@ rule pankb_locustag:
 
 rule pankb_genome_page:
     input:
-        full_summary="data/processed/pankb/pankb/full_summary.csv",
-        gp_binary="data/interim/roary/{name}/df_gene_presence_binary.csv",
-        isosource="data/processed/{name}/pankb/source_info/df_ncbi_isolation_src.csv",
-        # species_info="data/processed/{name}/tables/df_ncbi_meta.csv",
-        summary_v2="data/interim/alleleome/{name}/pangene_v2.csv",
-        eggnog_summary="data/processed/{name}/pankb/df_pangene_eggnog_summary.csv",
+        full_summary="data/processed/{stage}/pankb/pankb/full_summary.csv",
+        gp_binary="data/interim/{stage}/roary/{name}/df_gene_presence_binary.csv",
+        isosource="data/processed/{stage}/{name}/pankb/source_info/df_ncbi_isolation_src.csv",
+        # species_info="data/processed/{stage}/{name}/tables/df_ncbi_meta.csv",
+        summary_v2="data/interim/{stage}/alleleome/{name}/pangene_v2.csv",
+        eggnog_summary="data/processed/{stage}/{name}/pankb/df_pangene_eggnog_summary.csv",
     output:
-        genome_page_dir=directory("data/processed/{name}/pankb/genome_page/")
+        genome_page_dir=directory("data/processed/{stage}/{name}/pankb/genome_page/")
     log:
-        "logs/pankb_data_prep/pankb_genome_page_{name}.log"
+        "logs/{stage}/pankb_data_prep/pankb_genome_page_{name}.log"
     conda:
         "../envs/pankb_data_prep.yaml"
     shell:
@@ -310,12 +310,12 @@ rule pankb_genome_page:
 
 rule pankb_landing_page:
     input:
-        species_summary="data/processed/pankb/pankb/summary.csv",
+        species_summary="data/processed/{stage}/pankb/pankb/summary.csv",
     output:
-        pankb_dimension="data/processed/pankb/pankb/pankb_dimension.json",
-        species_genome_gene="data/processed/pankb/pankb/species_genome_gene.json",
+        pankb_dimension="data/processed/{stage}/pankb/pankb/pankb_dimension.json",
+        species_genome_gene="data/processed/{stage}/pankb/pankb/species_genome_gene.json",
     log:
-        "logs/pankb_data_prep/pankb_landing_page.log"
+        "logs/{stage}/pankb_data_prep/pankb_landing_page.log"
     conda:
         "../envs/pankb_data_prep.yaml"
     shell:
@@ -327,8 +327,8 @@ rule pankb_landing_page:
         """
 
 rule pankb_gzip:
-    input: "data/processed/{name}/pankb/{filename}",
-    output: "data/processed/{name}/pankb/{filename}.gz",
+    input: "data/processed/{stage}/{name}/pankb/{filename}",
+    output: "data/processed/{stage}/{name}/pankb/{filename}.gz",
     shell:
         """
         gzip -c {input} > {output}
@@ -338,12 +338,13 @@ rule pankb_all:
     input:
         lambda _: expand(
             [
-                "data/processed/{name}/pankb/genome_page/",
-                "data/processed/{name}/pankb/gene_locustag/",
-                "data/processed/{name}/pankb/gene_freq.json",
-                "data/processed/{name}/pankb/COG_distribution.json",
-                "data/processed/{name}/pankb/All.json",
-                "data/processed/{name}/pankb/heatmap_target.json",
+                "data/processed/{stage}/{name}/pankb/genome_page/",
+                "data/processed/{stage}/{name}/pankb/gene_locustag/",
+                "data/processed/{stage}/{name}/pankb/gene_freq.json",
+                "data/processed/{stage}/{name}/pankb/COG_distribution.json",
+                "data/processed/{stage}/{name}/pankb/All.json",
+                "data/processed/{stage}/{name}/pankb/heatmap_target.json",
             ],
+            stage=RULE_FUNCTIONS["pankb_data_prep"]["stages"](),
             name=RULE_FUNCTIONS["pankb_data_prep"]["projects"](),
         ),
