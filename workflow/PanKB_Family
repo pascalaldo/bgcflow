@@ -44,7 +44,9 @@ def extract_project_information(config):
         custom_samples_file = p.get("custom_samples", None)
         if not custom_samples_file is None:
             print(f"Step 3.{num+1} Extracting custom sample information from: {custom_samples_file}.")
-            custom_samples_df = pd.concat([custom_samples_df, extract_custom_sample_information(custom_samples_file)])
+            new_custom_samples = extract_custom_sample_information(custom_samples_file)
+            new_custom_samples["taxon"] = p['name']
+            custom_samples_df = pd.concat([custom_samples_df, new_custom_samples])
         # grab a bgcflow pep project
         record = {
             "name": p["name"].replace(" ", "_"),
@@ -66,7 +68,9 @@ KINGDOM = "bacteria"
 GTDB_PATHS = []
 PROKKA_DB_MAP = {}
 
-RULE_FUNCTIONS = defaultdict(lambda: {})
+def create_defaultdict():
+    return defaultdict(create_defaultdict)
+RULE_FUNCTIONS = create_defaultdict()
 
 ##### 3. Wildcard constraints #####
 wildcard_constraints:
@@ -125,13 +129,13 @@ include: "rules/mash.smk"
 RULE_FUNCTIONS["automlst_wrapper"]["species"]["accessions"] = filtered_accessions_for_project
 include: "rules/automlst_wrapper.smk"
 RULE_FUNCTIONS["alleleome"]["species"]["samples"] = filtered_accessions_for_project
-RULE_FUNCTIONS["alleleome"]["species"]["projects"] = get_species_projects
-RULE_FUNCTIONS["alleleome"]["species"]["pan_core"] = (lambda: "Pan")
-RULE_FUNCTIONS["alleleome"]["species"]["stages"] = (lambda: "species")
+RULE_FUNCTIONS["alleleome"]["species"]["pan_core"] = lambda: "Pan"
+RULE_FUNCTIONS["alleleome"]["stages"] = lambda: "species"
+RULE_FUNCTIONS["alleleome"]["projects"] = get_species_projects
 include: "rules/alleleome.smk"
-RULE_FUNCTIONS["pankb_data_prep"]["species"]["projects"] = get_species_projects,
+RULE_FUNCTIONS["pankb_data_prep"]["projects"] = get_species_projects
 RULE_FUNCTIONS["pankb_data_prep"]["genomes"] = filtered_accessions_for_project
-RULE_FUNCTIONS["pankb_data_prep"]["stages"] = (lambda: "species")
+RULE_FUNCTIONS["pankb_data_prep"]["stages"] = lambda: "species"
 include: "rules/pankb_data_prep.smk"
 
 all_target_rules = ["pankb", "alleleome"]

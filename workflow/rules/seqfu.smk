@@ -27,7 +27,7 @@ rule seqfu_stats:
 rule seqfu_combine:
     input:
         json=lambda wildcards: expand(
-            "data/{{stage}}/interim/seqfu/{strains}.json",
+            "data/interim/{{stage}}/seqfu/{strains}.json",
             strains=RULE_FUNCTIONS["seqfu"][wildcards.stage]["strains"](wildcards.name),
         ),
     output:

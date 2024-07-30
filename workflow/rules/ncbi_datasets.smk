@@ -120,7 +120,7 @@ rule ncbi_dataset_rehydrate:
 rule ncbi_insert_custom_genomes:
     input:
         dummy="data/interim/{stage}/ncbi_datasets/taxon/{taxon}.dummy",
-        samples_file="data/interim/{stage}/custom_genomes/samples.csv",
+        samples_file="data/interim/all/custom_genomes/samples.csv",
         assembly_report="data/interim/{stage}/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/assembly_data_report.jsonl",
     output:
         dummy="data/interim/{stage}/ncbi_datasets/taxon/{taxon}-custom.dummy",
@@ -176,7 +176,7 @@ rule ncbi_dataset_collect:
     conda:
         "../envs/data_processing.yaml"
     log:
-        "logs/{stage}/ncbi_datasets/ncbi_dataset_collect_{accession}.log",
+        "logs/ncbi_datasets/ncbi_dataset_collect_{accession}.log",
     shell:
         """
             if [ ! -f {output.fna} ]

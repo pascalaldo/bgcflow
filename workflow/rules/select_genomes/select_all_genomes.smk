@@ -1,8 +1,8 @@
 checkpoint select_genomes:
     input:
-        tsv="data/interim/ncbi_datasets/taxon/{taxon}.tsv",
+        tsv="data/interim/{stage}/ncbi_datasets/{taxon}.tsv",
     output:
-        genome_list="data/interim/ncbi_datasets/taxon/{taxon}.genome_list",
+        genome_list="data/interim/{stage}/ncbi_datasets/taxon/{taxon}.genome_list",
     run:
         import pandas as pd
         df = pd.read_csv(input.tsv, sep="\t", header=0, index_col=0, low_memory=False)
