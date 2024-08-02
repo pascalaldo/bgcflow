@@ -51,6 +51,7 @@ wildcard_constraints:
     prokka_db="|".join(PROKKA_GBFF),
 
 filter_samples_qc = lambda x, y: y # No automated QC
+
 def get_samples_for_project(name):
     samples = DF_SAMPLES[["name"]].copy()
     samples["genome_id"] = samples.index
@@ -69,6 +70,9 @@ rule all:
         #expand("data/processed/{name}/alleleome/Pan/final_core_pan_aa_thresh_vars_all_substitutions_sep_df.csv", name=PROJECT_IDS)
 	    expand("data/processed/{name}/alleleome/Pan/dn_ds.json", name=PROJECT_IDS),
         expand("data/processed/{name}/alleleome/Pan/step_line.json", name=PROJECT_IDS),
+        expand("data/processed/{name}/alleleome/Core/dn_ds.json", name=PROJECT_IDS),
+        expand("data/processed/{name}/alleleome/Core/step_line.json", name=PROJECT_IDS),
+        "data/processed/pankb/pankb/pankb_dimension.json",
 # Create place holder for resources defined in each modules, will be added if module is included, and passed to create custom_resource_dir
 resource_mapping = {}
 
@@ -76,13 +80,15 @@ resource_mapping = {}
 custom_resource_dir(config["resources_path"], resource_mapping)
 
 ##### Modules #####
+RULE_FUNCTIONS["seqfu"] = {"strains": get_samples_for_project}
+include: "rules/seqfu.smk"
 # include: "rules/convert_genbank.smk"
 # RULE_FUNCTIONS["mash"] = {"accessions": get_samples_for_project}
 # include: "rules/mash.smk"
 # RULE_FUNCTIONS["automlst_wrapper"] = {"accessions": get_samples_for_project}
 # include: "rules/automlst_wrapper.smk"
 # include: "rules/bgc_analytics.smk"
-# include: "rules/ncbi.smk"
+include: "rules/ncbi.smk"
 # RULE_FUNCTIONS["prokka"] = {"samples": get_samples_df}
 # include: "rules/prokka.smk"
 # include: "rules/gtdb.smk"
@@ -90,3 +96,11 @@ custom_resource_dir(config["resources_path"], resource_mapping)
 # include: "rules/roary.smk"
 RULE_FUNCTIONS["alleleome"] = {"samples": get_samples_for_project}
 include: "rules/alleleome.smk"
+rule qc:
+    run:
+        print("Dummy QC")
+RULE_FUNCTIONS["pankb_data_prep"] = {
+        "projects": lambda: PROJECT_IDS,
+        "genomes": get_samples_for_project,
+    }
+include: "rules/pankb_data_prep.smk"

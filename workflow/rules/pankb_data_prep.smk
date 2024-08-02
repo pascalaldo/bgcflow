@@ -25,16 +25,20 @@ rule pankb_select_and_merge:
         genomes=lambda _: expand("data/processed/{name}/pankb/genomes.txt", name=RULE_FUNCTIONS["pankb_data_prep"]["projects"]()),
         csv=lambda _: expand("data/processed/{name}/{{directory}}/{{filename}}.csv", name=RULE_FUNCTIONS["pankb_data_prep"]["projects"]()),
     output: "data/processed/pankb/{directory}/{filename}.csv",
+    params:
+        projects=lambda _: RULE_FUNCTIONS["pankb_data_prep"]["projects"]()
     run:
         import pandas as pd
 
         df = None
-        for genomes_file, csv_file in zip(input.genomes, input.csv):
+        for project, genomes_file, csv_file in zip(params.projects, input.genomes, input.csv):
             add_df = pd.read_csv(csv_file, index_col=0, low_memory=False)
             if add_df.index.name == "genome_id":
                 with open(genomes_file, 'r') as f:
                     genome_list = [genome.strip() for genome in f.readlines()]
                 add_df = add_df.loc[genome_list, :]
+            elif add_df.index.name == "Project":
+                add_df.rename(index={"Unknown": project}, inplace=True)
             df = pd.concat([df, add_df])
         df.to_csv(output[0])
 
@@ -124,6 +128,7 @@ rule pankb_full_summary:
             --seqfu {input.seqfu_stats} \
             -o {output.summary} > {log} 2>&1
         """
+ruleorder: pankb_full_summary > pankb_select_and_merge
 
 rule pankb_pangenome_summary:
     input:
@@ -308,9 +313,29 @@ rule pankb_genome_page:
             -o {output.genome_page_dir} > {log} 2>&1
         """
 
+rule pankb_alleleome_dimensions:
+    input:
+        sel_genes="data/interim/alleleome/{name}/sel_genes.csv",
+        filt_norm="data/processed/{name}/alleleome/Pan/final_pan_aa_thresh_core_genes_dom_var_genome_count_pos_normalized.csv",
+    output:
+        dimensions="data/processed/{name}/pankb/alleleome_dimensions.csv",
+    log:
+        "logs/pankb_data_prep/pankb_alleleome_dimensions_{name}.log"
+    conda:
+        "../envs/pankb_data_prep.yaml"
+    shell:
+        """
+        pankb_data_prep alleleome_dimensions \
+            --sel_genes {input.sel_genes} \
+            --filt_norm {input.filt_norm} \
+            -o {output.dimensions} > {log} 2>&1
+        """
+
+
 rule pankb_landing_page:
     input:
         species_summary="data/processed/pankb/pankb/summary.csv",
+        alleleome_dimensions="data/processed/pankb/pankb/alleleome_dimensions.csv",
     output:
         pankb_dimension="data/processed/pankb/pankb/pankb_dimension.json",
         species_genome_gene="data/processed/pankb/pankb/species_genome_gene.json",
@@ -322,6 +347,7 @@ rule pankb_landing_page:
         """
         pankb_data_prep landing \
             --species_summary {input.species_summary} \
+            --alleleome_dimensions {input.alleleome_dimensions} \
             --output_pankb_dimension {output.pankb_dimension} \
             --output_json {output.species_genome_gene} > {log} 2>&1
         """
@@ -347,3 +373,4 @@ rule pankb_all:
             ],
             name=RULE_FUNCTIONS["pankb_data_prep"]["projects"](),
         ),
+        "data/processed/pankb/pankb/pankb_dimension.json",
