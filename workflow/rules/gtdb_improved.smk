@@ -102,7 +102,7 @@ rule gtdb_prep:
         api_base="https://gtdb-api.ecogenomic.org",
     shell:
         """
-            python workflow/bgcflow/bgcflow/data/gtdb_prep_from_table_or_api.py {input.samples_csv} {input.table} {params.version} {output.gtdb_jsonl} '{params.gtdb_paths}' {params.offline} {params.api_base} > {log}
+            python workflow/bgcflow/bgcflow/data/gtdb_prep_from_table_or_api.py {input.samples_csv} {input.table} {params.version} {output.gtdb_jsonl} '{params.gtdb_paths}' {params.offline} {params.api_base} > {log} 2>&1
         """
 
 rule gtdb_jsonl_combine:

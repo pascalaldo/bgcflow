@@ -129,7 +129,7 @@ include: "rules/mash.smk"
 RULE_FUNCTIONS["automlst_wrapper"]["species"]["accessions"] = filtered_accessions_for_project
 include: "rules/automlst_wrapper.smk"
 RULE_FUNCTIONS["alleleome"]["species"]["samples"] = filtered_accessions_for_project
-RULE_FUNCTIONS["alleleome"]["species"]["pan_core"] = lambda: "Pan"
+RULE_FUNCTIONS["alleleome"]["pan_core"] = lambda: "Pan"
 RULE_FUNCTIONS["alleleome"]["stages"] = lambda: "species"
 RULE_FUNCTIONS["alleleome"]["projects"] = get_species_projects
 include: "rules/alleleome.smk"
