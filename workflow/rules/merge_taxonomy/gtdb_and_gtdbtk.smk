@@ -1,7 +1,8 @@
 checkpoint merge_taxonomy:
     input:
         gtdb="data/interim/{stage}/gtdb/{taxon}/tables/df_gtdb_meta.csv",
-        gtdbtk="data/interim/{stage}/gtdbtk/{taxon}/result/classify/gtdbtk.bac120.summary.tsv",
+        gtdbtk="data/processed/{stage}/{taxon}/tables/gtdbtk.bac120.summary.tsv",
+        # gtdbtk="data/interim/{stage}/gtdbtk/{taxon}/result/classify/gtdbtk.bac120.summary.tsv",
     output:
         meta=report(
             "data/processed/{stage}/{taxon}/tables/df_gtdb_meta.csv",

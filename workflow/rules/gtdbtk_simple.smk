@@ -73,15 +73,21 @@ checkpoint prepare_gtdbtk_input:
         "../envs/bgc_analytics.yaml"
     shell:
         """
-        TMPDIR="data/interim/tmp/{wildcards.name}"
+        TMPDIR="data/interim/{wildcards.stage}/tmp/gtdbtk/{wildcards.name}"
         mkdir -p $TMPDIR
         INPUT_FNA="$TMPDIR/df_fna_gtdbtk.txt"
         INPUT_JSON="$TMPDIR/df_json_gtdbtk.txt"
         echo '{input.fna}' > $INPUT_FNA
         echo '{input.json_list}' > $INPUT_JSON
-        python workflow/bgcflow/bgcflow/data/gtdbtk_prep.py $INPUT_FNA $INPUT_JSON {output.fnadir} {output.fnalist} 2>> {log}
+        if [ -s diff.txt ]; then
+            python workflow/bgcflow/bgcflow/data/gtdbtk_prep.py $INPUT_FNA $INPUT_JSON {output.fnadir} {output.fnalist} 2>> {log}
+        else
+            mkdir -p {output.fnadir}
+            touch {output.fnalist}
+        fi
         rm $INPUT_FNA
         rm $INPUT_JSON
+        rm -r $TMPDIR
         """
 
 rule gtdbtk:
@@ -141,10 +147,10 @@ def evaluate_gtdbtk_input(wildcards):
         sys.stderr.write(f"GTDB-Tk checkpoint - Found {len(textfile)} genomes to process...\n")
         if len(textfile) > 0:
             sys.stderr.write("GTDB-Tk checkpoint - Running GTDB-Tk classify_wf...\n")
-            return "data/interim/gtdbtk/{name}/fasta_list_success.txt",
+            return "data/interim/{stage}/gtdbtk/{name}/fasta_list_success.txt",
         else:
             sys.stderr.write("GTDB-Tk checkpoint - No input passed. Skipping GTDB-tk run...\n")
-            return "data/interim/gtdbtk/{name}/fasta_list_fail.txt",
+            return "data/interim/{stage}/gtdbtk/{name}/fasta_list_fail.txt",
 
 rule evaluate_gtdbtk_input:
     input:

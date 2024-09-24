@@ -12,9 +12,9 @@ CHECKM_COLMAPPING = {
 if config.get("use_ncbi_data_for_checkm", False):
     checkpoint checkm_find_missing_data:
         input:
-            overview_csv="data/interim/{stage}/ncbi_datasets/taxon/{taxon}.csv",
+            overview_csv="data/interim/{stage}/ncbi_datasets/{taxon}.csv",
         output:
-            missing="data/interim/{stage}/checkm/{taxon}_missing.txt",
+            missing="data/interim/{stage}/checkm_missing/{taxon}/{taxon}_missing.txt",
         log:
             "logs/{stage}/checkm/checkm_missing_{taxon}.log",
         run:
@@ -27,7 +27,12 @@ if config.get("use_ncbi_data_for_checkm", False):
             missing.to_csv(output.missing, index=False, header=False)
 
     def get_checkm_missing_fasta_inputs_for_name(stage, name):
-        accessions = pd.read_csv(checkpoints.checkm_find_missing_data.get(stage=stage, taxon=name).output.missing, header=None, index_col=False)
+        try:
+            accessions = pd.read_csv(checkpoints.checkm_find_missing_data.get(stage=stage, taxon=name).output.missing, header=None, index_col=False)
+        except pd.errors.EmptyDataError:
+            return []
+        if accessions.empty:
+            return []
         accessions = accessions[accessions.columns[0]].to_list()
         return [f"data/interim/all/fasta/{s}.fna" for s in accessions]
 
@@ -35,11 +40,11 @@ if config.get("use_ncbi_data_for_checkm", False):
         input:
             fna=lambda wildcards: get_checkm_missing_fasta_inputs_for_name(wildcards.stage, wildcards.name),
             checkm_db="resources/checkm/",
-            missing="data/interim/{stage}/checkm/{name}_missing.txt",
+            missing="data/interim/{stage}/checkm_missing/{name}/{name}_missing.txt",
         output:
-            fna=temp(directory("data/interim/{stage}/checkm_missing/{name}_fna")),
-            stat="data/interim/{stage}/checkm_missing/{name}/storage/bin_stats_ext.tsv",
-            checkm_dir=directory("data/interim/{stage}/checkm_missing/{name}"),
+            fna=temp(directory("data/interim/{stage}/checkm_missing/{name}/{name}_fna")),
+            stat="data/interim/{stage}/checkm_missing/{name}/{name}/storage/bin_stats_ext.tsv",
+            checkm_dir=directory("data/interim/{stage}/checkm_missing/{name}/{name}"),
         conda:
             "../envs/checkm.yaml"
         log:
@@ -54,19 +59,21 @@ if config.get("use_ncbi_data_for_checkm", False):
                 for f in {input.fna}; do cp $f {output.fna}/.; done
                 checkm lineage_wf -t {threads} --reduced_tree -x fna {output.fna} {output.checkm_dir} &>> {log}
             else
+                mkdir -p {output.checkm_dir}
                 touch {output.stat}
+                mkdir -p {output.fna}
             fi
             """
 
     rule checkm_missing_out:
         input:
-            stat="data/interim/{stage}/checkm_missing/{name}/storage/bin_stats_ext.tsv",
+            stat="data/interim/{stage}/checkm_missing/{name}/{name}/storage/bin_stats_ext.tsv",
         output:
-            stat_processed="data/interim/{stage}/checkm_missing/{name}_stats.csv",
+            stat_processed="data/interim/{stage}/checkm_missing/{name}/{name}_stats.csv",
         log:
             "logs/{stage}/checkm/checkm_missing_out_{name}.log",
         params:
-            checkm_json=directory("data/interim/{stage}/checkm_missing/{name}/json/"),
+            checkm_json=directory("data/interim/{stage}/checkm_missing/{name}/{name}/json/"),
         conda:
             "../envs/bgc_analytics.yaml"
         shell:
@@ -81,8 +88,8 @@ if config.get("use_ncbi_data_for_checkm", False):
 
     rule checkm_missing_combine:
         input:
-            checkm_stats="data/interim/{stage}/checkm_missing/{name}_stats.csv",
-            overview_csv="data/interim/{stage}/ncbi_datasets/taxon/{name}.csv",
+            checkm_stats="data/interim/{stage}/checkm_missing/{name}/{name}_stats.csv",
+            overview_csv="data/interim/{stage}/ncbi_datasets/{name}.csv",
         output:
             stats="data/processed/{stage}/{name}/tables/df_combined_stats.csv",
         log:
