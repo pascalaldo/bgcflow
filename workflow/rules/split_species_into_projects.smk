@@ -8,7 +8,7 @@ checkpoint species_split:
     output:
         classification="data/interim/taxon/split/{taxon}/classification.csv",
     params:
-        min_clas_size=30,
+        min_clas_size=15,
     conda:
         "../envs/data_processing.yaml"
     log: "log/taxon/split/species_split_{taxon}.log",
