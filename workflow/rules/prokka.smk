@@ -70,7 +70,7 @@ rule prokka:
     input:
         fna = "data/interim/all/fasta/{strains_fna}.fna",
         org_info = "data/interim/all/prokka/{strains_fna}/organism_info.txt",
-        refgbff = lambda wildcards: get_prokka_refdb(wildcards, "file", RULE_FUNCTIONS["prokka"]["samples"](), PROKKA_DB_MAP)
+        refgbff = lambda wildcards: get_prokka_refdb(wildcards, "file", RULE_FUNCTIONS["prokka"][wildcards.stage]["samples"](), PROKKA_DB_MAP)
     output:
         gff = "data/interim/{stage}/prokka/{strains_fna}/{strains_fna}.gff",
         faa = "data/interim/{stage}/prokka/{strains_fna}/{strains_fna}.faa",
@@ -88,7 +88,7 @@ rule prokka:
         increment = 10,
         evalue = "1e-05",
         rna_detection = prokka_params_rna,
-        refgbff = lambda wildcards: get_prokka_refdb(wildcards, "params", RULE_FUNCTIONS["prokka"]["samples"](), PROKKA_DB_MAP),
+        refgbff = lambda wildcards: get_prokka_refdb(wildcards, "params", RULE_FUNCTIONS["prokka"][wildcards.stage]["samples"](), PROKKA_DB_MAP),
         use_pfam = prokka_use_pfam,
         kingdom = KINGDOM.capitalize(),
     threads: 4
