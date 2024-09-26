@@ -94,7 +94,7 @@ rule prokka:
     threads: 4
     shell:
         """
-        prokka --outdir data/interim/prokka/{wildcards.strains_fna} --force \
+        prokka --outdir data/interim/{wildcards.stage}/prokka/{wildcards.strains_fna} --force \
             --kingdom {params.kingdom} \
             {params.refgbff} --prefix {wildcards.strains_fna} --genus "`cut -d "," -f 1 {input.org_info}`" \
             --species "`cut -d "," -f 2 {input.org_info}`" --strain "`cut -d "," -f 3 {input.org_info}`" \
