@@ -49,10 +49,10 @@ rule extract_meta_prokka:
         samples_path = bgcflow_util_dir / "samples.csv",
         assembly_report= "data/interim/all/assembly_report/{strains_fna}.json",
     output:
-        org_info = "data/interim/{stage}/prokka/{strains_fna}/organism_info.txt",
+        org_info = "data/interim/all/prokka/{strains_fna}/organism_info.txt",
     conda:
         "../envs/bgc_analytics.yaml"
-    log: "logs/{stage}/prokka/extract_meta_prokka/extract_meta_prokka-{strains_fna}.log"
+    log: "logs/all/prokka/extract_meta_prokka/extract_meta_prokka-{strains_fna}.log"
     shell:
         """
         python workflow/bgcflow/bgcflow/data/get_organism_info.py {wildcards.strains_fna} \
