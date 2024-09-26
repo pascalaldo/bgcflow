@@ -24,7 +24,7 @@ rule pankb_select_and_merge:
     input:
         genomes=lambda wildcards: expand("data/processed/{{stage}}/{name}/pankb/genomes.txt", name=RULE_FUNCTIONS["pankb_data_prep"][wildcards.stage]["projects"]()),
         csv=lambda wildcards: expand("data/processed/{{stage}}/{name}/{{directory}}/{{filename}}.csv", name=RULE_FUNCTIONS["pankb_data_prep"][wildcards.stage]["projects"]()),
-    output: "data/processed/{stage}/pankb/{directory}/{filename}.csv",
+    output: "data/processed/{stage}/pankb/merged/{directory}/{filename}.csv",
     run:
         import pandas as pd
 
@@ -40,7 +40,7 @@ rule pankb_select_and_merge:
 
 checkpoint pankb_family_list:
     input:
-        gtdb_merged="data/processed/{stage}/pankb/tables/df_gtdb_meta.csv"
+        gtdb_merged="data/processed/{stage}/pankb/merged/tables/df_gtdb_meta.csv"
     output:
         families="data/processed/{stage}/pankb/families.txt"
     run:
@@ -91,8 +91,8 @@ rule pankb_species_summary:
 
 rule pankb_family_summary:
     input:
-        gtdb_merged="data/processed/{stage}/pankb/tables/df_gtdb_meta.csv",
-        seqfu_stats="data/processed/{stage}/pankb/tables/df_seqfu_stats.csv",
+        gtdb_merged="data/processed/{stage}/pankb/merged/tables/df_gtdb_meta.csv",
+        seqfu_stats="data/processed/{stage}/pankb/merged/tables/df_seqfu_stats.csv",
     output:
         summary="data/processed/{stage}/pankb/family/{family}/summary.csv"
     log:
@@ -109,8 +109,8 @@ rule pankb_family_summary:
 
 rule pankb_full_summary:
     input:
-        gtdb_merged="data/processed/{stage}/pankb/tables/df_gtdb_meta.csv",
-        seqfu_stats="data/processed/{stage}/pankb/tables/df_seqfu_stats.csv",
+        gtdb_merged="data/processed/{stage}/pankb/merged/tables/df_gtdb_meta.csv",
+        seqfu_stats="data/processed/{stage}/pankb/merged/tables/df_seqfu_stats.csv",
     output:
         summary="data/processed/{stage}/pankb/pankb/full_summary.csv"
     log:
