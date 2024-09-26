@@ -77,7 +77,7 @@ rule automlst_wrapper_out:
         # ),
         # organism_info=lambda wildcards: expand("data/interim/prokka/{strains}/organism_info.txt",
         #             strains=list(get_samples_for_project_from_df(filter_samples_qc(wildcards, get_samples_df()), wildcards.name).index)),
-        organism_info=lambda wildcards: expand("data/interim/{{stage}}/prokka/{accession}/organism_info.txt", accession=RULE_FUNCTIONS["automlst_wrapper"][wildcards.stage]["accessions"](wildcards.name)),
+        organism_info=lambda wildcards: expand("data/interim/all/prokka/{accession}/organism_info.txt", accession=RULE_FUNCTIONS["automlst_wrapper"][wildcards.stage]["accessions"](wildcards.name)),
         # gtdb=lambda wildcards: expand("data/interim/gtdb/{strains}.json",
         #     name=wildcards.name,
         #     strains=[s for s in list(filter_samples_qc(wildcards, PEP_PROJECTS[wildcards.name].sample_table).index)])
