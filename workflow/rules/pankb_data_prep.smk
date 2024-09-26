@@ -7,9 +7,13 @@ def get_family_list():
         family_list = [family.strip() for family in f.readlines()]
     return family_list
 
+def genome_list_dummy_input(wildcards):
+    RULE_FUNCTIONS["pankb_data_prep"][wildcards.stage]["genomes"](wildcards.name)
+    return []
+
 rule pankb_genome_list:
     input:
-        rules.qc.output
+        dummy=genome_list_dummy_input
     output:
         genomes="data/processed/{stage}/{name}/pankb/genomes.txt"
     log:
