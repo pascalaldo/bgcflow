@@ -82,7 +82,7 @@ rule automlst_wrapper_out:
         #     name=wildcards.name,
         #     strains=[s for s in list(filter_samples_qc(wildcards, PEP_PROJECTS[wildcards.name].sample_table).index)])
         # gtdb=lambda wildcards: expand("data/interim/gtdb/{strains}.json", strains=list(get_samples_for_project_from_df(filter_samples_qc(wildcards, get_samples_df()), wildcards.name).index)),
-        gtdb=lambda wildcards: expand("data/interim/{stage}/gtdb/{accession}.json", accession=RULE_FUNCTIONS["automlst_wrapper"][wildcards.stage]["accessions"](wildcards.name)),
+        gtdb=lambda wildcards: expand("data/interim/{{stage}}/gtdb/{accession}.json", accession=RULE_FUNCTIONS["automlst_wrapper"][wildcards.stage]["accessions"](wildcards.name)),
     output:
         genomes_tree="data/processed/{stage}/{name}/automlst_wrapper/df_genomes_tree.csv",
         mlst_genes="data/processed/{stage}/{name}/automlst_wrapper/df_mlst_genes.csv",
