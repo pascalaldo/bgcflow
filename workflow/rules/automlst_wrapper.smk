@@ -50,7 +50,7 @@ rule prep_automlst_gbk:
 rule automlst_wrapper:
     input:
         # gbk=lambda wildcards: get_automlst_inputs(wildcards.name, filter_samples_qc(wildcards, get_samples_df())),
-        gbk=lambda wildcards: expand(f"data/interim/{{stage}}/automlst_wrapper/{wildcards.name}/{{accession}}.gbk", accession=RULE_FUNCTIONS["automlst_wrapper"][wildcards.stage]["accessions"](wildcards.name)),
+        gbk=lambda wildcards: expand("data/interim/{{stage}}/automlst_wrapper/{{name}}/{accession}.gbk", accession=RULE_FUNCTIONS["automlst_wrapper"][wildcards.stage]["accessions"](wildcards.name)),
         reduced_core="resources/automlst-simplified-wrapper-main/reducedcore.hmm",
     output:
         tree="data/interim/{stage}/automlst_wrapper/{name}/raxmlpart.txt.treefile",
