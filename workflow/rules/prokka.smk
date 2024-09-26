@@ -56,7 +56,7 @@ rule extract_meta_prokka:
     shell:
         """
         python workflow/bgcflow/bgcflow/data/get_organism_info.py {wildcards.strains_fna} \
-            "{input.samples_path}" {input.assembly_report} data/interim/prokka/ 2>> {log}
+            "{input.samples_path}" {input.assembly_report} data/interim/all/prokka/ 2>> {log}
         """
 try:
     if os.path.isfile(config["resources_path"]["pfam_for_prokka"]):
