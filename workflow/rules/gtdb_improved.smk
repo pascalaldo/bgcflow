@@ -107,7 +107,7 @@ rule gtdb_prep:
 
 rule gtdb_jsonl_combine:
     input:
-        gtdb_jsonl=lambda wildcards: expand("data/interim/{stage}/gtdb/{taxon}.jsonl", taxon=RULE_FUNCTIONS["gtdb_improved"][wildcards.stage]["taxons"]()),
+        gtdb_jsonl=lambda wildcards: expand("data/interim/{{stage}}/gtdb/{taxon}.jsonl", taxon=RULE_FUNCTIONS["gtdb_improved"]["taxons"]()),
     output:
         gtdb_jsonl="data/interim/{stage}/gtdb/all/gtdb.jsonl",
     shell:
