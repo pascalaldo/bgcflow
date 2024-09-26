@@ -117,6 +117,7 @@ RULE_FUNCTIONS["gtdb_improved"]["taxon"]["taxons"] = get_taxons
 include: "rules/gtdb_improved.smk"
 include: "rules/merge_taxonomy/gtdb_and_gtdbtk.smk"
 include: "rules/split_species_into_projects.smk"
+include: "rules/eggnog.smk"
 
 def filtered_accessions_for_project(name):
     return filter_sample_names_qc(get_samples_for_species_project(name))

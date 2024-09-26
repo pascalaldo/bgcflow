@@ -33,17 +33,17 @@ rule install_eggnog:
 
 rule eggnog:
     input:
-        faa="data/interim/prokka/{strains}/{strains}.faa",
+        faa="data/interim/{stage}/prokka/{strains}/{strains}.faa",
         eggnog_db="resources/eggnog_db",
         dmnd="resources/eggnog_db/bacteria.dmnd",
     output:
-        eggnog_dir=directory("data/interim/eggnog/{strains}/"),
-        tempdir=temp(directory("data/interim/eggnog/tmp/{strains}"))
+        eggnog_dir=directory("data/interim/{stage}/eggnog/{strains}/"),
+        tempdir=temp(directory("data/interim/{stage}/eggnog/tmp/{strains}"))
     conda:
         "../envs/eggnog.yaml"
     threads: 8
     log:
-        "logs/eggnog/eggnog/eggnog-{strains}.log",
+        "logs/eggnog/{stage}/eggnog/eggnog-{strains}.log",
     shell:
         """
         mkdir -p {output.eggnog_dir}
