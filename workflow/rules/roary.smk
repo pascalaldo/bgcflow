@@ -45,6 +45,7 @@ rule roary:
         """
         rm -rf {params.roary_dir}
         roary -p {threads} -f {params.roary_dir} -i {params.i} -g {params.g} -e -n -r -v {input.gff} &>> {log}
+        touch {output.accessory_graph}
         """
 
 checkpoint roary_reassign_pangene_categories:
