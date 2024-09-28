@@ -71,7 +71,7 @@ def copy_automlst_out(automlst_interim_folder, automlst_processed_folder):
 
 
 def get_genome_tree_table(
-    automlst_processed_folder, prokka_interim_folder, gtdb_interim_folder
+    automlst_processed_folder, prokka_interim_folder, gtdb_interim_folder, organism_info_folder
 ):
     """
     Copy important files from autoMLST interim to proecessed directory
@@ -126,7 +126,7 @@ def get_genome_tree_table(
     for genome_id in df_genomes_tree.index:
         # Reading organism infor used for prokka run including strain ID
         org_info_path = os.path.join(
-            prokka_interim_folder, genome_id, "organism_info.txt"
+            organism_info_folder, genome_id, "organism_info.txt"
         )
         with open(org_info_path, "r") as file_obj:
             org_info = file_obj.readlines()[0]
@@ -184,7 +184,8 @@ if __name__ == "__main__":
     automlst_processed_folder = sys.argv[2]
     prokka_interim_folder = sys.argv[3]
     gtdb_interim_folder = sys.argv[4]
+    organism_info_folder = sys.argv[5]
     copy_automlst_out(automlst_interim_folder, automlst_processed_folder)
     df_genomes_tree = get_genome_tree_table(
-        automlst_processed_folder, prokka_interim_folder, gtdb_interim_folder
+        automlst_processed_folder, prokka_interim_folder, gtdb_interim_folder, organism_info_folder
     )

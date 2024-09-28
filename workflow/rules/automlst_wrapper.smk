@@ -100,10 +100,11 @@ rule automlst_wrapper_out:
         automlst_interim="data/interim/{stage}/automlst_wrapper/{name}/",
         automlst_processed="data/processed/{stage}/{name}/automlst_wrapper/",
         prokka_interim="data/interim/{stage}/prokka",
+        organism_info="data/interim/all/prokka/",
         gtdb_interim="data/interim/{stage}/gtdb",
     conda:
         "../envs/bgc_analytics.yaml"
     shell:
         """
-        python workflow/bgcflow/bgcflow/data/make_phylo_tree.py {params.automlst_interim} {params.automlst_processed} {params.prokka_interim} {params.gtdb_interim} 2>> {log}
+        python workflow/bgcflow/bgcflow/data/make_phylo_tree.py {params.automlst_interim} {params.automlst_processed} {params.prokka_interim} {params.gtdb_interim} {params.organism_info} 2>> {log}
         """
