@@ -29,7 +29,7 @@ rule roary:
         accessory_binary_genes_newick="data/interim/{stage}/roary/{name}/accessory_binary_genes.fa.newick",
         core_accessory="data/interim/{stage}/roary/{name}/core_accessory.tab",
         number_of_new_genes="data/interim/{stage}/roary/{name}/number_of_new_genes.Rtab",
-        accessory_graph="data/interim/roary/{stage}/{name}/accessory_graph.dot",
+        accessory_graph="data/interim/{stage}/roary/{name}/accessory_graph.dot",
         core_accessory_graph="data/interim/{stage}/roary/{name}/core_accessory_graph.dot",
         number_of_unique_genes="data/interim/{stage}/roary/{name}/number_of_unique_genes.Rtab",
     conda:
@@ -45,7 +45,6 @@ rule roary:
         """
         rm -rf {params.roary_dir}
         roary -p {threads} -f {params.roary_dir} -i {params.i} -g {params.g} -e -n -r -v {input.gff} &>> {log}
-        touch {output.accessory_graph}
         """
 
 checkpoint roary_reassign_pangene_categories:
