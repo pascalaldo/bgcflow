@@ -61,6 +61,7 @@ rule automlst_wrapper:
         "../envs/automlst_wrapper.yaml"
     threads: 8
     resources:
+        #TODO Fix
         tmpdir="data/interim/{stage}/automlst_wrapper/tmpdir/",
     shell:
         """

@@ -348,6 +348,7 @@ rule pankb_all:
                 "data/processed/{stage}/{name}/pankb/COG_distribution.json",
                 "data/processed/{stage}/{name}/pankb/All.json",
                 "data/processed/{stage}/{name}/pankb/heatmap_target.json",
+                "data/processed/{stage}/{name}/pankb/summary.json",
             ],
             stage=RULE_FUNCTIONS["pankb_data_prep"]["stages"](),
             name=RULE_FUNCTIONS["pankb_data_prep"]["projects"](),
