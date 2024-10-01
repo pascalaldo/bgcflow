@@ -212,8 +212,8 @@ rule pankb_heatmap:
         source_info_above_1="data/processed/{stage}/pankb/web_data/species/{name}/source_info_above_1.json.gz",
         source_info_only_1="data/processed/{stage}/pankb/web_data/species/{name}/source_info_only_1.json.gz",
     params:
-        heatmap_base="data/processed/{stage}/pankb/web_data/species/{name}/heatmap_"
-        source_info_base="data/processed/{stage}/pankb/web_data/species/{name}/source_info_"
+        heatmap_base="data/processed/{stage}/pankb/web_data/species/{name}/heatmap_",
+        source_info_base="data/processed/{stage}/pankb/web_data/species/{name}/source_info_",
     log:
         "logs/{stage}/pankb_data_prep/pankb_heatmap_{name}.log"
     conda:
