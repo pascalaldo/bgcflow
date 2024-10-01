@@ -91,14 +91,14 @@ def filter_sample_names_qc(sample_names):
     qc_samples_names = set(qc.index[qc["passed"] == True].to_list())
     sel = list(sample_names & qc_samples_names)
     return sel
-RULE_FUNCTIONS["qc"]["names"] = get_taxons
-RULE_FUNCTIONS["qc"]["stages"] = lambda: "taxon"
+RULE_FUNCTIONS["qc"]["names"] = get_taxons()
+RULE_FUNCTIONS["qc"]["stages"] = "taxon"
 include: "rules/qc/qc_contigs_n50.smk"
 
 resource_mapping = {}
 #### Modules #####
 include: "rules/custom_genomes.smk"
-RULE_FUNCTIONS["ncbi_datasets"]["stages"] = lambda: "taxon"
+RULE_FUNCTIONS["ncbi_datasets"]["stages"] = "taxon"
 include: "rules/ncbi_datasets.smk"
 
 ##### 4. Generate user-defined local resources
@@ -110,7 +110,7 @@ include: "rules/checkm_for_missing.smk"
 RULE_FUNCTIONS["checkm"]["taxon"]["accessions"] = get_accessions_for_taxon
 include: "rules/checkm.smk"
 
-RULE_FUNCTIONS["gtdbtk_simple"]["taxon"]["accessions"] = lambda name: get_unclassified_accessions("taxon", name)
+RULE_FUNCTIONS["gtdbtk_simple"]["accessions"] = lambda wildcards: get_unclassified_accessions(wildcards.stage, wildcards.name)
 include: "rules/gtdbtk_simple.smk"
 
 RULE_FUNCTIONS["gtdb_improved"]["taxons"] = get_taxons
@@ -121,22 +121,31 @@ include: "rules/eggnog.smk"
 
 def filtered_accessions_for_project(name):
     return filter_sample_names_qc(get_samples_for_species_project(name))
+FILTERED_ACCESSIONS = {}
+def cached_filtered_accessions_for_project(name):
+    if name in FILTERED_ACCESSIONS:
+        return FILTERED_ACCESSIONS[name]
+    else:
+        fa = filtered_accessions_for_project(name)
+        FILTERED_ACCESSIONS[name] = fa
+        return fa
 get_projects = cp_cached(get_species_projects)
-RULE_FUNCTIONS["prokka"]["species"]["samples"] = get_species_projects_samples_df
+get_samples_df = cp_cached(get_species_projects_samples_df)
+RULE_FUNCTIONS["prokka"]["samples"] = get_samples_df
 include: "rules/prokka.smk"
-RULE_FUNCTIONS["roary"]["species"]["samples"] = filtered_accessions_for_project
+RULE_FUNCTIONS["roary"]["species"]["samples"] = cached_filtered_accessions_for_project
 include: "rules/roary.smk"
-RULE_FUNCTIONS["mash"]["species"]["accessions"] = filtered_accessions_for_project
+RULE_FUNCTIONS["mash"]["species"]["accessions"] = cached_filtered_accessions_for_project
 include: "rules/mash.smk"
-RULE_FUNCTIONS["automlst_wrapper"]["species"]["accessions"] = filtered_accessions_for_project
+RULE_FUNCTIONS["automlst_wrapper"]["species"]["accessions"] = cached_filtered_accessions_for_project
 include: "rules/automlst_wrapper.smk"
-RULE_FUNCTIONS["alleleome"]["samples"] = lambda wildcards: filtered_accessions_for_project(wildcards.name)
+RULE_FUNCTIONS["alleleome"]["samples"] = lambda wildcards: cached_filtered_accessions_for_project(wildcards.name)
 RULE_FUNCTIONS["alleleome"]["pan_core"] = "Pan"
 RULE_FUNCTIONS["alleleome"]["stages"] = "species"
 RULE_FUNCTIONS["alleleome"]["projects"] = get_projects
 include: "rules/alleleome.smk"
 RULE_FUNCTIONS["pankb_data_prep"]["projects"] = get_projects
-RULE_FUNCTIONS["pankb_data_prep"]["genomes"] = lambda wildcards: filtered_accessions_for_project(wildcards.name)
+RULE_FUNCTIONS["pankb_data_prep"]["genomes"] = lambda wildcards: cached_filtered_accessions_for_project(wildcards.name)
 RULE_FUNCTIONS["pankb_data_prep"]["stages"] = "species"
 include: "rules/pankb_data_prep.smk"
 

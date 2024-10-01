@@ -62,13 +62,13 @@ def get_all_accessions():
     for taxon in TAXONS.index.to_list():
         accessions.extend(get_accessions_for_taxon(taxon))
     return accessions
-def get_taxon_for_accession(accession):
+def get_taxon_for_accession(wildcards):
     for taxon in TAXONS.index.to_list():
         genome_list = checkpoints.ncbi_dataset_tsv_to_samples_csv.get(stage="taxon", taxon=taxon).output.csv
         df = pd.read_csv(genome_list, index_col=0, header=0, low_memory=False)  
-        if accession in df.index:
+        if wildcards.accession in df.index:
             return taxon
-    raise ValueError(f"No taxon found for {accession}")
+    raise ValueError(f"No taxon found for {wildcards.accession}")
 
 
 rule ncbi_dataset_download_genome_for_taxon_dehydrated:
@@ -165,14 +165,14 @@ rule ncbi_insert_custom_genomes:
 
 rule ncbi_dataset_collect:
     input:
-        dummy=lambda wildcards: expand("data/interim/{stage}/ncbi_datasets/taxon/{taxon}.dummy", taxon=get_taxon_for_accession(wildcards.accession), stage=RULE_FUNCTIONS["ncbi_datasets"]["stages"]()),
-        dummy_custom=lambda wildcards: expand("data/interim/{stage}/ncbi_datasets/taxon/{taxon}-custom.dummy", taxon=get_taxon_for_accession(wildcards.accession), stage=RULE_FUNCTIONS["ncbi_datasets"]["stages"]()),
-        jsonl_report=lambda wildcards: expand("data/interim/{stage}/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/full_assembly_data_report.jsonl", taxon=get_taxon_for_accession(wildcards.accession), stage=RULE_FUNCTIONS["ncbi_datasets"]["stages"]()),
+        dummy=fexpand("data/interim/{stage}/ncbi_datasets/taxon/{taxon}.dummy", taxon=get_taxon_for_accession, stage=RULE_FUNCTIONS["ncbi_datasets"]["stages"]),
+        dummy_custom=fexpand("data/interim/{stage}/ncbi_datasets/taxon/{taxon}-custom.dummy", taxon=get_taxon_for_accession(wildcards.accession), stage=RULE_FUNCTIONS["ncbi_datasets"]["stages"]()),
+        jsonl_report=fexpand("data/interim/{stage}/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/full_assembly_data_report.jsonl", taxon=get_taxon_for_accession, stage=RULE_FUNCTIONS["ncbi_datasets"]["stages"]),
     output:
         fna="data/interim/all/fasta/{accession}.fna",
         json_report="data/interim/all/assembly_report/{accession}.json",
     params:
-        fna=lambda wildcards: expand("data/interim/{stage}/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/{accession}/{accession}.fna", taxon=get_taxon_for_accession(wildcards.accession), accession=wildcards.accession, stage=RULE_FUNCTIONS["ncbi_datasets"]["stages"]()),
+        fna=fexpand("data/interim/{stage}/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/{accession}/{accession}.fna", taxon=get_taxon_for_accession, accession=wildcards.accession, stage=RULE_FUNCTIONS["ncbi_datasets"]["stages"]),
     conda:
         "../envs/data_processing.yaml"
     log:
