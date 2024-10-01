@@ -8,7 +8,7 @@ def get_family_list():
     return family_list
 
 def genome_list_dummy_input(wildcards):
-    RULE_FUNCTIONS["pankb_data_prep"][wildcards.stage]["genomes"](wildcards)
+    RULE_FUNCTIONS["pankb_data_prep"]["genomes"](wildcards)
     return []
 
 rule pankb_genome_list:
@@ -20,14 +20,14 @@ rule pankb_genome_list:
         "logs/{stage}/pankb_data_prep/pankb_genome_list_{name}.log"
     run:
         # genomes = get_genome_ids(wildcards.name, filter_samples_qc(wildcards, get_samples_df()))
-        genomes = RULE_FUNCTIONS["pankb_data_prep"][wildcards.stage]["genomes"](wildcards)
+        genomes = RULE_FUNCTIONS["pankb_data_prep"]["genomes"](wildcards)
         with open(output.genomes, "w") as f:
             f.writelines(f"{genome}\n" for genome in genomes)
 
 rule pankb_select_and_merge:
     input:
-        genomes=fexpand("data/processed/{{stage}}/{name}/pankb/genomes.txt", name=RULE_FUNCTIONS["pankb_data_prep"][wildcards.stage]["projects"]),
-        csv=fexpand("data/processed/{{stage}}/{name}/{{directory}}/{{filename}}.csv", name=RULE_FUNCTIONS["pankb_data_prep"][wildcards.stage]["projects"]),
+        genomes=fexpand("data/processed/{{stage}}/{name}/pankb/genomes.txt", name=RULE_FUNCTIONS["pankb_data_prep"]["projects"]),
+        csv=fexpand("data/processed/{{stage}}/{name}/{{directory}}/{{filename}}.csv", name=RULE_FUNCTIONS["pankb_data_prep"]["projects"]),
     output: "data/processed/{stage}/pankb/merged/{directory}/{filename}.csv",
     run:
         import pandas as pd
