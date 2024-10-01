@@ -166,7 +166,7 @@ rule ncbi_insert_custom_genomes:
 rule ncbi_dataset_collect:
     input:
         dummy=fexpand("data/interim/{stage}/ncbi_datasets/taxon/{taxon}.dummy", taxon=get_taxon_for_accession, stage=RULE_FUNCTIONS["ncbi_datasets"]["stages"]),
-        dummy_custom=fexpand("data/interim/{stage}/ncbi_datasets/taxon/{taxon}-custom.dummy", taxon=get_taxon_for_accession(wildcards.accession), stage=RULE_FUNCTIONS["ncbi_datasets"]["stages"]()),
+        dummy_custom=fexpand("data/interim/{stage}/ncbi_datasets/taxon/{taxon}-custom.dummy", taxon=get_taxon_for_accession, stage=RULE_FUNCTIONS["ncbi_datasets"]["stages"]),
         jsonl_report=fexpand("data/interim/{stage}/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/full_assembly_data_report.jsonl", taxon=get_taxon_for_accession, stage=RULE_FUNCTIONS["ncbi_datasets"]["stages"]),
     output:
         fna="data/interim/all/fasta/{accession}.fna",
