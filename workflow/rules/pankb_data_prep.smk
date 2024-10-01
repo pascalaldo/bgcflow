@@ -369,7 +369,7 @@ rule pankb_copy_panalleleome:
     output:
         step_line="data/processed/{stage}/pankb/web_data/species/{name}/panalleleome/step_line.json",
         dn_ds="data/processed/{stage}/pankb/web_data/species/{name}/panalleleome/dn_ds.json",
-        gene_data=directory("data/processed/{stage}/pankb/web_data/species/{species}/panalleleome/gene_data/"),
+        gene_data=directory("data/processed/{stage}/pankb/web_data/species/{name}/panalleleome/gene_data/"),
     params:
         gene_data_in="data/processed/{stage}/{name}/alleleome/gene_data/",
     shell:
@@ -393,7 +393,7 @@ rule pankb_all:
                 "data/processed/{stage}/pankb/web_data/species/{name}/info_panel.json",
                 "data/processed/{stage}/pankb/web_data/species/{name}/panalleleome/step_line.json",
                 "data/processed/{stage}/pankb/web_data/species/{name}/panalleleome/dn_ds.json",
-                "data/processed/{stage}/pankb/web_data/species/{species}/panalleleome/gene_data/",
+                "data/processed/{stage}/pankb/web_data/species/{name}/panalleleome/gene_data/",
                 "data/processed/{stage}/pankb/web_data/species_list.json",
             ],
             stage=RULE_FUNCTIONS["pankb_data_prep"]["stages"],
