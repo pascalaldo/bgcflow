@@ -66,7 +66,7 @@ sys.stderr.write(f" - GTDB API | Searching in offline mode: {gtdb_offline_mode}\
 
 rule gtdb_prep:
     input:
-        samples_path=lambda wildcards: expand("data/interim/ncbi_datasets/taxon/{taxon}.csv", taxon=get_taxon_for_accession(wildcards.accession)),
+        samples_path=lambda wildcards: expand("data/interim/ncbi_datasets/taxon/{taxon}.csv", taxon=get_taxon_for_accession(wildcards)),
     output:
         gtdb_json="data/interim/gtdb/{accession}.json",
     retries: 3

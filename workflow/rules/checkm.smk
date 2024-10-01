@@ -26,7 +26,7 @@ rule install_checkm:
 
 rule checkm:
     input:
-        fna=lambda wildcards: expand("data/interim/all/fasta/{accession}.fna", accession=RULE_FUNCTIONS["checkm"][wildcards.stage]["accessions"](wildcards.name)),
+        fna=fexpand("data/interim/all/fasta/{accession}.fna", accession=RULE_FUNCTIONS["checkm"]["accessions"]),
         checkm_db="resources/checkm/",
     output:
         fna=temp(directory("data/interim/{stage}/checkm/{name}_fna")),
