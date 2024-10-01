@@ -6,6 +6,14 @@ def fexpand(obj, **kwargs):
     else:
         return expand(obj, **kwargs)
 
+def raise_incomplete_checkpoint_exception():
+    raise snakemake.exceptions.IncompleteCheckpointException()
+def cp_cached(f):
+    try:
+        f()
+    except snakemake.exceptions.IncompleteCheckpointException:
+        return raise_incomplete_checkpoint_exception
+
 # roary.smk #
 def get_prokka_outputs(name, df_samples, ext="gff", path="prokka"):
     """

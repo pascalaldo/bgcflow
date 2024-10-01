@@ -39,7 +39,7 @@ rule alleleome_fasta:
         all_genes="data/interim/{stage}/alleleome/{name}/all_genes.csv",
         sel_locustag="data/interim/{stage}/alleleome/{name}/sel_locustag.csv",
         sel_genes="data/interim/{stage}/alleleome/{name}/sel_genes.csv",
-        gbk_files=lambda wildcards: expand("data/interim/{{stage}}/processed-genbank/{sample}.gbk", sample=RULE_FUNCTIONS["alleleome"][wildcards.stage]["samples"](wildcards.name)),
+        gbk_files=fexpand("data/interim/{{stage}}/processed-genbank/{sample}.gbk", sample=RULE_FUNCTIONS["alleleome"]["samples"]),
     output:
         dummy="data/interim/{stage}/alleleome/{name}/pangenome_alignments/fasta_dummy_{pan_core}",
         gene_list="data/processed/{stage}/{name}/alleleome/{pan_core}/gene_list.txt",
@@ -157,12 +157,12 @@ rule alleleome_preplot:
 
 rule alleleome_all:
     input:
-        lambda _: expand(
+        fexpand(
             [
                 "data/processed/{stage}/{name}/alleleome/{pan_core}/dn_ds.json",
                 "data/processed/{stage}/{name}/alleleome/{pan_core}/step_line.json",
             ],
-            stage=RULE_FUNCTIONS["alleleome"]["stages"](),
-            name=RULE_FUNCTIONS["alleleome"]["projects"](),
-            pan_core=RULE_FUNCTIONS["alleleome"]["pan_core"]()
+            stage=RULE_FUNCTIONS["alleleome"]["stages"],
+            name=RULE_FUNCTIONS["alleleome"]["projects"],
+            pan_core=RULE_FUNCTIONS["alleleome"]["pan_core"]
         ),

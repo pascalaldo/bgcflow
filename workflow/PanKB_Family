@@ -121,7 +121,7 @@ include: "rules/eggnog.smk"
 
 def filtered_accessions_for_project(name):
     return filter_sample_names_qc(get_samples_for_species_project(name))
-
+get_projects = cp_cached(lambda wildcards: get_species_projects())
 RULE_FUNCTIONS["prokka"]["species"]["samples"] = get_species_projects_samples_df
 include: "rules/prokka.smk"
 RULE_FUNCTIONS["roary"]["species"]["samples"] = filtered_accessions_for_project
@@ -130,12 +130,12 @@ RULE_FUNCTIONS["mash"]["species"]["accessions"] = filtered_accessions_for_projec
 include: "rules/mash.smk"
 RULE_FUNCTIONS["automlst_wrapper"]["species"]["accessions"] = filtered_accessions_for_project
 include: "rules/automlst_wrapper.smk"
-RULE_FUNCTIONS["alleleome"]["species"]["samples"] = filtered_accessions_for_project
-RULE_FUNCTIONS["alleleome"]["pan_core"] = lambda: "Pan"
-RULE_FUNCTIONS["alleleome"]["stages"] = lambda: "species"
-RULE_FUNCTIONS["alleleome"]["projects"] = get_species_projects
+RULE_FUNCTIONS["alleleome"]["samples"] = lambda wildcards: filtered_accessions_for_project(wildcards.name)
+RULE_FUNCTIONS["alleleome"]["pan_core"] = "Pan"
+RULE_FUNCTIONS["alleleome"]["stages"] = "species"
+RULE_FUNCTIONS["alleleome"]["projects"] = get_projects
 include: "rules/alleleome.smk"
-RULE_FUNCTIONS["pankb_data_prep"]["projects"] = lambda wildcards: get_species_projects()
+RULE_FUNCTIONS["pankb_data_prep"]["projects"] = get_projects
 RULE_FUNCTIONS["pankb_data_prep"]["genomes"] = lambda wildcards: filtered_accessions_for_project(wildcards.name)
 RULE_FUNCTIONS["pankb_data_prep"]["stages"] = "species"
 include: "rules/pankb_data_prep.smk"
