@@ -172,7 +172,7 @@ rule ncbi_dataset_collect:
         fna="data/interim/all/fasta/{accession}.fna",
         json_report="data/interim/all/assembly_report/{accession}.json",
     params:
-        fna=fexpand("data/interim/{stage}/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/{accession}/{accession}.fna", taxon=get_taxon_for_accession, accession=wildcards.accession, stage=RULE_FUNCTIONS["ncbi_datasets"]["stages"]),
+        fna=fexpand("data/interim/{stage}/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/{accession}/{accession}.fna", taxon=get_taxon_for_accession, accession=(lambda wildcards: wildcards.accession), stage=RULE_FUNCTIONS["ncbi_datasets"]["stages"]),
     conda:
         "../envs/data_processing.yaml"
     log:
