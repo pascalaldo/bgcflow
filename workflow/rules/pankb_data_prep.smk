@@ -78,7 +78,7 @@ rule pankb_species_summary:
         gp_binary="data/interim/{stage}/roary/{name}/df_gene_presence_binary.csv",
     output:
         csv="data/processed/{stage}/{name}/pankb/summary.csv",
-        json="data/processed/{stage}/pankb/web_data/species/{name}/info_panel.json",
+        json="data/processed/{stage}/pankb/pankb/web_data/species/{name}/info_panel.json",
     log:
         "logs/{stage}/pankb_data_prep/pankb_species_{name}.log"
     conda:
@@ -133,7 +133,7 @@ rule pankb_pangenome_summary:
     input:
         species_summary="data/processed/{stage}/pankb/pankb/summary.csv",
     output:
-        species_list="data/processed/{stage}/pankb/web_data/species_list.json",
+        species_list="data/processed/{stage}/pankb/pankb/web_data/species_list.json",
         genome_count="data/processed/{stage}/pankb/pankb/organism_genome_count.json",
         gene_count="data/processed/{stage}/pankb/pankb/organism_gene_count.json",
     log:
@@ -200,20 +200,20 @@ rule pankb_heatmap:
         isosource="data/processed/{stage}/{name}/pankb/source_info/df_ncbi_isolation_src.csv",
         # species_info="data/processed/{name}/tables/df_ncbi_meta.csv",
     output:
-        heatmap_target="data/processed/{stage}/pankb/web_data/species/{name}/heatmap_target.json.gz",
-        heatmap_core="data/processed/{stage}/pankb/web_data/species/{name}/heatmap_core.json.gz",
-        heatmap_accessory="data/processed/{stage}/pankb/web_data/species/{name}/heatmap_accessory.json.gz",
-        heatmap_1_15="data/processed/{stage}/pankb/web_data/species/{name}/heatmap_1_15.json.gz",
-        heatmap_above_1="data/processed/{stage}/pankb/web_data/species/{name}/heatmap_above_1.json.gz",
-        heatmap_only_1="data/processed/{stage}/pankb/web_data/species/{name}/heatmap_only_1.json.gz",
-        source_info_core="data/processed/{stage}/pankb/web_data/species/{name}/source_info_core.json.gz",
-        source_info_accessory="data/processed/{stage}/pankb/web_data/species/{name}/source_info_accessory.json.gz",
-        source_info_1_15="data/processed/{stage}/pankb/web_data/species/{name}/source_info_1_15.json.gz",
-        source_info_above_1="data/processed/{stage}/pankb/web_data/species/{name}/source_info_above_1.json.gz",
-        source_info_only_1="data/processed/{stage}/pankb/web_data/species/{name}/source_info_only_1.json.gz",
+        heatmap_target="data/processed/{stage}/pankb/pankb/web_data/species/{name}/heatmap_target.json.gz",
+        heatmap_core="data/processed/{stage}/pankb/pankb/web_data/species/{name}/heatmap_core.json.gz",
+        heatmap_accessory="data/processed/{stage}/pankb/pankb/web_data/species/{name}/heatmap_accessory.json.gz",
+        heatmap_1_15="data/processed/{stage}/pankb/pankb/web_data/species/{name}/heatmap_1_15.json.gz",
+        heatmap_above_1="data/processed/{stage}/pankb/pankb/web_data/species/{name}/heatmap_above_1.json.gz",
+        heatmap_only_1="data/processed/{stage}/pankb/pankb/web_data/species/{name}/heatmap_only_1.json.gz",
+        source_info_core="data/processed/{stage}/pankb/pankb/web_data/species/{name}/source_info_core.json.gz",
+        source_info_accessory="data/processed/{stage}/pankb/pankb/web_data/species/{name}/source_info_accessory.json.gz",
+        source_info_1_15="data/processed/{stage}/pankb/pankb/web_data/species/{name}/source_info_1_15.json.gz",
+        source_info_above_1="data/processed/{stage}/pankb/pankb/web_data/species/{name}/source_info_above_1.json.gz",
+        source_info_only_1="data/processed/{stage}/pankb/pankb/web_data/species/{name}/source_info_only_1.json.gz",
     params:
-        heatmap_base="data/processed/{stage}/pankb/web_data/species/{name}/heatmap_",
-        source_info_base="data/processed/{stage}/pankb/web_data/species/{name}/source_info_",
+        heatmap_base="data/processed/{stage}/pankb/pankb/web_data/species/{name}/heatmap_",
+        source_info_base="data/processed/{stage}/pankb/pankb/web_data/species/{name}/source_info_",
     log:
         "logs/{stage}/pankb_data_prep/pankb_heatmap_{name}.log"
     conda:
@@ -236,7 +236,7 @@ rule pankb_cog:
         gp_binary="data/interim/{stage}/roary/{name}/df_gene_presence_binary.csv",
         eggnog_summary="data/processed/{stage}/{name}/pankb/df_pangene_eggnog_summary.csv",
     output:
-        all_cog="data/processed/{stage}/pankb/web_data/species/{name}/All.json",
+        all_cog="data/processed/{stage}/pankb/pankb/web_data/species/{name}/All.json",
     log:
         "logs/{stage}/pankb_data_prep/pankb_cog_{name}.log"
     conda:
@@ -254,7 +254,7 @@ rule pankb_cog_distribution:
         summary_v2="data/interim/{stage}/alleleome/{name}/pangene_v2.csv",
         eggnog_summary="data/processed/{stage}/{name}/pankb/df_pangene_eggnog_summary.csv",
     output:
-        cog_distribution="data/processed/{stage}/pankb/web_data/species/{name}/COG_distribution.json",
+        cog_distribution="data/processed/{stage}/pankb/pankb/web_data/species/{name}/COG_distribution.json",
     log:
         "logs/{stage}/pankb_data_prep/pankb_distribution_{name}.log"
     conda:
@@ -271,7 +271,7 @@ rule pankb_heaps:
     input:
         gp_binary="data/interim/{stage}/roary/{name}/df_gene_presence_binary.csv",
     output:
-        gene_freq="data/processed/{stage}/pankb/web_data/species/{name}/gene_freq.json",
+        gene_freq="data/processed/{stage}/pankb/pankb/web_data/species/{name}/gene_freq.json",
     log:
         "logs/{stage}/pankb_data_prep/pankb_heaps_{name}.log"
     conda:
@@ -288,7 +288,7 @@ rule pankb_locustag:
         gp_locustag="data/interim/{stage}/roary/{name}/df_gene_presence_locustag.csv",
         all_locustag="data/interim/{stage}/alleleome/{name}/all_locustag.csv",
     output:
-        locustag=directory("data/processed/{stage}/pankb/web_data/species/{name}/gene_locustag/"),
+        locustag=directory("data/processed/{stage}/pankb/pankb/web_data/species/{name}/gene_locustag/"),
     log:
         "logs/{stage}/pankb_data_prep/pankb_locustag_{name}.log"
     conda:
@@ -310,7 +310,7 @@ rule pankb_genome_page:
         summary_v2="data/interim/{stage}/alleleome/{name}/pangene_v2.csv",
         eggnog_summary="data/processed/{stage}/{name}/pankb/df_pangene_eggnog_summary.csv",
     output:
-        genome_page_dir=directory("data/processed/{stage}/pankb/web_data/species/{name}/genome_page/")
+        genome_page_dir=directory("data/processed/{stage}/pankb/pankb/web_data/species/{name}/genome_page/")
     log:
         "logs/{stage}/pankb_data_prep/pankb_genome_page_{name}.log"
     conda:
@@ -348,7 +348,7 @@ rule pankb_copy_phylogenetic_tree:
     input:
         "data/processed/{stage}/{name}/automlst_wrapper/final.newick"
     output:
-        "data/processed/{stage}/pankb/web_data/species/{name}/phylogenetic_tree.newick"
+        "data/processed/{stage}/pankb/pankb/web_data/species/{name}/phylogenetic_tree.newick"
     shell:
         """
         cp {input} {output}
@@ -367,9 +367,9 @@ rule pankb_copy_panalleleome:
         step_line="data/processed/{stage}/{name}/alleleome/Pan/step_line.json",
         dn_ds="data/processed/{stage}/{name}/alleleome/Pan/dn_ds.json",
     output:
-        step_line="data/processed/{stage}/pankb/web_data/species/{name}/panalleleome/step_line.json",
-        dn_ds="data/processed/{stage}/pankb/web_data/species/{name}/panalleleome/dn_ds.json",
-        gene_data=directory("data/processed/{stage}/pankb/web_data/species/{name}/panalleleome/gene_data/"),
+        step_line="data/processed/{stage}/pankb/pankb/web_data/species/{name}/panalleleome/step_line.json",
+        dn_ds="data/processed/{stage}/pankb/pankb/web_data/species/{name}/panalleleome/dn_ds.json",
+        gene_data=directory("data/processed/{stage}/pankb/pankb/web_data/species/{name}/panalleleome/gene_data/"),
     params:
         gene_data_in="data/processed/{stage}/{name}/alleleome/gene_data/",
     shell:
@@ -383,18 +383,18 @@ rule pankb_all:
     input:
         fexpand(
             [
-                "data/processed/{stage}/pankb/web_data/species/{name}/genome_page/",
-                "data/processed/{stage}/pankb/web_data/species/{name}/gene_locustag/",
-                "data/processed/{stage}/pankb/web_data/species/{name}/gene_freq.json",
-                "data/processed/{stage}/pankb/web_data/species/{name}/COG_distribution.json",
-                "data/processed/{stage}/pankb/web_data/species/{name}/All.json",
-                "data/processed/{stage}/pankb/web_data/species/{name}/heatmap_target.json.gz",
-                "data/processed/{stage}/pankb/web_data/species/{name}/source_info_core.json.gz",
-                "data/processed/{stage}/pankb/web_data/species/{name}/info_panel.json",
-                "data/processed/{stage}/pankb/web_data/species/{name}/panalleleome/step_line.json",
-                "data/processed/{stage}/pankb/web_data/species/{name}/panalleleome/dn_ds.json",
-                "data/processed/{stage}/pankb/web_data/species/{name}/panalleleome/gene_data/",
-                "data/processed/{stage}/pankb/web_data/species_list.json",
+                "data/processed/{stage}/pankb/pankb/web_data/species/{name}/genome_page/",
+                "data/processed/{stage}/pankb/pankb/web_data/species/{name}/gene_locustag/",
+                "data/processed/{stage}/pankb/pankb/web_data/species/{name}/gene_freq.json",
+                "data/processed/{stage}/pankb/pankb/web_data/species/{name}/COG_distribution.json",
+                "data/processed/{stage}/pankb/pankb/web_data/species/{name}/All.json",
+                "data/processed/{stage}/pankb/pankb/web_data/species/{name}/heatmap_target.json.gz",
+                "data/processed/{stage}/pankb/pankb/web_data/species/{name}/source_info_core.json.gz",
+                "data/processed/{stage}/pankb/pankb/web_data/species/{name}/info_panel.json",
+                "data/processed/{stage}/pankb/pankb/web_data/species/{name}/panalleleome/step_line.json",
+                "data/processed/{stage}/pankb/pankb/web_data/species/{name}/panalleleome/dn_ds.json",
+                "data/processed/{stage}/pankb/pankb/web_data/species/{name}/panalleleome/gene_data/",
+                "data/processed/{stage}/pankb/pankb/web_data/species_list.json",
             ],
             stage=RULE_FUNCTIONS["pankb_data_prep"]["stages"],
             name=RULE_FUNCTIONS["pankb_data_prep"]["projects"],
