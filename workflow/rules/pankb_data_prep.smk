@@ -8,7 +8,7 @@ def get_family_list():
     return family_list
 
 def genome_list_dummy_input(wildcards):
-    RULE_FUNCTIONS["pankb_data_prep"][wildcards.stage]["genomes"](wildcards.name)
+    RULE_FUNCTIONS["pankb_data_prep"][wildcards.stage]["genomes"](wildcards)
     return []
 
 rule pankb_genome_list:
@@ -20,14 +20,14 @@ rule pankb_genome_list:
         "logs/{stage}/pankb_data_prep/pankb_genome_list_{name}.log"
     run:
         # genomes = get_genome_ids(wildcards.name, filter_samples_qc(wildcards, get_samples_df()))
-        genomes = RULE_FUNCTIONS["pankb_data_prep"][wildcards.stage]["genomes"](wildcards.name)
+        genomes = RULE_FUNCTIONS["pankb_data_prep"][wildcards.stage]["genomes"](wildcards)
         with open(output.genomes, "w") as f:
             f.writelines(f"{genome}\n" for genome in genomes)
 
 rule pankb_select_and_merge:
     input:
-        genomes=lambda wildcards: expand("data/processed/{{stage}}/{name}/pankb/genomes.txt", name=RULE_FUNCTIONS["pankb_data_prep"][wildcards.stage]["projects"]()),
-        csv=lambda wildcards: expand("data/processed/{{stage}}/{name}/{{directory}}/{{filename}}.csv", name=RULE_FUNCTIONS["pankb_data_prep"][wildcards.stage]["projects"]()),
+        genomes=fexpand("data/processed/{{stage}}/{name}/pankb/genomes.txt", name=RULE_FUNCTIONS["pankb_data_prep"][wildcards.stage]["projects"]),
+        csv=fexpand("data/processed/{{stage}}/{name}/{{directory}}/{{filename}}.csv", name=RULE_FUNCTIONS["pankb_data_prep"][wildcards.stage]["projects"]),
     output: "data/processed/{stage}/pankb/merged/{directory}/{filename}.csv",
     run:
         import pandas as pd
@@ -381,7 +381,7 @@ rule pankb_copy_panalleleome:
 
 rule pankb_all:
     input:
-        lambda _: expand(
+        fexpand(
             [
                 "data/processed/{stage}/pankb/web_data/species/{name}/genome_page/",
                 "data/processed/{stage}/pankb/web_data/species/{name}/gene_locustag/",
@@ -396,6 +396,6 @@ rule pankb_all:
                 "data/processed/{stage}/pankb/web_data/species/{species}/panalleleome/gene_data/",
                 "data/processed/{stage}/pankb/web_data/species_list.json",
             ],
-            stage=RULE_FUNCTIONS["pankb_data_prep"]["stages"](),
-            name=RULE_FUNCTIONS["pankb_data_prep"]["projects"](),
+            stage=RULE_FUNCTIONS["pankb_data_prep"]["stages"],
+            name=RULE_FUNCTIONS["pankb_data_prep"]["projects"],
         ),
