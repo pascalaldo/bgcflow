@@ -121,7 +121,7 @@ include: "rules/eggnog.smk"
 
 def filtered_accessions_for_project(name):
     return filter_sample_names_qc(get_samples_for_species_project(name))
-get_projects = cp_cached(lambda wildcards: get_species_projects())
+get_projects = cp_cached(get_species_projects)
 RULE_FUNCTIONS["prokka"]["species"]["samples"] = get_species_projects_samples_df
 include: "rules/prokka.smk"
 RULE_FUNCTIONS["roary"]["species"]["samples"] = filtered_accessions_for_project
