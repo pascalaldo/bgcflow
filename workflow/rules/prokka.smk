@@ -90,7 +90,7 @@ rule prokka:
         evalue = "1e-05",
         rna_detection = prokka_params_rna,
         # refgbff = lambda wildcards: get_prokka_refdb(wildcards, "params", RULE_FUNCTIONS["prokka"][wildcards.stage]["samples"](), PROKKA_DB_MAP),
-        refgbff = ""
+        refgbff = "",
         use_pfam = prokka_use_pfam,
         kingdom = KINGDOM.capitalize(),
     threads: 4
