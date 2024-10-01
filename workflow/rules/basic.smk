@@ -1,5 +1,10 @@
 __version__ = "0.10.0"
 
+def fexpand(obj, **kwargs):
+    if any(callable(v) for v in kwargs.values()):
+        return lambda wildcards: expand(obj, **{k: (v(wildcards) if callable(v) else v) for k, v in kwargs.items()})
+    else:
+        return expand(obj, **kwargs)
 
 # roary.smk #
 def get_prokka_outputs(name, df_samples, ext="gff", path="prokka"):

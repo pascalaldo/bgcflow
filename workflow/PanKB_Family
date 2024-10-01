@@ -135,10 +135,10 @@ RULE_FUNCTIONS["alleleome"]["pan_core"] = lambda: "Pan"
 RULE_FUNCTIONS["alleleome"]["stages"] = lambda: "species"
 RULE_FUNCTIONS["alleleome"]["projects"] = get_species_projects
 include: "rules/alleleome.smk"
-RULE_FUNCTIONS["pankb_data_prep"]["projects"] = get_species_projects
-RULE_FUNCTIONS["pankb_data_prep"]["species"]["projects"] = get_species_projects
-RULE_FUNCTIONS["pankb_data_prep"]["species"]["genomes"] = filtered_accessions_for_project
-RULE_FUNCTIONS["pankb_data_prep"]["stages"] = lambda: "species"
+RULE_FUNCTIONS["pankb_data_prep"]["projects"] = lambda wildcards: get_species_projects()
+RULE_FUNCTIONS["pankb_data_prep"]["species"]["projects"] = lambda wildcards: get_species_projects()
+RULE_FUNCTIONS["pankb_data_prep"]["species"]["genomes"] = lambda wildcards: filtered_accessions_for_project(wildcards.name)
+RULE_FUNCTIONS["pankb_data_prep"]["stages"] = "species"
 include: "rules/pankb_data_prep.smk"
 
 all_target_rules = ["pankb", "alleleome"]
