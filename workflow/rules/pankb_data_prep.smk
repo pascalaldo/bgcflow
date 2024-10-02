@@ -287,8 +287,11 @@ rule pankb_locustag:
     input:
         gp_locustag="data/interim/{stage}/roary/{name}/df_gene_presence_locustag.csv",
         all_locustag="data/interim/{stage}/alleleome/{name}/all_locustag.csv",
+        dummy="data/interim/{stage}/alleleome/{name}/pangenome_alignments/fasta_dummy_Pan",
     output:
         locustag=directory("data/processed/{stage}/pankb/web_data/species/{name}/gene_locustag/"),
+    params:
+        fasta_dir="data/interim/{stage}/alleleome/{name}/pangenome_alignments/input/"
     log:
         "logs/{stage}/pankb_data_prep/pankb_locustag_{name}.log"
     conda:
@@ -298,6 +301,7 @@ rule pankb_locustag:
         pankb_data_prep locustag \
             --gp_locustag {input.gp_locustag} \
             --all_locustag {input.all_locustag} \
+            --fasta_dir {params.fasta_dir} \
             -o {output.locustag} > {log} 2>&1
         """
 
