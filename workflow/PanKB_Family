@@ -129,8 +129,16 @@ def cached_filtered_accessions_for_project(name):
         fa = filtered_accessions_for_project(name)
         FILTERED_ACCESSIONS[name] = fa
         return fa
-get_projects = cp_cached(get_species_projects)
-get_samples_df = cp_cached(get_species_projects_samples_df)
+
+SPECIES_PROJECTS = None
+def get_projects(wildcards):
+    global SPECIES_PROJECTS
+    if SPECIES_PROJECTS is None:
+        projects = get_species_projects()
+        SPECIES_PROJECTS = projects
+    return SPECIES_PROJECTS
+
+get_samples_df = lambda wildcards: get_species_projects_samples_df()
 RULE_FUNCTIONS["prokka"]["samples"] = get_samples_df
 include: "rules/prokka.smk"
 RULE_FUNCTIONS["roary"]["species"]["samples"] = cached_filtered_accessions_for_project
@@ -148,6 +156,28 @@ RULE_FUNCTIONS["pankb_data_prep"]["projects"] = get_projects
 RULE_FUNCTIONS["pankb_data_prep"]["genomes"] = lambda wildcards: cached_filtered_accessions_for_project(wildcards.name)
 RULE_FUNCTIONS["pankb_data_prep"]["stages"] = "species"
 include: "rules/pankb_data_prep.smk"
+
+print(f"get_projects: {str(get_projects)}")
+print(f"FILTERED_ACCESSIONS: {str(FILTERED_ACCESSIONS)}")
+
+print(fexpand(
+            [
+                "data/processed/{stage}/pankb/web_data/species/{name}/genome_page/",
+                "data/processed/{stage}/pankb/web_data/species/{name}/gene_locustag/",
+                "data/processed/{stage}/pankb/web_data/species/{name}/gene_freq.json",
+                "data/processed/{stage}/pankb/web_data/species/{name}/COG_distribution.json",
+                "data/processed/{stage}/pankb/web_data/species/{name}/All.json",
+                "data/processed/{stage}/pankb/web_data/species/{name}/heatmap_target.json.gz",
+                "data/processed/{stage}/pankb/web_data/species/{name}/source_info_core.json.gz",
+                "data/processed/{stage}/pankb/web_data/species/{name}/info_panel.json",
+                "data/processed/{stage}/pankb/web_data/species/{name}/panalleleome/step_line.json",
+                "data/processed/{stage}/pankb/web_data/species/{name}/panalleleome/dn_ds.json",
+                "data/processed/{stage}/pankb/web_data/species/{name}/panalleleome/gene_data/",
+                "data/processed/{stage}/pankb/web_data/species_list.json",
+            ],
+            stage=RULE_FUNCTIONS["pankb_data_prep"]["stages"],
+            name=RULE_FUNCTIONS["pankb_data_prep"]["projects"],
+        ))
 
 all_target_rules = ["pankb", "alleleome"]
 def get_targets():

@@ -6,15 +6,18 @@ def fexpand(obj, **kwargs):
     else:
         return expand(obj, **kwargs)
 
-def build_incomplete_checkpoint_exception(rule, targetfile):
-    def raise_incomplete_checkpoint_exception(*args):
-        raise snakemake.exceptions.IncompleteCheckpointException(rule, targetfile)
-    return raise_incomplete_checkpoint_exception
-def cp_cached(f):
-    try:
-        return f()
-    except snakemake.exceptions.IncompleteCheckpointException as e:
-        return build_incomplete_checkpoint_exception(e.rule, e.targetfile)
+# def build_incomplete_checkpoint_exception(rule, targetfile):
+#     def raise_incomplete_checkpoint_exception(*args):
+#         raise snakemake.exceptions.IncompleteCheckpointException(rule, targetfile)
+#     return raise_incomplete_checkpoint_exception
+# def cp_cached(f):
+#     try:
+#         return f()
+#     except:
+#         return (lambda wildcards: cp_cached(f))
+#         # return (lambda wildcards: f())
+#     # except snakemake.exceptions.IncompleteCheckpointException as e:
+#     #     return build_incomplete_checkpoint_exception(e.rule, e.targetfile)
 
 # roary.smk #
 def get_prokka_outputs(name, df_samples, ext="gff", path="prokka"):

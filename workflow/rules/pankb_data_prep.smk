@@ -131,7 +131,7 @@ rule pankb_full_summary:
 
 rule pankb_pangenome_summary:
     input:
-        species_summary="data/processed/{stage}/pankb/merged/summary.csv",
+        species_summary="data/processed/{stage}/pankb/merged/pankb/summary.csv",
     output:
         species_list="data/processed/{stage}/pankb/web_data/species_list.json",
         genome_count="data/processed/{stage}/pankb/pankb/organism_genome_count.json",
@@ -206,11 +206,11 @@ rule pankb_heatmap:
         heatmap_1_15="data/processed/{stage}/pankb/web_data/species/{name}/heatmap_1_15.json.gz",
         heatmap_above_1="data/processed/{stage}/pankb/web_data/species/{name}/heatmap_above_1.json.gz",
         heatmap_only_1="data/processed/{stage}/pankb/web_data/species/{name}/heatmap_only_1.json.gz",
-        source_info_core="data/processed/{stage}/pankb/web_data/species/{name}/source_info_core.json.gz",
-        source_info_accessory="data/processed/{stage}/pankb/web_data/species/{name}/source_info_accessory.json.gz",
-        source_info_1_15="data/processed/{stage}/pankb/web_data/species/{name}/source_info_1_15.json.gz",
-        source_info_above_1="data/processed/{stage}/pankb/web_data/species/{name}/source_info_above_1.json.gz",
-        source_info_only_1="data/processed/{stage}/pankb/web_data/species/{name}/source_info_only_1.json.gz",
+        source_info_core="data/processed/{stage}/pankb/web_data/species/{name}/source_info_core.json",
+        source_info_accessory="data/processed/{stage}/pankb/web_data/species/{name}/source_info_accessory.json",
+        source_info_1_15="data/processed/{stage}/pankb/web_data/species/{name}/source_info_1_15.json",
+        source_info_above_1="data/processed/{stage}/pankb/web_data/species/{name}/source_info_above_1.json",
+        source_info_only_1="data/processed/{stage}/pankb/web_data/species/{name}/source_info_only_1.json",
     params:
         heatmap_base="data/processed/{stage}/pankb/web_data/species/{name}/heatmap_",
         source_info_base="data/processed/{stage}/pankb/web_data/species/{name}/source_info_",
@@ -389,7 +389,7 @@ rule pankb_all:
                 "data/processed/{stage}/pankb/web_data/species/{name}/COG_distribution.json",
                 "data/processed/{stage}/pankb/web_data/species/{name}/All.json",
                 "data/processed/{stage}/pankb/web_data/species/{name}/heatmap_target.json.gz",
-                "data/processed/{stage}/pankb/web_data/species/{name}/source_info_core.json.gz",
+                "data/processed/{stage}/pankb/web_data/species/{name}/source_info_core.json",
                 "data/processed/{stage}/pankb/web_data/species/{name}/info_panel.json",
                 "data/processed/{stage}/pankb/web_data/species/{name}/panalleleome/step_line.json",
                 "data/processed/{stage}/pankb/web_data/species/{name}/panalleleome/dn_ds.json",
