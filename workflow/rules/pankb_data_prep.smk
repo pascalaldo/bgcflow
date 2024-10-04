@@ -310,7 +310,7 @@ rule pankb_genome_page:
         full_summary="data/processed/{stage}/pankb/pankb/full_summary.csv",
         gp_binary="data/interim/{stage}/roary/{name}/df_gene_presence_binary.csv",
         isosource="data/processed/{stage}/{name}/pankb/source_info/df_ncbi_isolation_src.csv",
-        # species_info="data/processed/{stage}/{name}/tables/df_ncbi_meta.csv",
+        species_info="data/processed/{stage}/{name}/tables/df_ncbi_meta.csv",
         summary_v2="data/interim/{stage}/alleleome/{name}/pangene_v2.csv",
         eggnog_summary="data/processed/{stage}/{name}/pankb/df_pangene_eggnog_summary.csv",
     output:
@@ -325,6 +325,7 @@ rule pankb_genome_page:
             --summary {input.summary_v2} \
             --gp_binary {input.gp_binary} \
             --species_summary {input.full_summary} \
+            --species_info {input.species_info} \
             --isosource {input.isosource} \
             --eggnog_summary {input.eggnog_summary} \
             -o {output.genome_page_dir} > {log} 2>&1
