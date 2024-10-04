@@ -305,6 +305,37 @@ rule pankb_locustag:
             -o {output.locustag} > {log} 2>&1
         """
 
+rule pankb_create_simple_ncbi_meta:
+    input:
+        genomes=fexpand("data/interim/all/assembly_report/{genome}.json", genome=RULE_FUNCTIONS["pankb_data_prep"]["genomes"]),
+    output:
+        species_info="data/processed/{stage}/{name}/tables/df_ncbi_meta.csv",
+    run:
+        from pathlib import Path
+        import pandas as pd
+        import json
+        genomes = [Path(g) for g in input.genomes]
+        genome_assembly_data = {}
+        for p in p in genomes:
+            with open(p, "r") as f:
+                raw_data = json.load(f)
+            accession = raw_data["accession"]
+            genus = raw_data["genus"]
+            species = raw_data["species"]
+            strain = raw_data.get("strain", "")
+            taxid = raw_data["taxid"]
+            full_name = f"{genus} {species} {strain}".strip()
+            genome_assembly_data[p.stem] = {
+                "accession": accession,
+                "genus": genus,
+                "species": species,
+                "strain": strain,
+                "full_name": full_name,
+                "taxid": taxid,
+            }
+        df = pd.DataFrame.from_dict(genome_assembly_data, orient='index')
+        df.to_csv(output.species_info)
+
 rule pankb_genome_page:
     input:
         full_summary="data/processed/{stage}/pankb/pankb/full_summary.csv",
