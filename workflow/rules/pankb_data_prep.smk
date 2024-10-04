@@ -316,7 +316,7 @@ rule pankb_create_simple_ncbi_meta:
         import json
         genomes = [Path(g) for g in input.genomes]
         genome_assembly_data = {}
-        for p in p in genomes:
+        for p in genomes:
             with open(p, "r") as f:
                 raw_data = json.load(f)
             accession = raw_data["accession"]
