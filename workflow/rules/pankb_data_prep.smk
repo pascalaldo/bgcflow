@@ -198,7 +198,7 @@ rule pankb_heatmap:
         eggnog_summary="data/processed/{stage}/{name}/pankb/df_pangene_eggnog_summary.csv",
         mash_list="data/processed/{stage}/{name}/pankb/mash_list.csv",
         isosource="data/processed/{stage}/{name}/pankb/source_info/df_ncbi_isolation_src.csv",
-        # species_info="data/processed/{name}/tables/df_ncbi_meta.csv",
+        species_info="data/processed/{stage}/{name}/tables/df_ncbi_meta.csv",
     output:
         heatmap_target="data/processed/{stage}/pankb/web_data/species/{name}/heatmap_target.json.gz",
         heatmap_core="data/processed/{stage}/pankb/web_data/species/{name}/heatmap_core.json.gz",
@@ -227,6 +227,7 @@ rule pankb_heatmap:
             --eggnog_summary {input.eggnog_summary} \
             --mash_list {input.mash_list} \
             --isosource {input.isosource} \
+            --species_info {input.species_info} \
             --sourceinfo_base {params.source_info_base} \
             --heatmap_base {params.heatmap_base} > {log} 2>&1
         """
