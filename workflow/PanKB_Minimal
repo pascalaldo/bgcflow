@@ -1,0 +1,63 @@
+#%
+# description: Generate pangenome, alleleome and PanKB files for a taxonomic family.
+# schema: schemas/family_config.schema.yaml
+#%
+report: "report/workflow.rst"
+
+include: "rules/basic.smk"
+configfile: "config/config_pankb_minimal.yaml"
+from snakemake.utils import validate
+
+import pandas as pd
+import numpy as np
+from pathlib import Path
+from collections import defaultdict
+# generate centralized sample datasets
+
+KINGDOM = "bacteria"
+
+def create_defaultdict():
+    return defaultdict(create_defaultdict)
+RULE_FUNCTIONS = create_defaultdict()
+
+
+##### 3. Wildcard constraints #####
+wildcard_constraints:
+    assembly_source="all|RefSeq|GenBank",
+    stage="taxon|species",
+    name="[a-zA-Z0-9_\-]+",
+
+resource_mapping = {}
+
+SPECIES_PROJECTS = config.species
+def get_projects(wildcards):
+    return SPECIES_PROJECTS
+
+def throw_error(wildcards):
+    raise Exception()
+
+RULE_FUNCTIONS["alleleome"]["samples"] = throw_error
+RULE_FUNCTIONS["alleleome"]["pan_core"] = "Pan"
+RULE_FUNCTIONS["alleleome"]["stages"] = "species"
+RULE_FUNCTIONS["alleleome"]["projects"] = get_projects
+include: "rules/alleleome.smk"
+RULE_FUNCTIONS["pankb_data_prep"]["projects"] = get_projects
+RULE_FUNCTIONS["pankb_data_prep"]["genomes"] = throw_error
+RULE_FUNCTIONS["pankb_data_prep"]["stages"] = "species"
+include: "rules/pankb_data_prep.smk"
+
+all_target_rules = ["pankb", "alleleome"]
+def get_targets():
+    defined_targets = config.get("rules", {})
+    targets = [x for x in all_target_rules if defined_targets.get(x, True)]
+    print(f"Active target rules: {', '.join(targets)}")
+    inputs = []
+    for target in targets:
+        target_inputs = getattr(rules, f"{target}_all").input
+        inputs.extend(target_inputs)
+    print(f"Target rule inputs: {', '.join([str(s) for s in inputs])}")
+    return inputs
+
+rule all:
+    input:
+        get_targets()
