@@ -76,6 +76,7 @@ rule pankb_species_summary:
         gtdb_meta="data/processed/{stage}/{name}/tables/df_gtdb_meta.csv",
         summary_v2="data/interim/{stage}/alleleome/{name}/pangene_v2.csv",
         gp_binary="data/interim/{stage}/roary/{name}/df_gene_presence_binary.csv",
+        codon_muts="data/processed/{stage}/{name}/alleleome/Pan/pan_gene_syno_non_syno_df.csv",
     output:
         csv="data/processed/{stage}/{name}/pankb/summary.csv",
         json="data/processed/{stage}/pankb/web_data/species/{name}/info_panel.json",
@@ -89,6 +90,7 @@ rule pankb_species_summary:
             --gtdb_meta {input.gtdb_meta} \
             --summary {input.summary_v2} \
             --gp_binary {input.gp_binary} \
+            --codon_muts {input.codon_muts} \
             --output_json {output.json} \
             -o {output.csv} > {log} 2>&1
         """
