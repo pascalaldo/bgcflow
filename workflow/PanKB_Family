@@ -122,6 +122,9 @@ if not PANKB_ALLELEOME_ONLY:
 
 
 include: "rules/split_species_into_projects.smk"
+if not PANKB_ALLELEOME_ONLY:
+    ruleorder: extract_species_split_seqfu_stats > seqfu_combine
+
 def filtered_accessions_for_project(name):
     return filter_sample_names_qc(get_samples_for_species_project(name))
 FILTERED_ACCESSIONS = {}
