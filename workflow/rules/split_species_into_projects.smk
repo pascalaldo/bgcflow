@@ -64,7 +64,6 @@ rule extract_species_split_gtdb_meta:
         df_gtdb = df_gtdb.loc[df_samples.index.to_list(), :]
         df_gtdb.to_csv(output.gtdb)
 
-ruleorder: extract_species_split_seqfu_stats > seqfu_combine
 rule extract_species_split_seqfu_stats:
     input:
         seqfu_stats=lambda wildcards: f"data/processed/taxon/{get_taxon_for_species_project(wildcards.name)}/tables/df_seqfu_stats.csv",
