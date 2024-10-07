@@ -30,7 +30,6 @@ def extract_custom_sample_information(custom_samples_path):
 def extract_project_information(config):
     # load information from config
     print(f"Step 1. Extracting project information from config...\n", file=sys.stderr)
-    print(config)
     taxons = config["taxons"]
 
     taxon_records = []
@@ -72,6 +71,8 @@ def create_defaultdict():
     return defaultdict(create_defaultdict)
 RULE_FUNCTIONS = create_defaultdict()
 
+PANKB_ALLELEOME_ONLY = config.get("pankb_alleleome_only", False)
+
 ##### 3. Wildcard constraints #####
 wildcard_constraints:
     assembly_source="all|RefSeq|GenBank",
@@ -96,28 +97,29 @@ RULE_FUNCTIONS["qc"]["stages"] = "taxon"
 include: "rules/qc/qc_contigs_n50.smk"
 
 resource_mapping = {}
-#### Modules #####
-include: "rules/custom_genomes.smk"
-RULE_FUNCTIONS["ncbi_datasets"]["stages"] = "taxon"
-include: "rules/ncbi_datasets.smk"
+if not PANKB_ALLELEOME_ONLY:
+    #### Modules #####
+    include: "rules/custom_genomes.smk"
+    RULE_FUNCTIONS["ncbi_datasets"]["stages"] = "taxon"
+    include: "rules/ncbi_datasets.smk"
 
-##### 4. Generate user-defined local resources
-# custom_resource_dir(config["resources_path"], resource_mapping)
+    ##### 4. Generate user-defined local resources
+    # custom_resource_dir(config["resources_path"], resource_mapping)
 
-RULE_FUNCTIONS["seqfu"]["taxon"]["strains"] = get_accessions_for_taxon
-include: "rules/seqfu.smk"
-include: "rules/checkm_for_missing.smk"
-RULE_FUNCTIONS["checkm"]["taxon"]["accessions"] = get_accessions_for_taxon
-include: "rules/checkm.smk"
+    RULE_FUNCTIONS["seqfu"]["taxon"]["strains"] = get_accessions_for_taxon
+    include: "rules/seqfu.smk"
+    include: "rules/checkm_for_missing.smk"
+    RULE_FUNCTIONS["checkm"]["taxon"]["accessions"] = get_accessions_for_taxon
+    include: "rules/checkm.smk"
 
-RULE_FUNCTIONS["gtdbtk_simple"]["accessions"] = lambda wildcards: get_unclassified_accessions(wildcards.stage, wildcards.name)
-include: "rules/gtdbtk_simple.smk"
+    RULE_FUNCTIONS["gtdbtk_simple"]["accessions"] = lambda wildcards: get_unclassified_accessions(wildcards.stage, wildcards.name)
+    include: "rules/gtdbtk_simple.smk"
 
-RULE_FUNCTIONS["gtdb_improved"]["taxons"] = get_taxons
-include: "rules/gtdb_improved.smk"
-include: "rules/merge_taxonomy/gtdb_and_gtdbtk.smk"
-include: "rules/split_species_into_projects.smk"
-include: "rules/eggnog.smk"
+    RULE_FUNCTIONS["gtdb_improved"]["taxons"] = get_taxons
+    include: "rules/gtdb_improved.smk"
+    include: "rules/merge_taxonomy/gtdb_and_gtdbtk.smk"
+    include: "rules/split_species_into_projects.smk"
+    include: "rules/eggnog.smk"
 
 def filtered_accessions_for_project(name):
     return filter_sample_names_qc(get_samples_for_species_project(name))
@@ -139,14 +141,15 @@ def get_projects(wildcards):
     return SPECIES_PROJECTS
 
 get_samples_df = lambda wildcards: get_species_projects_samples_df()
-RULE_FUNCTIONS["prokka"]["samples"] = get_samples_df
-include: "rules/prokka.smk"
-RULE_FUNCTIONS["roary"]["species"]["samples"] = cached_filtered_accessions_for_project
-include: "rules/roary.smk"
-RULE_FUNCTIONS["mash"]["species"]["accessions"] = cached_filtered_accessions_for_project
-include: "rules/mash.smk"
-RULE_FUNCTIONS["automlst_wrapper"]["species"]["accessions"] = cached_filtered_accessions_for_project
-include: "rules/automlst_wrapper.smk"
+if not PANKB_ALLELEOME_ONLY:
+    RULE_FUNCTIONS["prokka"]["samples"] = get_samples_df
+    include: "rules/prokka.smk"
+    RULE_FUNCTIONS["roary"]["species"]["samples"] = cached_filtered_accessions_for_project
+    include: "rules/roary.smk"
+    RULE_FUNCTIONS["mash"]["species"]["accessions"] = cached_filtered_accessions_for_project
+    include: "rules/mash.smk"
+    RULE_FUNCTIONS["automlst_wrapper"]["species"]["accessions"] = cached_filtered_accessions_for_project
+    include: "rules/automlst_wrapper.smk"
 RULE_FUNCTIONS["alleleome"]["samples"] = lambda wildcards: cached_filtered_accessions_for_project(wildcards.name)
 RULE_FUNCTIONS["alleleome"]["pan_core"] = "Pan"
 RULE_FUNCTIONS["alleleome"]["stages"] = "species"
