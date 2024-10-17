@@ -5,6 +5,7 @@ channels:
   - defaults
 dependencies:
   - python==3.11
+  - ratelimiter==1.2.0.post
   - pip
   - pip:
-    - git+https://github.com/biosustain/pankb_data_prep.git
+    - git+https://github.com/biosustain/pankb_data_prep.git@nova
