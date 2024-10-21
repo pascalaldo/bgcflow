@@ -43,4 +43,4 @@ include: "rules/ncbi_annotation_datasets.smk"
 
 rule all:
     input:
-        expand("data/interim/all/fasta/{accession}.gff", accession=["GCF_000005845.2", "GCF_000008865.2", "GCF_020785475.1"])
+        expand("data/interim/all/gff/{accession}.gff", accession=["GCF_000005845.2", "GCF_000008865.2", "GCF_020785475.1"])
