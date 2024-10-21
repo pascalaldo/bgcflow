@@ -7,6 +7,8 @@ report: "report/workflow.rst"
 
 include: "rules/common.smk"
 
+from collections import defaultdict
+
 
 ##### 1. Extract information from config file
 (
@@ -38,7 +40,9 @@ GTDB_PATHS = [
     if "gtdb-tax" in PEP_PROJECTS[k].config.keys()
 ]
 PROKKA_GBFF = list(PROKKA_DB_TABLE.keys())
-RULE_FUNCTIONS = {}
+def create_defaultdict():
+    return defaultdict(create_defaultdict)
+RULE_FUNCTIONS = create_defaultdict()
 
 KINGDOM = config.get("kingdom", "bacteria")
 
@@ -55,24 +59,34 @@ wildcard_constraints:
     prokka_db="|".join(PROKKA_GBFF),
 
 filter_samples_qc = lambda x, y: y # No automated QC
-def get_samples_for_project(name):
+def get_samples_for_project(wildcards):
+    name = wildcards.name
     samples = DF_SAMPLES[["name"]].copy()
     samples["genome_id"] = samples.index
     samples = samples.reindex()
     samples = samples.explode("name")
     return samples.loc[samples["name"] == name, "genome_id"].to_list()
-def get_samples_df_for_project(name):
+def get_samples_df_for_project(wildcards):
+    name = wildcards.name
     return DF_SAMPLES.loc[get_samples_for_project(name), :]
 def get_samples_df():
     return DF_SAMPLES
 ##### Target rules #####
+# rule all:
+#     input:
+#         # expand("data/processed/{name}/tables/df_gtdb_meta.csv", name=PROJECT_IDS),
+#         expand("data/processed/{name}/alleleome/Pan/pan_gene_syno_non_syno_df.csv", name=PROJECT_IDS),
+#         #expand("data/processed/{name}/alleleome/Pan/final_core_pan_aa_thresh_vars_all_substitutions_sep_df.csv", name=PROJECT_IDS)
+# 	    expand("data/processed/{name}/alleleome/Pan/dn_ds.json", name=PROJECT_IDS),
+#         expand("data/processed/{name}/alleleome/Pan/step_line.json", name=PROJECT_IDS),
 rule all:
     input:
-        # expand("data/processed/{name}/tables/df_gtdb_meta.csv", name=PROJECT_IDS),
-        expand("data/processed/{name}/alleleome/Pan/pan_gene_syno_non_syno_df.csv", name=PROJECT_IDS),
-        #expand("data/processed/{name}/alleleome/Pan/final_core_pan_aa_thresh_vars_all_substitutions_sep_df.csv", name=PROJECT_IDS)
-	    expand("data/processed/{name}/alleleome/Pan/dn_ds.json", name=PROJECT_IDS),
-        expand("data/processed/{name}/alleleome/Pan/step_line.json", name=PROJECT_IDS),
+        expand([
+                "data/processed/{stage}/pankb/web_data/species/{name}/nova/organism.json",
+                "data/processed/{stage}/pankb/web_data/species/{name}/nova/pangene.json",
+                "data/processed/{stage}/pankb/web_data/species/{name}/nova/pathway.json",
+                "data/processed/{stage}/pankb/web_data/species/{name}/nova/gene.jsonl.gz",
+            ], stage="species", name=PROJECT_IDS)
 # Create place holder for resources defined in each modules, will be added if module is included, and passed to create custom_resource_dir
 resource_mapping = {}
 
@@ -92,9 +106,19 @@ custom_resource_dir(config["resources_path"], resource_mapping)
 # include: "rules/gtdb.smk"
 # RULE_FUNCTIONS["roary"] = {"samples": get_samples_for_project}
 # include: "rules/roary.smk"
-RULE_FUNCTIONS["alleleome"] = {
-        "samples": get_samples_for_project,
-        "projects": (lambda: PROJECT_IDS),
-        "pan_core": (lambda: "Pan"),
-    }
+
+def throw_error(wildcards):
+    raise Exception()
+
+RULE_FUNCTIONS["alleleome"]["samples"] = get_samples_for_project
+RULE_FUNCTIONS["alleleome"]["pan_core"] = "Pan"
+RULE_FUNCTIONS["alleleome"]["stages"] = "species"
+RULE_FUNCTIONS["alleleome"]["projects"] = PROJECT_IDS
 include: "rules/alleleome.smk"
+
+RULE_FUNCTIONS["pankb_data_prep"]["projects"] = PROJECT_IDS
+RULE_FUNCTIONS["pankb_data_prep"]["genomes"] = throw_error
+RULE_FUNCTIONS["pankb_data_prep"]["stages"] = "species"
+include: "rules/pankb_data_prep.smk"
+
+include: "rules/pankb_nova.smk"

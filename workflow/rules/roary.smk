@@ -93,7 +93,6 @@ rule eggnog_roary_result_copy:
     input:
         annotations="data/interim/{stage}/eggnog_roary/{name}/{name}.emapper.annotations",
         xlsx="data/interim/{stage}/eggnog_roary/{name}/{name}.emapper.annotations.xlsx",
-        pangene="data/processed/{stage}/{name}/tables/df_roary_pangene_summary_reassigned.csv",
     output:
         eggnog_xlsx="data/processed/{stage}/{name}/eggnog_roary/eggnog_roary.xlsx",
         eggnog_annotations="data/processed/{stage}/{name}/eggnog_roary/emapper.annotations"

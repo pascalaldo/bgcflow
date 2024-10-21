@@ -90,7 +90,7 @@ def gtdb_prep(
                     )
 
             # If NCBI accession is provided, try to find taxonomic information from GTDB API
-            elif query.source.values[0] == "ncbi":
+            elif query.source.values[0] == "ncbi" or query.source.values[0] == "ncbi_taxon":
                 try:
                     logging.info(
                         "Inferring taxonomic placement from NCBI accession...."
@@ -138,10 +138,13 @@ def gtdb_prep(
             return gtdb_tax
 
     # get query by subsetting samples df with genome id
-    shell_input = samples_table.split()
-    dfList = [pd.read_csv(s).set_index("genome_id", drop=False) for s in shell_input]
-    df_samples = pd.concat(dfList, axis=0)
-    query = df_samples[df_samples.loc[:, "genome_id"] == genome_id].fillna("")
+    if samples_table == "none":
+        query = pd.DataFrame({"genome_id": [genome_id], "source": ["ncbi"]})
+    else:
+        shell_input = samples_table.split()
+        dfList = [pd.read_csv(s).set_index("genome_id", drop=False) for s in shell_input]
+        df_samples = pd.concat(dfList, axis=0)
+        query = df_samples[df_samples.loc[:, "genome_id"] == genome_id].fillna("")
 
     # create empty container
     gtdb_tax = {}

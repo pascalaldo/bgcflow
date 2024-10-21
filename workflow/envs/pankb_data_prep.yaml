@@ -4,8 +4,8 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - python==3.11
-  - ratelimiter==1.2.0.post
+  - python==3.10
   - pip
   - pip:
     - git+https://github.com/biosustain/pankb_data_prep.git@nova
+    - ratelimiter==1.2.0.post

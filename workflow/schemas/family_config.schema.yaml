@@ -20,11 +20,11 @@ properties:
     uniqueItems: true
     required:
       - name
-  rules:
-    type: object
-    properties:
-      pankb: boolean
-      alleleome: boolean              
+rules:
+  type: object
+  properties:
+    pankb: boolean
+    alleleome: boolean              
 
 
 # entries that have to be in the config file for successful validation

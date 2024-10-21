@@ -133,10 +133,10 @@ def get_input_location(p, force_extension=False, extension="fna"):
             except KeyError:
                 input_file = None
                 input_file = input_path / f"{i}.{extension}"
-                assert input_file.is_file(), f"ERROR: Cannot find {input_file}"
+                # assert input_file.is_file(), f"ERROR: Cannot find {input_file}"
 
             input_file = input_file.resolve()
-            assert input_file.is_file(), f"ERROR: Cannot find {input_file}"
+            # assert input_file.is_file(), f"ERROR: Cannot find {input_file}"
             p.sample_table.loc[i, "input_file"] = input_file
         # only accept fna for ncbi and patric
         elif p.sample_table.loc[i, "source"] in ["ncbi", "patric"]:

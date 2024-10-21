@@ -31,3 +31,5 @@ nohup.out
 /resources/
 /log/
 /logs/
+/raw/
+/nohup.*

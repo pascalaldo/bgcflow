@@ -134,3 +134,7 @@ def get_taxon_for_species_project(name):
         if name in projects:
             return taxon
     return None
+
+rule classification_all:
+    input:
+        classification=expand("data/interim/taxon/split/{taxon}/classification.csv", taxon=TAXONS.index.to_list()),

@@ -1,0 +1,47 @@
+#%
+# description: Generate pangenome, alleleome and PanKB files for a taxonomic family.
+#%
+report: "report/workflow.rst"
+
+include: "rules/basic.smk"
+
+import pandas as pd
+import numpy as np
+from pathlib import Path
+from collections import defaultdict
+
+def create_defaultdict():
+    return defaultdict(create_defaultdict)
+RULE_FUNCTIONS = create_defaultdict()
+
+##### 3. Wildcard constraints #####
+wildcard_constraints:
+    assembly_source="all|RefSeq|GenBank",
+    stage="taxon|species",
+    taxon="|".join(TAXONS.index.to_list()),
+    name="[a-zA-Z0-9_\-]+",
+
+def get_accessions(wildcards):
+    if wildcards.name == "Escherichia_coli":
+        return ["GCF_000005845.2", "GCF_000008865.2"]
+    elif wildcards.name == "Limosilactobacillus_reuteri":
+        return ["GCF_020785475.1"]
+    else:
+        raise Exception()
+def get_project_for_accession(wildcards):
+    if wildcards.accession in ["GCF_000005845.2", "GCF_000008865.2"]:
+        return "Escherichia_coli"
+    elif wildcards.accession in ["GCF_020785475.1"]:
+        return "Limosilactobacillus_reuteri"
+    else:
+        raise Exception()
+
+RULE_FUNCTIONS["ncbi_annotation_datasets"]["stages"] = "species"
+RULE_FUNCTIONS["ncbi_annotation_datasets"]["accessions_for_project"] = get_accessions
+RULE_FUNCTIONS["ncbi_annotation_datasets"]["project_for_accession"] = get_project_for_accession
+
+include: "rules/ncbi_annotation_datasets.smk"
+
+rule all:
+    input:
+        expand("data/interim/all/fasta/{accession}.gff", accession=["GCF_000005845.2", "GCF_000008865.2", "GCF_020785475.1"])

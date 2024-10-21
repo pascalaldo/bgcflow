@@ -41,7 +41,7 @@ checkpoint ncbi_dataset_tsv_to_samples_csv:
     run:
         import pandas as pd
         df = pd.read_csv(input.tsv, sep="\t", low_memory=False, header=0, index_col=0)
-        df["source"] = "ncbi_taxon"
+        df["source"] = "ncbi"
         try:
             CUSTOM_SAMPLES
         except NameError:
@@ -62,14 +62,27 @@ def get_all_accessions():
     for taxon in TAXONS.index.to_list():
         accessions.extend(get_accessions_for_taxon(taxon))
     return accessions
-def get_taxon_for_accession(wildcards):
-    for taxon in TAXONS.index.to_list():
-        genome_list = checkpoints.ncbi_dataset_tsv_to_samples_csv.get(stage="taxon", taxon=taxon).output.csv
-        df = pd.read_csv(genome_list, index_col=0, header=0, low_memory=False)  
-        if wildcards.accession in df.index:
-            return taxon
-    raise ValueError(f"No taxon found for {wildcards.accession}")
 
+ACCESSIONS_TO_TAXONS={}
+def get_taxon_for_accession(wildcards):
+    if wildcards.accession in ACCESSIONS_TO_TAXONS:
+        return ACCESSIONS_TO_TAXONS[wildcards.accession]
+    
+    exception = None
+    for taxon in TAXONS.index.to_list():
+        try:
+            genome_list = checkpoints.ncbi_dataset_tsv_to_samples_csv.get(stage="taxon", taxon=taxon).output.csv
+            df = pd.read_csv(genome_list, index_col=0, header=0, low_memory=False)
+            for accession in df.index.to_list():
+                ACCESSIONS_TO_TAXONS[accession] = taxon
+            if wildcards.accession in ACCESSIONS_TO_TAXONS:
+                return taxon
+        except snakemake.exceptions.IncompleteCheckpointException as e:
+            exception = e
+    if exception is None:
+        raise ValueError(f"No taxon found for {wildcards.accession}")
+    else:
+        raise snakemake.exceptions.IncompleteCheckpointException(exception.rule, exception.targetfile)
 
 rule ncbi_dataset_download_genome_for_taxon_dehydrated:
     input:
