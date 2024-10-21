@@ -65,7 +65,7 @@ rule ncbi_annotation_dataset_collect:
     output:
         gff="data/interim/all/gff/{accession}.gff",
     params:
-        gff=fexpand("data/interim/{stage}/ncbi_annotation_datasets/datasets/{name}/ncbi_dataset/data/{accession}/{accession}.gff", taxon=get_taxon_for_accession, accession=(lambda wildcards: wildcards.accession), stage=RULE_FUNCTIONS["ncbi_datasets"]["stages"]),
+        gff=fexpand("data/interim/{stage}/ncbi_annotation_datasets/datasets/{name}/ncbi_dataset/data/{accession}/{accession}.gff", name=RULE_FUNCTIONS["ncbi_annotation_datasets"]["project_for_accession"], accession=(lambda wildcards: wildcards.accession), stage=RULE_FUNCTIONS["ncbi_annotation_datasets"]["stages"]),
     conda:
         "../envs/data_processing.yaml"
     log:
@@ -74,6 +74,8 @@ rule ncbi_annotation_dataset_collect:
         """
             if [ ! -f {output.gff} ]
             then
-                ln -s {params.gff} {output.gff}
+                RELDIR=`dirname {output.gff}`
+                LINKPATH=`realpath -s --relative-to=$RELDIR "{params.gff}"`
+                ln -s $LINKPATH {output.gff}
             fi
         """
