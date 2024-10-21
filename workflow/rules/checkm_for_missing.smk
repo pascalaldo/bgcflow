@@ -42,6 +42,7 @@ if config.get("use_ncbi_data_for_checkm", False):
             checkm_db="resources/checkm/",
             missing="data/interim/{stage}/checkm_missing/{name}/{name}_missing.txt",
         output:
+            tempdir=temp(directory("data/interim/{stage}/checkm_missing_temp/{name}/{name}_fna")),
             fna=temp(directory("data/interim/{stage}/checkm_missing/{name}/{name}_fna")),
             stat="data/interim/{stage}/checkm_missing/{name}/{name}/storage/bin_stats_ext.tsv",
             checkm_dir=directory("data/interim/{stage}/checkm_missing/{name}/{name}"),
@@ -57,7 +58,7 @@ if config.get("use_ncbi_data_for_checkm", False):
             if [ -s {input.missing} ]; then
                 mkdir -p {output.fna}
                 for f in {input.fna}; do cp $f {output.fna}/.; done
-                checkm lineage_wf -t {threads} --reduced_tree -x fna {output.fna} {output.checkm_dir} &>> {log}
+                TEMPDIR={output.tempdir} checkm lineage_wf -t {threads} --reduced_tree -x fna {output.fna} {output.checkm_dir} &>> {log}
             else
                 mkdir -p {output.checkm_dir}
                 touch {output.stat}

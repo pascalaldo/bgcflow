@@ -73,7 +73,7 @@ rule alleleome_process:
         dummy="data/interim/{stage}/alleleome/{name}/pangenome_alignments/process_dummy_{pan_core}",
     params:
         out_dir="data/interim/{stage}/alleleome/{name}/pangenome_alignments/",
-    threads: workflow.cores
+    threads: 42 #workflow.cores
     log:
         "logs/{stage}/alleleome/process_{name}_{pan_core}.log"
     conda:
@@ -97,7 +97,7 @@ rule alleleome_analyze:
         dominant_aa="data/interim/{stage}/alleleome/{name}/{pan_core}/final_core_consensus_dominant_aa_count_df.csv",
     params:
         out_dir="data/interim/{stage}/alleleome/{name}/pangenome_alignments/",
-    threads: workflow.cores
+    threads: 18 #workflow.cores
     log:
         "logs/{stage}/alleleome/analyze_{name}_{pan_core}.log"
     conda:

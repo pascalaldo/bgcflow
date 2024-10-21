@@ -1,9 +1,50 @@
+# rule eggnog_roary:
+#     input:
+#         faa="data/interim/{stage}/roary/{name}/pan_genome_reference.fa",
+#         eggnog_db="resources/eggnog_db",
+#         dmnd="resources/eggnog_db/bacteria.dmnd",
+#     output:
+#         annotations="data/interim/{stage}/eggnog_roary/{name}/{name}.emapper.annotations",
+#         xlsx="data/interim/{stage}/eggnog_roary/{name}/{name}.emapper.annotations.xlsx",
+#         hits="data/interim/{stage}/eggnog_roary/{name}/{name}.emapper.hits",
+#         seed_orthologs="data/interim/{stage}/eggnog_roary/{name}/{name}.emapper.seed_orthologs",
+#         temp_dir=temp(directory("data/interim/{stage}/eggnog_roary/tmp/{name}"))
+#     params:
+#         eggnog_dir="data/interim/{stage}/eggnog_roary/{name}/",
+#     conda:
+#         "../envs/eggnog.yaml"
+#     threads: 8
+#     log:
+#         "logs/{stage}/eggnog-roary/eggnog-{name}.log",
+#     shell:
+#         """
+#         mkdir -p {output.temp_dir}
+#         emapper.py -i {input.faa} --translate --itype "CDS" --excel --cpu {threads} -o {wildcards.name} --output_dir {params.eggnog_dir} --data_dir {input.eggnog_db} --temp_dir {output.temp_dir} &>> {log}
+#         """
+
+# rule eggnog_roary_result_copy:
+#     input:
+#         annotations="data/interim/{stage}/eggnog_roary/{name}/{name}.emapper.annotations",
+#         xlsx="data/interim/{stage}/eggnog_roary/{name}/{name}.emapper.annotations.xlsx",
+#     output:
+#         eggnog_xlsx="data/processed/{stage}/{name}/eggnog_roary/eggnog_roary.xlsx",
+#         eggnog_annotations="data/processed/{stage}/{name}/eggnog_roary/emapper.annotations"
+#     conda:
+#         "../envs/bgc_analytics.yaml"
+#     log:
+#         "logs/{stage}/eggnog-roary/eggnog-result-copy-{name}.log",
+#     shell:
+#         """
+#         cp {input.xlsx} {output.eggnog_xlsx}
+#         cp {input.annotations} {output.eggnog_annotations}
+#         """
+
 rule pankb_nova_organism:
     input:
         gp_binary="data/interim/{stage}/roary/{name}/df_gene_presence_binary.csv",
         summary_v2="data/interim/{stage}/alleleome/{name}/pangene_v2.csv",
         gtdb_meta="data/processed/{stage}/{name}/tables/df_gtdb_meta.csv",
-        filt_norm="data/processed/{stage}/{name}/alleleome/{pan_core}/final_pan_aa_thresh_core_genes_dom_var_genome_count_pos_normalized.csv",
+        filt_norm="data/processed/{stage}/{name}/alleleome/Pan/final_pan_aa_thresh_core_genes_dom_var_genome_count_pos_normalized.csv",
         sel_genes="data/interim/{stage}/alleleome/{name}/sel_genes.csv",
     output:
         organism="data/processed/{stage}/pankb/web_data/species/{name}/nova/organism.json",

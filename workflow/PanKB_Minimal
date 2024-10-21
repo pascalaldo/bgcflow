@@ -29,9 +29,7 @@ wildcard_constraints:
 
 resource_mapping = {}
 
-SPECIES_PROJECTS = config.species
-def get_projects(wildcards):
-    return SPECIES_PROJECTS
+SPECIES_PROJECTS = config.get("species", [])
 
 def throw_error(wildcards):
     raise Exception()
@@ -39,25 +37,21 @@ def throw_error(wildcards):
 RULE_FUNCTIONS["alleleome"]["samples"] = throw_error
 RULE_FUNCTIONS["alleleome"]["pan_core"] = "Pan"
 RULE_FUNCTIONS["alleleome"]["stages"] = "species"
-RULE_FUNCTIONS["alleleome"]["projects"] = get_projects
+RULE_FUNCTIONS["alleleome"]["projects"] = SPECIES_PROJECTS
 include: "rules/alleleome.smk"
-RULE_FUNCTIONS["pankb_data_prep"]["projects"] = get_projects
+
+RULE_FUNCTIONS["pankb_data_prep"]["projects"] = SPECIES_PROJECTS
 RULE_FUNCTIONS["pankb_data_prep"]["genomes"] = throw_error
 RULE_FUNCTIONS["pankb_data_prep"]["stages"] = "species"
 include: "rules/pankb_data_prep.smk"
 
-all_target_rules = ["pankb", "alleleome"]
-def get_targets():
-    defined_targets = config.get("rules", {})
-    targets = [x for x in all_target_rules if defined_targets.get(x, True)]
-    print(f"Active target rules: {', '.join(targets)}")
-    inputs = []
-    for target in targets:
-        target_inputs = getattr(rules, f"{target}_all").input
-        inputs.extend(target_inputs)
-    print(f"Target rule inputs: {', '.join([str(s) for s in inputs])}")
-    return inputs
+include: "rules/pankb_nova.smk"
 
 rule all:
     input:
-        get_targets()
+        expand([
+                "data/processed/{stage}/pankb/web_data/species/{name}/nova/organism.json",
+                "data/processed/{stage}/pankb/web_data/species/{name}/nova/pangene.json",
+                "data/processed/{stage}/pankb/web_data/species/{name}/nova/pathway.json",
+                "data/processed/{stage}/pankb/web_data/species/{name}/nova/gene.jsonl.gz",
+            ], stage="species", name=SPECIES_PROJECTS)
