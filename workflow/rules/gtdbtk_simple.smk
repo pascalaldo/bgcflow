@@ -79,7 +79,7 @@ checkpoint prepare_gtdbtk_input:
         INPUT_JSON="$TMPDIR/df_json_gtdbtk.txt"
         echo '{input.fna}' > $INPUT_FNA
         echo '{input.json_list}' > $INPUT_JSON
-        if [ -s diff.txt ]; then
+        if [ -s $INPUT_FNA ]; then
             python workflow/bgcflow/bgcflow/data/gtdbtk_prep.py $INPUT_FNA $INPUT_JSON {output.fnadir} {output.fnalist} 2>> {log}
         else
             mkdir -p {output.fnadir}
@@ -103,7 +103,7 @@ rule gtdbtk:
         "../envs/gtdbtk.yaml"
     log:
         "logs/{stage}/gtdbtk/gtdbtk/gtdbtk_{name}.log",
-    threads: 32
+    threads: 42
     params:
         ani_screen=ani_screen,
     shell:
