@@ -63,6 +63,31 @@ rule pankb_nova_organism:
             -o {output.organism} > {log} 2>&1
         """
 
+rule pankb_nova_genome:
+    input:
+        gp_binary="data/interim/{stage}/roary/{name}/df_gene_presence_binary.csv",
+        summary_v2="data/interim/{stage}/alleleome/{name}/pangene_v2.csv",
+        gtdb_meta="data/processed/{stage}/{name}/tables/df_gtdb_meta.csv",
+        species_summary="data/processed/{stage}/pankb/pankb/full_summary.csv",
+        species_info="data/processed/{stage}/{name}/tables/df_ncbi_meta.csv",
+        isosource="data/processed/{stage}/{name}/pankb/source_info/df_ncbi_isolation_src.csv"
+    output:
+        genome="data/processed/{stage}/pankb/web_data/species/{name}/nova/genome.jsonl",
+    log:
+        "logs/{stage}/pankb_nova/pankb_nova_genome_{name}.log"
+    conda:
+        "../envs/pankb_data_prep.yaml"
+    shell:
+        """
+        pankb_nova genome {wildcards.name} \
+            --gp_binary {input.gp_binary} \
+            --summary {input.summary_v2} \
+            --gtdb_meta {input.gtdb_meta} \
+            --species_summary {input.species_summary} \
+            --isosource {input.isosource} \
+            -o {output.genome} > {log} 2>&1
+        """
+
 rule pankb_nova_pangene:
     input:
         gp_binary="data/interim/{stage}/roary/{name}/df_gene_presence_binary.csv",
