@@ -154,10 +154,11 @@ def evaluate_gtdbtk_input(wildcards):
 
 rule evaluate_gtdbtk_input:
     input:
-        evaluate_gtdbtk_input
+        succ_fail=evaluate_gtdbtk_input,
+        summary_interim="data/interim/{stage}/gtdbtk/{name}/result/classify/gtdbtk.bac120.summary.tsv",
     output:
         summary_processed="data/processed/{stage}/{name}/tables/gtdbtk.bac120.summary.tsv"
     log:
         "logs/{stage}/gtdbtk/gtdbtk/evaluate_gtdbtk_{name}.log",
     shell:
-        "cp {input} {output.summary_processed} 2>> {log}"
+        "cp {input.summary_interim} {output.summary_processed} 2>> {log}"
