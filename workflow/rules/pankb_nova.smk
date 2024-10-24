@@ -46,6 +46,7 @@ rule pankb_nova_organism:
         gtdb_meta="data/processed/{stage}/{name}/tables/df_gtdb_meta.csv",
         filt_norm="data/processed/{stage}/{name}/alleleome/Pan/final_pan_aa_thresh_core_genes_dom_var_genome_count_pos_normalized.csv",
         sel_genes="data/interim/{stage}/alleleome/{name}/sel_genes.csv",
+        imodulon_genome_list="data/interim/{stage}/pankb_imodulon/{name}/genome_list.csv",
     output:
         organism="data/processed/{stage}/pankb/web_data/species/{name}/nova/organism.json",
     log:
@@ -60,6 +61,7 @@ rule pankb_nova_organism:
             --gtdb_meta {input.gtdb_meta} \
             --filt_norm {input.filt_norm} \
             --sel_genes {input.sel_genes} \
+            --imodulon_genome_list {input.imodulon_genome_list} \
             -o {output.organism} > {log} 2>&1
         """
 
@@ -70,7 +72,8 @@ rule pankb_nova_genome:
         gtdb_meta="data/processed/{stage}/{name}/tables/df_gtdb_meta.csv",
         species_summary="data/processed/{stage}/pankb/pankb/full_summary.csv",
         species_info="data/processed/{stage}/{name}/tables/df_ncbi_meta.csv",
-        isosource="data/processed/{stage}/{name}/pankb/source_info/df_ncbi_isolation_src.csv"
+        isosource="data/processed/{stage}/{name}/pankb/source_info/df_ncbi_isolation_src.csv",
+        imodulon_dir="data/interim/{stage}/pankb_imodulon/{name}/data/",
     output:
         genome="data/processed/{stage}/pankb/web_data/species/{name}/nova/genome.jsonl",
     log:
@@ -85,6 +88,7 @@ rule pankb_nova_genome:
             --gtdb_meta {input.gtdb_meta} \
             --species_summary {input.species_summary} \
             --isosource {input.isosource} \
+            --imodulon_dir {input.imodulon_dir} \
             -o {output.genome} > {log} 2>&1
         """
 
@@ -117,6 +121,9 @@ rule pankb_nova_gene:
         gp_locustag="data/interim/{stage}/roary/{name}/df_gene_presence_locustag.csv",
         all_locustag="data/interim/{stage}/alleleome/{name}/all_locustag.csv",
         gtdb_meta="data/processed/{stage}/{name}/tables/df_gtdb_meta.csv",
+        locus_tag_mapping="data/processed/{stage}/{name}/tables/df_locus_tag_mapping.csv",
+        imodulon_tag_mapping="data/interim/{stage}/pankb_imodulon/{name}/locus_tag_mapping.csv",
+        imodulon_dir="data/interim/{stage}/pankb_imodulon/{name}/data/",
         dummy="data/interim/{stage}/alleleome/{name}/pangenome_alignments/fasta_dummy_Pan",
     output:
         gene="data/processed/{stage}/pankb/web_data/species/{name}/nova/gene.jsonl.gz",
@@ -133,6 +140,9 @@ rule pankb_nova_gene:
             --all_locustag {input.all_locustag} \
             --fasta_dir {params.fasta_dir} \
             --gtdb_meta {input.gtdb_meta} \
+            --locus_tag_mapping {input.locus_tag_mapping} \
+            --imodulon_tag_mapping {input.imodulon_tag_mapping} \
+            --imodulon_dir {input.imodulon_dir} \
             -o {output.gene} > {log} 2>&1
         """
 

@@ -38,9 +38,16 @@ def get_project_for_accession(wildcards):
 RULE_FUNCTIONS["ncbi_annotation_datasets"]["stages"] = "species"
 RULE_FUNCTIONS["ncbi_annotation_datasets"]["accessions_for_project"] = get_accessions
 RULE_FUNCTIONS["ncbi_annotation_datasets"]["project_for_accession"] = get_project_for_accession
-
 include: "rules/ncbi_annotation_datasets.smk"
+
+
+RULE_FUNCTIONS["original_locus_tags"]["accession"] = get_accessions
+include: "rules/original_locus_tags.smk"
+
+include: "rules/pankb_imodulon.smk"
 
 rule all:
     input:
-        expand("data/interim/all/gff/{accession}.gff", accession=["GCF_000005845.2", "GCF_000008865.2", "GCF_020785475.1"])
+        expand("data/processed/{stage}/{name}/tables/df_locus_tag_mapping.csv", stage="species", name="Escherichia_coli"),
+        expand("data/interim/{stage}/pankb_imodulon/{name}/locus_tag_mapping.csv", stage="species", name="Escherichia_coli"),
+        # expand("data/interim/all/gff/{accession}.gff", accession=["GCF_000005845.2", "GCF_000008865.2", "GCF_020785475.1"])

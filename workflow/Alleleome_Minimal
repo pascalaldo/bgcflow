@@ -71,6 +71,8 @@ def get_samples_df_for_project(wildcards):
     return DF_SAMPLES.loc[get_samples_for_project(name), :]
 def get_samples_df():
     return DF_SAMPLES
+def get_project_for_sample(wildcards):
+    return DF_SAMPLES.loc[wildcards.accession, "name"]
 ##### Target rules #####
 # rule all:
 #     input:
@@ -86,6 +88,7 @@ rule all:
                 "data/processed/{stage}/pankb/web_data/species/{name}/nova/pangene.json",
                 "data/processed/{stage}/pankb/web_data/species/{name}/nova/pathway.json",
                 "data/processed/{stage}/pankb/web_data/species/{name}/nova/gene.jsonl.gz",
+                # "data/processed/{stage}/pankb/web_data/species/{name}/nova/genome.jsonl",
             ], stage="species", name=PROJECT_IDS)
 # Create place holder for resources defined in each modules, will be added if module is included, and passed to create custom_resource_dir
 resource_mapping = {}
@@ -110,14 +113,25 @@ custom_resource_dir(config["resources_path"], resource_mapping)
 def throw_error(wildcards):
     raise Exception()
 
+RULE_FUNCTIONS["ncbi_annotation_datasets"]["stages"] = "species"
+RULE_FUNCTIONS["ncbi_annotation_datasets"]["accessions_for_project"] = get_samples_for_project
+RULE_FUNCTIONS["ncbi_annotation_datasets"]["project_for_accession"] = get_project_for_sample
+include: "rules/ncbi_annotation_datasets.smk"
+
+
+RULE_FUNCTIONS["original_locus_tags"]["accession"] = get_samples_for_project
+include: "rules/original_locus_tags.smk"
+
 RULE_FUNCTIONS["alleleome"]["samples"] = get_samples_for_project
 RULE_FUNCTIONS["alleleome"]["pan_core"] = "Pan"
 RULE_FUNCTIONS["alleleome"]["stages"] = "species"
 RULE_FUNCTIONS["alleleome"]["projects"] = PROJECT_IDS
 include: "rules/alleleome.smk"
 
+include: "rules/pankb_imodulon.smk"
+
 RULE_FUNCTIONS["pankb_data_prep"]["projects"] = PROJECT_IDS
-RULE_FUNCTIONS["pankb_data_prep"]["genomes"] = throw_error
+RULE_FUNCTIONS["pankb_data_prep"]["genomes"] = get_samples_for_project
 RULE_FUNCTIONS["pankb_data_prep"]["stages"] = "species"
 include: "rules/pankb_data_prep.smk"
 

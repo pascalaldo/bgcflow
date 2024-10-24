@@ -1,0 +1,12 @@
+name: locus_tag_mapping
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - biopython
+      - bcbio-gff
+      - pandas
