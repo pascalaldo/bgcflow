@@ -12,7 +12,7 @@
 #%
 rule roary:
     input:
-        gff=lambda wildcards: expand("data/interim/{{stage}}/prokka/{sample}/{sample}.gff", sample=RULE_FUNCTIONS["roary"][wildcards.stage]["samples"](wildcards.name)),
+        gff=fexpand("data/interim/{{stage}}/prokka/{sample}/{sample}.gff", sample=RULE_FUNCTIONS["roary"]["samples"]),
         # gff=lambda wildcards: get_prokka_outputs(wildcards.name, filter_samples_qc(wildcards, get_samples_df())),
     output:
         core_alignment_header="data/interim/{stage}/roary/{name}/core_alignment_header.embl",
@@ -36,9 +36,9 @@ rule roary:
         "../envs/roary.yaml"
     params:
         i=80,
-        g=80000,
+        g=lambda wildcards, output: max(80000, 40*len(RULE_FUNCTIONS["roary"]["samples"](wildcards))),
         roary_dir="data/interim/{stage}/roary/{name}/",
-    threads: 16
+    threads: 64
     log:
         "logs/{stage}/roary/roary-{name}.log",
     shell:

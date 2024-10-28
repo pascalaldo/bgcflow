@@ -50,7 +50,7 @@ rule prep_automlst_gbk:
 rule automlst_wrapper:
     input:
         # gbk=lambda wildcards: get_automlst_inputs(wildcards.name, filter_samples_qc(wildcards, get_samples_df())),
-        gbk=lambda wildcards: expand("data/interim/{{stage}}/automlst_wrapper/{{name}}/{accession}.gbk", accession=RULE_FUNCTIONS["automlst_wrapper"][wildcards.stage]["accessions"](wildcards.name)),
+        gbk=fexpand("data/interim/{{stage}}/automlst_wrapper/{{name}}/{accession}.gbk", accession=RULE_FUNCTIONS["automlst_wrapper"]["accessions"]),
         reduced_core="resources/automlst-simplified-wrapper-main/reducedcore.hmm",
     output:
         tree="data/interim/{stage}/automlst_wrapper/{name}/raxmlpart.txt.treefile",
@@ -78,12 +78,12 @@ rule automlst_wrapper_out:
         # ),
         # organism_info=lambda wildcards: expand("data/interim/prokka/{strains}/organism_info.txt",
         #             strains=list(get_samples_for_project_from_df(filter_samples_qc(wildcards, get_samples_df()), wildcards.name).index)),
-        organism_info=lambda wildcards: expand("data/interim/all/prokka/{accession}/organism_info.txt", accession=RULE_FUNCTIONS["automlst_wrapper"][wildcards.stage]["accessions"](wildcards.name)),
+        organism_info=fexpand("data/interim/all/prokka/{accession}/organism_info.txt", accession=RULE_FUNCTIONS["automlst_wrapper"]["accessions"]),
         # gtdb=lambda wildcards: expand("data/interim/gtdb/{strains}.json",
         #     name=wildcards.name,
         #     strains=[s for s in list(filter_samples_qc(wildcards, PEP_PROJECTS[wildcards.name].sample_table).index)])
         # gtdb=lambda wildcards: expand("data/interim/gtdb/{strains}.json", strains=list(get_samples_for_project_from_df(filter_samples_qc(wildcards, get_samples_df()), wildcards.name).index)),
-        gtdb=lambda wildcards: expand("data/interim/{{stage}}/gtdb/{accession}.json", accession=RULE_FUNCTIONS["automlst_wrapper"][wildcards.stage]["accessions"](wildcards.name)),
+        gtdb=fexpand("data/interim/{{stage}}/gtdb/{accession}.json", accession=RULE_FUNCTIONS["automlst_wrapper"]["accessions"]),
     output:
         genomes_tree="data/processed/{stage}/{name}/automlst_wrapper/df_genomes_tree.csv",
         mlst_genes="data/processed/{stage}/{name}/automlst_wrapper/df_mlst_genes.csv",
@@ -97,6 +97,7 @@ rule automlst_wrapper_out:
         # raxmlpart_treefile="data/processed/{name}/automlst_wrapper/raxmlpart.txt.treefile",
     log:
         "logs/{stage}/automlst_wrapper/automlst_wrapper/automlst_wrapper_out-{name}.log",
+    priority: 100
     params:
         automlst_interim="data/interim/{stage}/automlst_wrapper/{name}/",
         automlst_processed="data/processed/{stage}/{name}/automlst_wrapper/",
