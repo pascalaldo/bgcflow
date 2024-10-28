@@ -34,11 +34,21 @@ SPECIES_PROJECTS = config.get("species", [])
 def throw_error(wildcards):
     raise Exception()
 
+# RULE_FUNCTIONS["ncbi_annotation_datasets"]["stages"] = "species"
+# RULE_FUNCTIONS["ncbi_annotation_datasets"]["accessions_for_project"] = cached_filtered_accessions_for_project
+# RULE_FUNCTIONS["ncbi_annotation_datasets"]["project_for_accession"] = get_species_project_for_accession
+# include: "rules/ncbi_annotation_datasets.smk"
+
+# RULE_FUNCTIONS["original_locus_tags"]["accession"] = cached_filtered_accessions_for_project
+# include: "rules/original_locus_tags.smk"
+
 RULE_FUNCTIONS["alleleome"]["samples"] = throw_error
 RULE_FUNCTIONS["alleleome"]["pan_core"] = "Pan"
 RULE_FUNCTIONS["alleleome"]["stages"] = "species"
 RULE_FUNCTIONS["alleleome"]["projects"] = SPECIES_PROJECTS
 include: "rules/alleleome.smk"
+
+include: "rules/pankb_imodulon.smk"
 
 RULE_FUNCTIONS["pankb_data_prep"]["projects"] = SPECIES_PROJECTS
 RULE_FUNCTIONS["pankb_data_prep"]["genomes"] = throw_error
@@ -53,5 +63,6 @@ rule all:
                 "data/processed/{stage}/pankb/web_data/species/{name}/nova/organism.json",
                 "data/processed/{stage}/pankb/web_data/species/{name}/nova/pangene.json",
                 "data/processed/{stage}/pankb/web_data/species/{name}/nova/pathway.json",
+                "data/processed/{stage}/pankb/web_data/species/{name}/nova/genome.jsonl",
                 "data/processed/{stage}/pankb/web_data/species/{name}/nova/gene.jsonl.gz",
             ], stage="species", name=SPECIES_PROJECTS)
