@@ -3,6 +3,8 @@ import os
 import sys
 from shutil import copyfile
 
+sys.setrecursionlimit(3000) # TODO: Temporary fix. Biopython uses recursion, which fails for large trees
+
 import pandas as pd
 from Bio import Phylo
 

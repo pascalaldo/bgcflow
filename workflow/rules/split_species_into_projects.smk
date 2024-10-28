@@ -135,6 +135,26 @@ def get_taxon_for_species_project(name):
             return taxon
     return None
 
+ACCESSIONS_TO_SPECIES={}
+def get_species_project_for_accession(wildcards):
+    if wildcards.accession in ACCESSIONS_TO_SPECIES:
+        return ACCESSIONS_TO_SPECIES[wildcards.accession]
+    
+    exception = None
+    for taxon in TAXONS.index.to_list():
+        try:
+            samples_df = get_species_projects_samples_df_for_taxon(taxon)
+            for accession, row in samples_df.iterrows():
+                ACCESSIONS_TO_SPECIES[accession] = row["name"]
+            if wildcards.accession in ACCESSIONS_TO_SPECIES:
+                return ACCESSIONS_TO_SPECIES[wildcards.accession]
+        except snakemake.exceptions.IncompleteCheckpointException as e:
+            exception = e
+    if exception is None:
+        raise ValueError(f"No species found for {wildcards.accession}")
+    else:
+        raise snakemake.exceptions.IncompleteCheckpointException(exception.rule, exception.targetfile)
+
 rule classification_all:
     input:
         classification=expand("data/interim/taxon/split/{taxon}/classification.csv", taxon=TAXONS.index.to_list()),

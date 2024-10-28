@@ -14,7 +14,7 @@
 #%
 rule mash:
     input:
-        fna=lambda wildcards: expand("data/interim/all/fasta/{accession}.fna", accession=RULE_FUNCTIONS["mash"][wildcards.stage]["accessions"](wildcards.name)),
+        fna=fexpand("data/interim/all/fasta/{accession}.fna", accession=RULE_FUNCTIONS["mash"]["accessions"]),
         # fna=lambda wildcards: get_fasta_inputs(wildcards.name, get_samples_df()),
     output:
         mash_infile="data/interim/{stage}/mash/{name}/mash_in.txt",
