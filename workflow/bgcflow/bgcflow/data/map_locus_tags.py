@@ -75,35 +75,39 @@ def locus_tag_mapping(
         mapping = []
         feature_dict = {}
         if input_mode == "ncbi_gff":
-            with open(ncbi_gff_path / f"{accession}.gff", "r") as f:
-                for record in GFF.parse(f):
-                    for feature in record.features:
-                        try:
-                            feature_type = feature.type
-                            if not feature_type in ["gene", "pseudogene"]:
-                                continue
-                            start_pos = int(feature.location.start)
-                            end_pos = int(feature.location.end)
-                            strand = feature.location.strand
-                            locus_tag = feature.qualifiers["locus_tag"][0]
-                            gene_key = "gene" if "gene" in feature.qualifiers else "Name"
-                            gene = feature.qualifiers[gene_key][0]
-                            synonyms = set()
-                            if len(feature.qualifiers[gene_key]) > 1:
-                                for synonym in feature.qualifiers[gene_key][1:]:
+            accession_file = ncbi_gff_path / f"{accession}.gff"
+            if os.stat(accession_file).st_size > 0:
+                with open(accession_file, "r") as f:
+                    for record in GFF.parse(f):
+                        for feature in record.features:
+                            try:
+                                feature_type = feature.type
+                                if not feature_type in ["gene", "pseudogene"]:
+                                    continue
+                                start_pos = int(feature.location.start)
+                                end_pos = int(feature.location.end)
+                                strand = feature.location.strand
+                                locus_tag = feature.qualifiers["locus_tag"][0]
+                                gene_key = "gene" if "gene" in feature.qualifiers else "Name"
+                                gene = feature.qualifiers[gene_key][0]
+                                synonyms = set()
+                                if len(feature.qualifiers[gene_key]) > 1:
+                                    for synonym in feature.qualifiers[gene_key][1:]:
+                                        synonyms.add(synonym)
+                                for synonym in feature.qualifiers.get("gene_synonym", []):
                                     synonyms.add(synonym)
-                            for synonym in feature.qualifiers.get("gene_synonym", []):
-                                synonyms.add(synonym)
-                            synonyms = list(synonyms)
-                            feature_key = (start_pos, end_pos, strand)
-                            if feature_key in feature_dict:
-                                print(f"Feature already present for key {feature_key}")
-                            else:
-                                feature_dict[feature_key] = (locus_tag, feature_type, gene, synonyms)
-                        except:
-                            print(f"Could not properly parse feature {feature.id}")
-                            # print(feature)
-                            # raise
+                                synonyms = list(synonyms)
+                                feature_key = (start_pos, end_pos, strand)
+                                if feature_key in feature_dict:
+                                    print(f"Feature already present for key {feature_key}")
+                                else:
+                                    feature_dict[feature_key] = (locus_tag, feature_type, gene, synonyms)
+                            except:
+                                print(f"Could not properly parse feature {feature.id}")
+                                # print(feature)
+                                # raise
+            else:
+                print(f"Skipping, because file {accession_file} is empty.")
         elif input_mode == "imodulon_table":
             imod_table = pd.read_csv(imodulon_table_path / accession / "gene_info.csv", index_col=0)
             imod_table.index.name = "locus_tag"

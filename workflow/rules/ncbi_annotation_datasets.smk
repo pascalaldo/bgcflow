@@ -72,10 +72,16 @@ rule ncbi_annotation_dataset_collect:
         "logs/ncbi_annotation_datasets/ncbi_dataset_collect_{accession}.log",
     shell:
         """
-            if [ ! -f {output.gff} ]
+            if [ -f {params.gff} ]
             then
-                RELDIR=`dirname {output.gff}`
-                LINKPATH=`realpath -s --relative-to=$RELDIR "{params.gff}"`
-                ln -s $LINKPATH {output.gff}
+                if [ ! -f {output.gff} ]
+                then
+                    RELDIR=`dirname {output.gff}`
+                    LINKPATH=`realpath -s --relative-to=$RELDIR "{params.gff}"`
+                    ln -s $LINKPATH {output.gff}
+                fi
+            else
+                echo "File {params.gff} not found."
             fi
+            touch {output.gff}
         """
