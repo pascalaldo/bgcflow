@@ -194,8 +194,36 @@ rule ncbi_dataset_collect:
         """
             if [ ! -f {output.fna} ]
             then
-                cp {params.fna} {output.fna}
+                RELDIR=`dirname {output.fna}`
+                LINKPATH=`realpath -s --relative-to=$RELDIR "{params.fna}"`
+                ln -s $LINKPATH {output.fna}
             fi
             grep '^{{"accession":"{wildcards.accession}"' {input.jsonl_report} > {output.json_report} || true
             python workflow/scripts/add_info_to_assembly_report.py {output.json_report}
         """
+
+# rule ncbi_dataset_collect:
+#     input:
+#         dummy=fexpand("data/interim/{stage}/ncbi_datasets/taxon/{taxon}.dummy", taxon=get_taxon_for_accession, stage=RULE_FUNCTIONS["ncbi_datasets"]["stages"]),
+#         dummy_custom=fexpand("data/interim/{stage}/ncbi_datasets/taxon/{taxon}-custom.dummy", taxon=get_taxon_for_accession, stage=RULE_FUNCTIONS["ncbi_datasets"]["stages"]),
+#         jsonl_report=fexpand("data/interim/{stage}/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/full_assembly_data_report.jsonl", taxon=get_taxon_for_accession, stage=RULE_FUNCTIONS["ncbi_datasets"]["stages"]),
+#     output:
+#         fna="data/interim/all/fasta/{accession}.fna",
+#         json_report="data/interim/all/assembly_report/{accession}.json",
+#     params:
+#         fna=fexpand("data/interim/{stage}/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/{accession}/{accession}.fna", taxon=get_taxon_for_accession, accession=(lambda wildcards: wildcards.accession), stage=RULE_FUNCTIONS["ncbi_datasets"]["stages"]),
+#     conda:
+#         "../envs/data_processing.yaml"
+#     log:
+#         "logs/ncbi_datasets/ncbi_dataset_collect_{accession}.log",
+#     shell:
+#         """
+#             if [ ! -f {output.fna} ]
+#             then
+#                 RELDIR=`dirname {output.fna}`
+#                 LINKPATH=`realpath -s --relative-to=$RELDIR "{params.fna}"`
+#                 ln -s $LINKPATH {output.fna}
+#             fi
+#             grep '^{{"accession":"{wildcards.accession}"' {input.jsonl_report} > {output.json_report} || true
+#             python workflow/scripts/add_info_to_assembly_report.py {output.json_report}
+#         """
