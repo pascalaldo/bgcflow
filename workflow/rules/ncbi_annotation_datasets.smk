@@ -53,8 +53,13 @@ rule ncbi_annotation_dataset_rehydrate:
             datasets rehydrate --directory {params.project_out_dir} > {log} 2>&1
             while IFS="" read -r p || [ -n "$p" ]
             do
-                ls -w 1 {params.project_out_dir}/ncbi_dataset/data/$p/genomic.gff | wc -l | grep "^1$" > /dev/null
-                mv {params.project_out_dir}/ncbi_dataset/data/$p/genomic.gff {params.project_out_dir}/ncbi_dataset/data/$p/$p.gff
+                if [ -f {params.project_out_dir}/ncbi_dataset/data/$p/genomic.gff ]
+                then
+                    ls -w 1 {params.project_out_dir}/ncbi_dataset/data/$p/genomic.gff | wc -l | grep "^1$" > /dev/null
+                    mv {params.project_out_dir}/ncbi_dataset/data/$p/genomic.gff {params.project_out_dir}/ncbi_dataset/data/$p/$p.gff
+                else
+                    echo "File for $p not found."
+                fi
             done < {input.genome_list}
             touch {output.dummy}
         """

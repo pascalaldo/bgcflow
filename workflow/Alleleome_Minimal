@@ -115,33 +115,33 @@ def throw_error(wildcards):
     raise Exception()
 
 RULE_FUNCTIONS["seqfu"]["strains"] = get_samples_for_project
-rule seqfu_combine:
-    input:
-        json=fexpand(
-            "data/interim/{{stage}}/seqfu/{strains}.json",
-            strains=RULE_FUNCTIONS["seqfu"]["strains"],
-        ),
-    output:
-        all_csv=report(
-            "data/processed/{stage}/{name}/tables/df_seqfu_stats.csv",
-            caption="../report/table-seqfu.rst",
-            category="{name}",
-            subcategory="Quality Control",
-        ),
-    conda:
-        "../envs/bgc_analytics.yaml"
-    log:
-        "logs/{stage}/seqfu/seqfu-{name}.log",
-    shell:
-        """
-        TMPDIR="data/interim/{wildcards.stage}/tmp/{wildcards.name}"
-        mkdir -p $TMPDIR
-        INPUT_JSON="$TMPDIR/df_seqfu.txt"
-        echo '{input.json}' > $INPUT_JSON
-        python workflow/bgcflow/bgcflow/data/make_seqfu_table.py $INPUT_JSON {output.all_csv} &>> {log}
-        rm $INPUT_JSON
-        """
-# include: "rules/seqfu.smk"  
+# rule seqfu_combine:
+#     input:
+#         json=fexpand(
+#             "data/interim/{{stage}}/seqfu/{strains}.json",
+#             strains=RULE_FUNCTIONS["seqfu"]["strains"],
+#         ),
+#     output:
+#         all_csv=report(
+#             "data/processed/{stage}/{name}/tables/df_seqfu_stats.csv",
+#             caption="../report/table-seqfu.rst",
+#             category="{name}",
+#             subcategory="Quality Control",
+#         ),
+#     conda:
+#         "../envs/bgc_analytics.yaml"
+#     log:
+#         "logs/{stage}/seqfu/seqfu-{name}.log",
+#     shell:
+#         """
+#         TMPDIR="data/interim/{wildcards.stage}/tmp/{wildcards.name}"
+#         mkdir -p $TMPDIR
+#         INPUT_JSON="$TMPDIR/df_seqfu.txt"
+#         echo '{input.json}' > $INPUT_JSON
+#         python workflow/bgcflow/bgcflow/data/make_seqfu_table.py $INPUT_JSON {output.all_csv} &>> {log}
+#         rm $INPUT_JSON
+#         """
+include: "rules/seqfu.smk"  
 
 RULE_FUNCTIONS["ncbi_annotation_datasets"]["stages"] = "species"
 RULE_FUNCTIONS["ncbi_annotation_datasets"]["accessions_for_project"] = get_samples_for_project
