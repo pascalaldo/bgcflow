@@ -149,7 +149,6 @@ def get_projects(wildcards):
 
 get_samples_df = lambda wildcards: get_species_projects_samples_df()
 if not PANKB_ALLELEOME_ONLY:
-    # RULE_FUNCTIONS["prokka"]["samples"] = get_samples_df
     include: "rules/prokka.smk"
     RULE_FUNCTIONS["roary"]["samples"] = cached_filtered_accessions_for_project
     include: "rules/roary.smk"

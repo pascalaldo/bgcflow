@@ -103,7 +103,7 @@ rule gtdbtk:
         "../envs/gtdbtk.yaml"
     log:
         "logs/{stage}/gtdbtk/gtdbtk/gtdbtk_{name}.log",
-    threads: 42
+    threads: 64
     params:
         ani_screen=ani_screen,
     shell:
