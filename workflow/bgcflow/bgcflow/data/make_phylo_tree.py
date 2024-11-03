@@ -73,7 +73,7 @@ def copy_automlst_out(automlst_interim_folder, automlst_processed_folder):
 
 
 def get_genome_tree_table(
-    automlst_processed_folder, prokka_interim_folder, gtdb_interim_folder, organism_info_folder
+    automlst_processed_folder, prokka_interim_folder, gtdb_table_path, organism_info_folder
 ):
     """
     Copy important files from autoMLST interim to proecessed directory
@@ -84,8 +84,8 @@ def get_genome_tree_table(
         Location of the processed output directory for important autoMLST results
     2. prokka_interim_folder : str/ path
         Path to get organism information for each genome as used in prokka
-    3. gtdb_interim_folder : str/ path
-        Path to get json files with gtdb information
+    3. gtdb_table_path : str/ path
+        Path to get table with gtdb information
 
     Returns
     -------
@@ -125,6 +125,8 @@ def get_genome_tree_table(
     df_genomes_tree = pd.DataFrame(index=genome_ids_list, columns=columns_list)
     df_genomes_tree.index.name = "genome_id"
 
+    df_gtdb_meta = pd.read_csv(gtdb_table_path, index_col=0)
+
     for genome_id in df_genomes_tree.index:
         # Reading organism infor used for prokka run including strain ID
         org_info_path = os.path.join(
@@ -137,36 +139,18 @@ def get_genome_tree_table(
             df_genomes_tree.loc[genome_id, "strain"] = org_info.split(",")[2]
 
         # Reading gtdb metadata from JSON files
-        gtdb_json_path = os.path.join(gtdb_interim_folder, genome_id + ".json")
-        with open(gtdb_json_path, "r") as f:
-            gtdb_dict = json.load(f)
-            df_genomes_tree.loc[genome_id, "domain"] = gtdb_dict["gtdb_taxonomy"][
-                "domain"
-            ]
-            df_genomes_tree.loc[genome_id, "phylum"] = gtdb_dict["gtdb_taxonomy"][
-                "phylum"
-            ]
-            df_genomes_tree.loc[genome_id, "class"] = gtdb_dict["gtdb_taxonomy"][
-                "class"
-            ]
-            df_genomes_tree.loc[genome_id, "order"] = gtdb_dict["gtdb_taxonomy"][
-                "order"
-            ]
-            df_genomes_tree.loc[genome_id, "family"] = gtdb_dict["gtdb_taxonomy"][
-                "family"
-            ]
-            df_genomes_tree.loc[genome_id, "genus"] = gtdb_dict["gtdb_taxonomy"][
-                "genus"
-            ]
-            df_genomes_tree.loc[genome_id, "organism"] = gtdb_dict["gtdb_taxonomy"][
-                "species"
-            ]
-            try:
-                df_genomes_tree.loc[genome_id, "species"] = gtdb_dict["gtdb_taxonomy"][
-                    "species"
-                ].split(" ")[1]
-            except IndexError:  # leave blank for empty taxonomy
-                df_genomes_tree.loc[genome_id, "species"] = ""
+
+        df_genomes_tree.loc[genome_id, "domain"] = df_gtdb_meta.loc[genome_id, "Domain"]
+        df_genomes_tree.loc[genome_id, "phylum"] = df_gtdb_meta.loc[genome_id, "Phylum"]
+        df_genomes_tree.loc[genome_id, "class"] = df_gtdb_meta.loc[genome_id, "Class"]
+        df_genomes_tree.loc[genome_id, "order"] = df_gtdb_meta.loc[genome_id, "Order"]
+        df_genomes_tree.loc[genome_id, "family"] = df_gtdb_meta.loc[genome_id, "Family"]
+        df_genomes_tree.loc[genome_id, "genus"] = df_gtdb_meta.loc[genome_id, "Genus"]
+        df_genomes_tree.loc[genome_id, "organism"] = df_gtdb_meta.loc[genome_id, "Species"]
+        try:
+            df_genomes_tree.loc[genome_id, "species"] = df_gtdb_meta.loc[genome_id, "Species"].split(" ")[1]
+        except IndexError:  # leave blank for empty taxonomy
+            df_genomes_tree.loc[genome_id, "species"] = ""
 
     genomes_tree_path_interim = os.path.join(
         automlst_processed_folder, "df_genomes_tree.csv"
@@ -185,9 +169,9 @@ if __name__ == "__main__":
     automlst_interim_folder = sys.argv[1]
     automlst_processed_folder = sys.argv[2]
     prokka_interim_folder = sys.argv[3]
-    gtdb_interim_folder = sys.argv[4]
+    gtdb_table_path = sys.argv[4]
     organism_info_folder = sys.argv[5]
     copy_automlst_out(automlst_interim_folder, automlst_processed_folder)
     df_genomes_tree = get_genome_tree_table(
-        automlst_processed_folder, prokka_interim_folder, gtdb_interim_folder, organism_info_folder
+        automlst_processed_folder, prokka_interim_folder, gtdb_table_path, organism_info_folder
     )

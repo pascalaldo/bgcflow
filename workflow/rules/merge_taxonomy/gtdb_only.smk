@@ -1,4 +1,4 @@
-checkpoint merge_taxonomy:
+rule merge_taxonomy:
     input:
         gtdb="data/interim/{stage}/gtdb/{taxon}/tables/df_gtdb_meta.csv",
     output:

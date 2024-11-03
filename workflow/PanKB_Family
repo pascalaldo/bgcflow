@@ -149,12 +149,14 @@ def get_projects(wildcards):
 
 get_samples_df = lambda wildcards: get_species_projects_samples_df()
 if not PANKB_ALLELEOME_ONLY:
+    RULE_FUNCTIONS["prokka"]["gtdb_stage"] = "taxon"
     include: "rules/prokka.smk"
     RULE_FUNCTIONS["roary"]["samples"] = cached_filtered_accessions_for_project
     include: "rules/roary.smk"
     RULE_FUNCTIONS["mash"]["accessions"] = cached_filtered_accessions_for_project
     include: "rules/mash.smk"
     RULE_FUNCTIONS["automlst_wrapper"]["accessions"] = cached_filtered_accessions_for_project
+    # RULE_FUNCTIONS["automlst_wrapper"]["accessions_stage"] = "taxon"
     include: "rules/automlst_wrapper.smk"
 
 RULE_FUNCTIONS["ncbi_annotation_datasets"]["stages"] = "species"
