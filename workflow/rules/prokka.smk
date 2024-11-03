@@ -107,7 +107,7 @@ rule prokka:
 rule format_gbk:
     input:
         gbk_prokka = "data/interim/{stage}/prokka/{strains_fna}/{strains_fna}.gbk",
-        gtdb_json = "data/interim/{stage}/gtdb/{strains_fna}.json",
+        gtdb_json = fexpand("data/interim/{stage}/gtdb/{{strains_fna}}.json", stage=RULE_FUNCTIONS["prokka"]["gtdb_stage"]),
     output:
         gbk_processed = "data/interim/{stage}/processed-genbank/{strains_fna}.gbk"
     conda:

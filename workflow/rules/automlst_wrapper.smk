@@ -83,7 +83,8 @@ rule automlst_wrapper_out:
         #     name=wildcards.name,
         #     strains=[s for s in list(filter_samples_qc(wildcards, PEP_PROJECTS[wildcards.name].sample_table).index)])
         # gtdb=lambda wildcards: expand("data/interim/gtdb/{strains}.json", strains=list(get_samples_for_project_from_df(filter_samples_qc(wildcards, get_samples_df()), wildcards.name).index)),
-        gtdb=fexpand("data/interim/{{stage}}/gtdb/{accession}.json", accession=RULE_FUNCTIONS["automlst_wrapper"]["accessions"]),
+        # gtdb=fexpand("data/interim/{stage}/gtdb/{accession}.json", stage=RULE_FUNCTIONS["automlst_wrapper"]["accessions_stage"], accession=RULE_FUNCTIONS["automlst_wrapper"]["accessions"]),
+        gtdb="data/processed/{stage}/{name}/tables/df_gtdb_meta.csv",
     output:
         genomes_tree="data/processed/{stage}/{name}/automlst_wrapper/df_genomes_tree.csv",
         mlst_genes="data/processed/{stage}/{name}/automlst_wrapper/df_mlst_genes.csv",
@@ -103,10 +104,9 @@ rule automlst_wrapper_out:
         automlst_processed="data/processed/{stage}/{name}/automlst_wrapper/",
         prokka_interim="data/interim/{stage}/prokka",
         organism_info="data/interim/all/prokka/",
-        gtdb_interim="data/interim/{stage}/gtdb",
     conda:
         "../envs/bgc_analytics.yaml"
     shell:
         """
-        python workflow/bgcflow/bgcflow/data/make_phylo_tree.py {params.automlst_interim} {params.automlst_processed} {params.prokka_interim} {params.gtdb_interim} {params.organism_info} 2>> {log}
+        python workflow/bgcflow/bgcflow/data/make_phylo_tree.py {params.automlst_interim} {params.automlst_processed} {params.prokka_interim} {input.gtdb} {params.organism_info} 2>> {log}
         """
