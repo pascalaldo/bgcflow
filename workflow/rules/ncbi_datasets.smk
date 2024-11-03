@@ -1,6 +1,6 @@
 rule ncbi_dataset_for_taxon:
     output:
-        tsv="data/interim/{stage}/ncbi_datasets/{taxon}.tsv",
+        tsv="data/interim/taxon/ncbi_datasets/{taxon}.tsv",
     params:
         taxon=lambda wildcards: wildcards.taxon.replace('_', ' '),
         fields=",".join([
@@ -23,7 +23,7 @@ rule ncbi_dataset_for_taxon:
     conda:
         "../envs/ncbi_datasets.yaml"
     log:
-        "logs/{stage}/ncbi_datasets/ncbi_dataset_for_taxon_{taxon}.log",
+        "logs/taxon/ncbi_datasets/ncbi_dataset_for_taxon_{taxon}.log",
     shell:
         """
             datasets summary genome taxon {params.taxon} --assembly-version latest --assembly-source RefSeq {params.reference} --as-json-lines | dataformat tsv genome --fields {params.fields} > {output.tsv} 2> {log}
@@ -31,13 +31,13 @@ rule ncbi_dataset_for_taxon:
 
 checkpoint ncbi_dataset_tsv_to_samples_csv:
     input:
-        tsv="data/interim/{stage}/ncbi_datasets/{taxon}.tsv",
-        dummy="data/interim/{stage}/ncbi_datasets/taxon/{taxon}.dummy",
-        dummy_custom="data/interim/{stage}/ncbi_datasets/taxon/{taxon}-custom.dummy",
+        tsv="data/interim/taxon/ncbi_datasets/{taxon}.tsv",
+        dummy="data/interim/taxon/ncbi_datasets/taxon/{taxon}.dummy",
+        dummy_custom="data/interim/taxon/ncbi_datasets/taxon/{taxon}-custom.dummy",
     output:
-        csv="data/interim/{stage}/ncbi_datasets/{taxon}.csv",
+        csv="data/interim/taxon/ncbi_datasets/{taxon}.csv",
     log:
-        "logs/ncbi_datasets/ncbi_dataset_tsv_to_csv_{stage}_{taxon}.log",
+        "logs/ncbi_datasets/ncbi_dataset_tsv_to_csv_taxon_{taxon}.log",
     run:
         import pandas as pd
         df = pd.read_csv(input.tsv, sep="\t", low_memory=False, header=0, index_col=0)
@@ -54,7 +54,7 @@ checkpoint ncbi_dataset_tsv_to_samples_csv:
         df.to_csv(output.csv)
 
 def get_accessions_for_taxon(taxon):
-    genome_list = checkpoints.ncbi_dataset_tsv_to_samples_csv.get(stage="taxon", taxon=taxon).output.csv
+    genome_list = checkpoints.ncbi_dataset_tsv_to_samples_csv.get(taxon=taxon).output.csv
     df = pd.read_csv(genome_list, index_col=0, header=0, low_memory=False)
     return df.index.to_list()
 def get_all_accessions():
@@ -71,7 +71,7 @@ def get_taxon_for_accession(wildcards):
     exception = None
     for taxon in TAXONS.index.to_list():
         try:
-            genome_list = checkpoints.ncbi_dataset_tsv_to_samples_csv.get(stage="taxon", taxon=taxon).output.csv
+            genome_list = checkpoints.ncbi_dataset_tsv_to_samples_csv.get(taxon=taxon).output.csv
             df = pd.read_csv(genome_list, index_col=0, header=0, low_memory=False)
             for accession in df.index.to_list():
                 ACCESSIONS_TO_TAXONS[accession] = taxon
@@ -86,19 +86,19 @@ def get_taxon_for_accession(wildcards):
 
 rule ncbi_dataset_download_genome_for_taxon_dehydrated:
     input:
-        genome_list="data/interim/{stage}/ncbi_datasets/taxon/{taxon}.genome_list",
+        genome_list="data/interim/taxon/ncbi_datasets/taxon/{taxon}.genome_list",
     output:
-        dehydrated_dataset="data/interim/{stage}/ncbi_datasets/taxon/{taxon}.dehydrated.zip",
-        readme="data/interim/{stage}/ncbi_datasets/datasets/{taxon}/README.md",
-        fetch="data/interim/{stage}/ncbi_datasets/datasets/{taxon}/ncbi_dataset/fetch.txt",
-        assembly_report="data/interim/{stage}/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/assembly_data_report.jsonl",
-        dataset_catalog="data/interim/{stage}/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/dataset_catalog.json",
+        dehydrated_dataset="data/interim/taxon/ncbi_datasets/taxon/{taxon}.dehydrated.zip",
+        readme="data/interim/taxon/ncbi_datasets/datasets/{taxon}/README.md",
+        fetch="data/interim/taxon/ncbi_datasets/datasets/{taxon}/ncbi_dataset/fetch.txt",
+        assembly_report="data/interim/taxon/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/assembly_data_report.jsonl",
+        dataset_catalog="data/interim/taxon/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/dataset_catalog.json",
     params:
-        taxon_out_dir="data/interim/{stage}/ncbi_datasets/datasets/{taxon}/"
+        taxon_out_dir="data/interim/taxon/ncbi_datasets/datasets/{taxon}/"
     conda:
         "../envs/ncbi_datasets.yaml"
     log:
-        "logs/{stage}/ncbi_datasets/ncbi_dataset_download_genome_for_taxon_dehydrated_{taxon}.log",
+        "logs/taxon/ncbi_datasets/ncbi_dataset_download_genome_for_taxon_dehydrated_{taxon}.log",
     shell:
         """
             datasets download genome accession --inputfile {input.genome_list} --dehydrated --filename {output.dehydrated_dataset} > {log} 2>&1
@@ -107,18 +107,18 @@ rule ncbi_dataset_download_genome_for_taxon_dehydrated:
 
 rule ncbi_dataset_rehydrate:
     input:
-        genome_list="data/interim/{stage}/ncbi_datasets/taxon/{taxon}.genome_list",
-        fetch="data/interim/{stage}/ncbi_datasets/datasets/{taxon}/ncbi_dataset/fetch.txt",
-        assembly_report="data/interim/{stage}/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/assembly_data_report.jsonl",
+        genome_list="data/interim/taxon/ncbi_datasets/taxon/{taxon}.genome_list",
+        fetch="data/interim/taxon/ncbi_datasets/datasets/{taxon}/ncbi_dataset/fetch.txt",
+        assembly_report="data/interim/taxon/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/assembly_data_report.jsonl",
     output:
-        dummy="data/interim/{stage}/ncbi_datasets/taxon/{taxon}.dummy",
+        dummy="data/interim/taxon/ncbi_datasets/taxon/{taxon}.dummy",
     params:
-        taxon_out_dir="data/interim/{stage}/ncbi_datasets/datasets/{taxon}/"
+        taxon_out_dir="data/interim/taxon/ncbi_datasets/datasets/{taxon}/"
         # dataset_dir=lambda wildcards: f"data/interim/ncbi_datasets/datasets/{wildcards.taxon}/",
     conda:
         "../envs/ncbi_datasets.yaml"
     log:
-        "logs/{stage}/ncbi_datasets/ncbi_dataset_redydrate_{taxon}.log",
+        "logs/taxon/ncbi_datasets/ncbi_dataset_redydrate_{taxon}.log",
     shell:
         """
             datasets rehydrate --directory {params.taxon_out_dir} > {log} 2>&1
@@ -132,20 +132,20 @@ rule ncbi_dataset_rehydrate:
 
 rule ncbi_insert_custom_genomes:
     input:
-        dummy="data/interim/{stage}/ncbi_datasets/taxon/{taxon}.dummy",
+        dummy="data/interim/taxon/ncbi_datasets/taxon/{taxon}.dummy",
         samples_file="data/interim/all/custom_genomes/samples.csv",
-        assembly_report="data/interim/{stage}/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/assembly_data_report.jsonl",
+        assembly_report="data/interim/taxon/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/assembly_data_report.jsonl",
     output:
-        dummy="data/interim/{stage}/ncbi_datasets/taxon/{taxon}-custom.dummy",
-        assembly_report="data/interim/{stage}/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/full_assembly_data_report.jsonl",
+        dummy="data/interim/taxon/ncbi_datasets/taxon/{taxon}-custom.dummy",
+        assembly_report="data/interim/taxon/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/full_assembly_data_report.jsonl",
     params:
-        taxon_out_dir="data/interim/{stage}/ncbi_datasets/datasets/{taxon}/",
-        tmp=temp(directory("data/interim/{stage}/ncbi_datasets/temp/{taxon}/")),
+        taxon_out_dir="data/interim/taxon/ncbi_datasets/datasets/{taxon}/",
+        tmp=temp(directory("data/interim/taxon/ncbi_datasets/temp/{taxon}/")),
         # dataset_dir=lambda wildcards: f"data/interim/ncbi_datasets/datasets/{wildcards.taxon}/",
     conda:
         "../envs/ncbi_datasets.yaml"
     log:
-        "logs/{stage}/ncbi_datasets/ncbi_insert_custom_genomes_{taxon}.log",
+        "logs/taxon/ncbi_datasets/ncbi_insert_custom_genomes_{taxon}.log",
     shell:
         """
             echo "Inserting custom genomes into ncbi dataset for {wildcards.taxon}" > {log}
@@ -176,16 +176,55 @@ rule ncbi_insert_custom_genomes:
             touch {output.dummy}
         """
 
+
+# for taxon in TAXONS.index.to_list():
+#     rule:
+#         name: f"ncbi_dataset_collect_{taxon}"
+#         input:
+#             dummy=fexpand("data/interim/taxon/ncbi_datasets/taxon/{taxon}.dummy", taxon=taxon),
+#             dummy_custom=fexpand("data/interim/taxon/ncbi_datasets/taxon/{taxon}-custom.dummy", taxon=taxon),
+#             jsonl_report=fexpand("data/interim/taxon/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/full_assembly_data_report.jsonl", taxon=taxon),
+#         output:
+#             fna=fexpand("data/interim/all/fasta/{accession}.fna", accession=get_accessions_for_taxon(taxon)),
+#             json_report=fexpand("data/interim/all/assembly_report/{accession}.json", accession=get_accessions_for_taxon(taxon)),
+#         params:
+#             fna_input_dir=fexpand("data/interim/taxon/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/", taxon=taxon),
+#             fna_output_dir=fexpand("data/interim/all/fasta/"),
+#             json_report_output_dir="data/interim/all/assembly_report/",
+#         conda:
+#             "../envs/data_processing.yaml"
+#         log:
+#             "logs/ncbi_datasets/ncbi_dataset_collect_{accession}.log",
+#         shell:
+#             """
+#                 LINKPATH=`realpath -s --relative-to="{params.fna_output_dir}" "{params.fna_input_dir}"`
+#                 echo $LINKPATH
+
+#                 for d in {params.fna_input_dir}*/; do
+#                     echo $ACCESSION
+#                     ACCESSION=`basename $d`
+
+#                     OUTPUT_FNA="{params.fna_output_dir}$ACCESSION.fna"
+#                     OUTPUT_JSON="{params.json_report_output_dir}$ACCESSION.json"
+
+#                     if [ ! -f $OUTPUT_FNA ]
+#                     then
+#                         ln -s $LINKPATH/$ACCESSION/$ACCESSION.fna OUTPUT_FNA
+#                     fi
+#                     grep '^{{"accession":"$ACCESSION"' {input.jsonl_report} > $OUTPUT_JSON || true
+#                     python workflow/scripts/add_info_to_assembly_report.py $OUTPUT_JSON
+#             """
+
 rule ncbi_dataset_collect:
     input:
-        dummy=fexpand("data/interim/{stage}/ncbi_datasets/taxon/{taxon}.dummy", taxon=get_taxon_for_accession, stage=RULE_FUNCTIONS["ncbi_datasets"]["stages"]),
-        dummy_custom=fexpand("data/interim/{stage}/ncbi_datasets/taxon/{taxon}-custom.dummy", taxon=get_taxon_for_accession, stage=RULE_FUNCTIONS["ncbi_datasets"]["stages"]),
-        jsonl_report=fexpand("data/interim/{stage}/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/full_assembly_data_report.jsonl", taxon=get_taxon_for_accession, stage=RULE_FUNCTIONS["ncbi_datasets"]["stages"]),
+        dummy=fexpand("data/interim/taxon/ncbi_datasets/taxon/{taxon}.dummy", taxon=get_taxon_for_accession),
+        dummy_custom=fexpand("data/interim/taxon/ncbi_datasets/taxon/{taxon}-custom.dummy", taxon=get_taxon_for_accession),
+        jsonl_report=fexpand("data/interim/taxon/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/full_assembly_data_report.jsonl", taxon=get_taxon_for_accession),
     output:
         fna="data/interim/all/fasta/{accession}.fna",
         json_report="data/interim/all/assembly_report/{accession}.json",
     params:
-        fna=fexpand("data/interim/{stage}/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/{accession}/{accession}.fna", taxon=get_taxon_for_accession, accession=(lambda wildcards: wildcards.accession), stage=RULE_FUNCTIONS["ncbi_datasets"]["stages"]),
+        fna=fexpand("data/interim/taxon/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/{accession}/{accession}.fna", taxon=get_taxon_for_accession, accession=(lambda wildcards: wildcards.accession)),
     conda:
         "../envs/data_processing.yaml"
     log:
@@ -201,29 +240,3 @@ rule ncbi_dataset_collect:
             grep '^{{"accession":"{wildcards.accession}"' {input.jsonl_report} > {output.json_report} || true
             python workflow/scripts/add_info_to_assembly_report.py {output.json_report}
         """
-
-# rule ncbi_dataset_collect:
-#     input:
-#         dummy=fexpand("data/interim/{stage}/ncbi_datasets/taxon/{taxon}.dummy", taxon=get_taxon_for_accession, stage=RULE_FUNCTIONS["ncbi_datasets"]["stages"]),
-#         dummy_custom=fexpand("data/interim/{stage}/ncbi_datasets/taxon/{taxon}-custom.dummy", taxon=get_taxon_for_accession, stage=RULE_FUNCTIONS["ncbi_datasets"]["stages"]),
-#         jsonl_report=fexpand("data/interim/{stage}/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/full_assembly_data_report.jsonl", taxon=get_taxon_for_accession, stage=RULE_FUNCTIONS["ncbi_datasets"]["stages"]),
-#     output:
-#         fna="data/interim/all/fasta/{accession}.fna",
-#         json_report="data/interim/all/assembly_report/{accession}.json",
-#     params:
-#         fna=fexpand("data/interim/{stage}/ncbi_datasets/datasets/{taxon}/ncbi_dataset/data/{accession}/{accession}.fna", taxon=get_taxon_for_accession, accession=(lambda wildcards: wildcards.accession), stage=RULE_FUNCTIONS["ncbi_datasets"]["stages"]),
-#     conda:
-#         "../envs/data_processing.yaml"
-#     log:
-#         "logs/ncbi_datasets/ncbi_dataset_collect_{accession}.log",
-#     shell:
-#         """
-#             if [ ! -f {output.fna} ]
-#             then
-#                 RELDIR=`dirname {output.fna}`
-#                 LINKPATH=`realpath -s --relative-to=$RELDIR "{params.fna}"`
-#                 ln -s $LINKPATH {output.fna}
-#             fi
-#             grep '^{{"accession":"{wildcards.accession}"' {input.jsonl_report} > {output.json_report} || true
-#             python workflow/scripts/add_info_to_assembly_report.py {output.json_report}
-#         """
