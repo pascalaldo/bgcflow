@@ -56,7 +56,7 @@ rule ncbi_annotation_dataset_rehydrate:
                 if [ -f {params.project_out_dir}/ncbi_dataset/data/$p/genomic.gff ]
                 then
                     ls -w 1 {params.project_out_dir}/ncbi_dataset/data/$p/genomic.gff | wc -l | grep "^1$" > /dev/null
-                    mv {params.project_out_dir}/ncbi_dataset/data/$p/genomic.gff {params.project_out_dir}/ncbi_annotation_dataset/data/$p/$p.gff
+                    mv {params.project_out_dir}/ncbi_dataset/data/$p/genomic.gff {params.project_out_dir}/ncbi_dataset/data/$p/$p.gff
                 else
                     echo "File for $p not found."
                 fi
