@@ -18,8 +18,9 @@ rule install_automlst_wrapper:
     log:
         "logs/automlst_wrapper/install_automlst_wrapper.log",
     params:
-        source="https://github.com/NBChub/automlst-simplified-wrapper",
-        version="0.1.2"
+        # source="https://github.com/NBChub/automlst-simplified-wrapper",
+        source="https://github.com/pascalaldo/automlst-simplified-wrapper"
+        version="0.1.3"
     shell:
         """
         set -e
@@ -43,7 +44,7 @@ rule prep_automlst_gbk:
         "logs/{stage}/automlst_wrapper/prep_automlst_gbk/prep_automlst_gbk-{name}_{strains}.log",
     shell:
         """
-        python workflow/bgcflow/bgcflow/features/prep_automlst.py {input.gbk} {output.auto_gbk} {wildcards.strains} 2>> {log}
+        ln -sr {input.gbk} {output.auto_gbk} > {log} 2>&1
         """
 
 
@@ -61,8 +62,7 @@ rule automlst_wrapper:
         "../envs/automlst_wrapper.yaml"
     threads: 8
     resources:
-        #TODO Fix
-        tmpdir="data/interim/{stage}/automlst_wrapper/tmpdir/",
+        tmpdir="data/interim/all/automlst_wrapper/tmpdir/",
     shell:
         """
         mkdir -p "data/interim/{wildcards.stage}/automlst_wrapper/{wildcards.name}/singles" 2>> {log}
