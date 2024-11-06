@@ -92,6 +92,7 @@ rule pankb_nova_genome:
         species_info="data/processed/{stage}/{name}/tables/df_ncbi_meta.csv",
         isosource="data/processed/{stage}/{name}/pankb/source_info/df_ncbi_isolation_src.csv",
         imodulon_dir="data/interim/{stage}/pankb_imodulon/{name}/data/",
+        mash_list="data/processed/{stage}/{name}/pankb/mash_list.csv",
     output:
         genome="data/processed/{stage}/pankb/web_data/species/{name}/nova/genome.jsonl",
     log:
@@ -107,6 +108,7 @@ rule pankb_nova_genome:
             --species_summary {input.species_summary} \
             --species_info {input.species_info} \
             --isosource {input.isosource} \
+            --mash_list {input.mash_list} \
             --imodulon_dir {input.imodulon_dir} \
             -o {output.genome} > {log} 2>&1
         """
