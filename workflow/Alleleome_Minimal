@@ -84,11 +84,22 @@ def get_project_for_sample(wildcards):
 rule all:
     input:
         expand([
+                "data/processed/{stage}/pankb/web_data/species/{name}/genome_page/",
+                # "data/processed/{stage}/pankb/web_data/species/{name}/gene_locustag/",
+                "data/processed/{stage}/pankb/web_data/species/{name}/gene_freq.json",
+                "data/processed/{stage}/pankb/web_data/species/{name}/COG_distribution.json",
+                # "data/processed/{stage}/pankb/web_data/species/{name}/phylogenetic_tree.newick",
+                "data/processed/{stage}/pankb/web_data/species/{name}/heatmap_target.json.gz",
+                "data/processed/{stage}/pankb/web_data/species/{name}/panalleleome/step_line.json",
+                "data/processed/{stage}/pankb/web_data/species/{name}/panalleleome/dn_ds.json",
+                "data/processed/{stage}/pankb/web_data/species/{name}/panalleleome/gene_data/",
                 "data/processed/{stage}/pankb/web_data/species/{name}/nova/organism.json",
                 "data/processed/{stage}/pankb/web_data/species/{name}/nova/pangene.json",
                 "data/processed/{stage}/pankb/web_data/species/{name}/nova/pathway.json",
                 "data/processed/{stage}/pankb/web_data/species/{name}/nova/gene.jsonl.gz",
                 "data/processed/{stage}/pankb/web_data/species/{name}/nova/genome.jsonl",
+                "data/processed/{stage}/pankb/web_data/species/{name}/nova/isolation.jsonl",
+                "data/processed/{stage}/{name}/tables/df_locus_tag_mapping.csv",
             ], stage="species", name=PROJECT_IDS)
 
 # Create place holder for resources defined in each modules, will be added if module is included, and passed to create custom_resource_dir
@@ -114,7 +125,7 @@ custom_resource_dir(config["resources_path"], resource_mapping)
 def throw_error(wildcards):
     raise Exception()
 
-RULE_FUNCTIONS["seqfu"]["strains"] = get_samples_for_project
+# RULE_FUNCTIONS["seqfu"]["strains"] = get_samples_for_project
 # rule seqfu_combine:
 #     input:
 #         json=fexpand(
@@ -141,7 +152,10 @@ RULE_FUNCTIONS["seqfu"]["strains"] = get_samples_for_project
 #         python workflow/bgcflow/bgcflow/data/make_seqfu_table.py $INPUT_JSON {output.all_csv} &>> {log}
 #         rm $INPUT_JSON
 #         """
-include: "rules/seqfu.smk"  
+# include: "rules/seqfu.smk"  
+
+RULE_FUNCTIONS["mash"]["accessions"] = get_samples_for_project
+include: "rules/mash.smk"
 
 RULE_FUNCTIONS["ncbi_annotation_datasets"]["stages"] = "species"
 RULE_FUNCTIONS["ncbi_annotation_datasets"]["accessions_for_project"] = get_samples_for_project

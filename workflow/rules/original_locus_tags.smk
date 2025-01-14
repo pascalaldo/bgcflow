@@ -18,5 +18,5 @@ rule original_locus_tags:
             --samples {input.samples} \
             --ncbi_gff {params.ncbi_gff} \
             --prokka_gbk {params.prokka_gbk} \
-            -o {output.csv} > {log}
+            -o {output.csv} > {log} 2>&1
         """

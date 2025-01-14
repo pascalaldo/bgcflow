@@ -95,6 +95,7 @@ rule pankb_nova_genome:
         mash_list="data/processed/{stage}/{name}/pankb/mash_list.csv",
     output:
         genome="data/processed/{stage}/pankb/web_data/species/{name}/nova/genome.jsonl",
+        isolation="data/processed/{stage}/pankb/web_data/species/{name}/nova/isolation.jsonl",
     log:
         "logs/{stage}/pankb_nova/pankb_nova_genome_{name}.log"
     conda:
@@ -110,7 +111,8 @@ rule pankb_nova_genome:
             --isosource {input.isosource} \
             --mash_list {input.mash_list} \
             --imodulon_dir {input.imodulon_dir} \
-            -o {output.genome} > {log} 2>&1
+            -o {output.genome} \
+            -s {output.isolation} > {log} 2>&1
         """
 
 rule pankb_nova_pangene:
@@ -167,6 +169,24 @@ rule pankb_nova_gene:
             -o {output.gene} > {log} 2>&1
         """
 
+rule pankb_minimal_all:
+    input:
+        fexpand(
+            [
+                "data/processed/{stage}/pankb/web_data/species/{name}/genome_page/",
+                # "data/processed/{stage}/pankb/web_data/species/{name}/gene_locustag/",
+                "data/processed/{stage}/pankb/web_data/species/{name}/gene_freq.json",
+                "data/processed/{stage}/pankb/web_data/species/{name}/COG_distribution.json",
+                "data/processed/{stage}/pankb/web_data/species/{name}/heatmap_target.json.gz",
+                "data/processed/{stage}/pankb/web_data/species/{name}/panalleleome/step_line.json",
+                "data/processed/{stage}/pankb/web_data/species/{name}/panalleleome/dn_ds.json",
+                "data/processed/{stage}/pankb/web_data/species/{name}/panalleleome/gene_data/",
+                "data/processed/{stage}/pankb/web_data/species/{name}/phylogenetic_tree.newick",
+            ],
+            stage=RULE_FUNCTIONS["pankb_data_prep"]["stages"],
+            name=RULE_FUNCTIONS["pankb_data_prep"]["projects"],
+        ),
+
 
 rule pankb_nova_all:
     input:
@@ -176,6 +196,7 @@ rule pankb_nova_all:
                 "data/processed/{stage}/pankb/web_data/species/{name}/nova/pangene.json",
                 "data/processed/{stage}/pankb/web_data/species/{name}/nova/pathway.json",
                 "data/processed/{stage}/pankb/web_data/species/{name}/nova/genome.jsonl",
+                "data/processed/{stage}/pankb/web_data/species/{name}/nova/isolation.jsonl",
                 "data/processed/{stage}/pankb/web_data/species/{name}/nova/gene.jsonl.gz",
             ],
             stage=RULE_FUNCTIONS["pankb_data_prep"]["stages"],
