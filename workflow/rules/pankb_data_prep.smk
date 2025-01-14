@@ -277,6 +277,8 @@ rule pankb_heaps:
         gp_binary="data/interim/{stage}/roary/{name}/df_gene_presence_binary.csv",
     output:
         gene_freq="data/processed/{stage}/pankb/web_data/species/{name}/gene_freq.json",
+        cum_freq="data/processed/{stage}/pankb/web_data/species/{name}/cum_freq.json",
+        heaps_law="data/processed/{stage}/pankb/web_data/species/{name}/heaps_law.json",
     log:
         "logs/{stage}/pankb_data_prep/pankb_heaps_{name}.log"
     conda:
@@ -285,7 +287,9 @@ rule pankb_heaps:
         """
         pankb_data_prep heaps \
             --gp_binary {input.gp_binary} \
-            --output_json {output.gene_freq} > {log} 2>&1
+            --output_gene_freq {output.gene_freq} \
+            --output_cum_freq {output.cum_freq} \
+            --output_heaps_law {output.heaps_law} > {log} 2>&1
         """
 
 rule pankb_locustag:
