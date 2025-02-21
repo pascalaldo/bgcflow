@@ -129,7 +129,9 @@ if __name__ == "__main__":
     reconstruction_metrics_df.sort_values(by="AIC")
 
     best_rank = reconstruction_metrics_df["AIC"].idxmin(axis=0)
-    extra_ranks = list(set(max(1, i) for i in range(best_rank - 2, best_rank + 3)))
+    
+    # re-run with additional ranks around the best rank
+    extra_ranks = list(set(max(1, i) for i in range(best_rank - 4, best_rank + 5)))
     logger.info(f"Best rank: {best_rank}. Running extra ranks: {extra_ranks}")
 
     W_dict, H_dict = run_nmf(data=accessory_gene_presence_df, ranks=extra_ranks, max_iter=10_000)

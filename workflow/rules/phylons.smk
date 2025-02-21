@@ -11,7 +11,7 @@ rule phylons:
     log:
         "logs/{stage}/{species}/compute_phylons.log"
     conda:
-        "../envs/..."
+        "../envs/pyphylon.smk"
     shell:
         """
         python3 workflow/scripts/compute_phylons.py \
