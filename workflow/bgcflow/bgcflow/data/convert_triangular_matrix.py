@@ -17,12 +17,15 @@ if __name__ == "__main__":
     genome_names = []
 
     with open(triangle_mtx_fp) as file:
+        logger.info("Reading triangle matrix")
         for i, line in enumerate(file):
             if i == 0:
                 n_genomes = line.strip()
                 assert n_genomes.isnumeric(), f"First line should be an integer, got '{n_genomes}'"
                 n_genomes = int(n_genomes)
+                logger.info(f"Found {n_genomes} genomes. Intializing full matrix")
                 full_matrix = [[0] * n_genomes for _ in range(n_genomes)]
+                logger.info("Populating full matrix")
                 continue
 
             row_values = line.split("\t")
@@ -37,6 +40,8 @@ if __name__ == "__main__":
             for j, distance in enumerate(row_distances):
                 full_matrix[i - 1][j] = distance
                 full_matrix[j][i - 1] = distance
+    
+    logger.info("Finished populating full matrix. Writing to CSV file")
 
     with open(full_matrix_out_fp, "w") as outfile:
         csv_writer = csv.writer(outfile)
@@ -44,3 +49,5 @@ if __name__ == "__main__":
         for i, row in enumerate(full_matrix):
             genome_name = genome_names[i]
             csv_writer.writerow(chain([genome_name], row))
+    
+    logger.info(f"Finished writing full matrix to {full_matrix_out_fp}")
