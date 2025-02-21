@@ -12,11 +12,11 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="[%(asctime)s - %(levelname)s] - %(message)s")
     logger = logging.getLogger()
 
-    triangle_mtx_fp, full_matrix_out_fp = argv[1], argv[2]
+    triangle_matrix_fp, full_matrix_out_fp = argv[1], argv[2]
 
     genome_names = []
 
-    with open(triangle_mtx_fp) as file:
+    with open(triangle_matrix_fp) as file:
         logger.info("Reading triangle matrix")
         for i, line in enumerate(file):
             if i == 0:
