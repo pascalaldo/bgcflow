@@ -12,7 +12,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="[%(asctime)s - %(levelname)s] - %(message)s")
     logger = logging.getLogger()
 
-    triangle_matrix_fp, full_matrix_out_fp = argv[1], argv[2]
+    triangle_matrix_fp, full_matrix_output_fp = argv[1], argv[2]
 
     genome_names = []
 
@@ -43,11 +43,11 @@ if __name__ == "__main__":
     
     logger.info("Finished populating full matrix. Writing to CSV file")
 
-    with open(full_matrix_out_fp, "w") as outfile:
+    with open(full_matrix_output_fp, "w") as outfile:
         csv_writer = csv.writer(outfile)
         csv_writer.writerow(chain(["genome_id"], genome_names))
         for i, row in enumerate(full_matrix):
             genome_name = genome_names[i]
             csv_writer.writerow(chain([genome_name], row))
     
-    logger.info(f"Finished writing full matrix to {full_matrix_out_fp}")
+    logger.info(f"Finished writing full matrix to {full_matrix_output_fp}")
