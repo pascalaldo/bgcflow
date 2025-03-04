@@ -48,10 +48,11 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="[%(asctime)s - %(levelname)s] - %(message)s")
     logger = logging.getLogger()
     logger.info("Starting the computation of phylons")
+    logger.info(f"Args: {args}")
 
-    mash_distances_df = pd.read_csv(args.mash_distances)
-    gene_presence_df = pd.read_csv(args.gene_presence)
-    pangenome_summary_df = pd.read_csv(args.pangenome_summary)
+    mash_distances_df = pd.read_csv(args.mash_distances, index_col=0)
+    gene_presence_df = pd.read_csv(args.gene_presence, index_col=0)
+    pangenome_summary_df = pd.read_csv(args.pangenome_summary, index_col=0)
 
     n_genomes = mash_distances_df.shape[0]
 
@@ -71,9 +72,7 @@ if __name__ == "__main__":
     )
 
     cluster_sizes_df = pd.DataFrame(mash_clusters_df["cluster"].value_counts()).reset_index()
-
-    small_cluster_mask = cluster_sizes_df["count"] <= small_cluster_threshold
-    n_big_enough_mash_clusters = (cluster_sizes_df >= small_cluster_threshold).sum()
+    n_big_enough_mash_clusters = (cluster_sizes_df["count"] >= small_cluster_threshold).sum()
 
     ## MCA ##
     gene_presence_sparse_df = gene_presence_df.astype(pd.SparseDtype("int8", 0))
@@ -114,11 +113,12 @@ if __name__ == "__main__":
         cumulative_variance[85],
         cumulative_variance[90],
     ]
+    print(rank_list)
     rank_list = sorted(set(min(n, MAX_NMF_RANK) for n in rank_list))
 
     ## NMF ##
     logger.info(f"Running NMF with ranks: {rank_list}")
-    W_dict, H_dict = run_nmf(data=accessory_gene_presence_df, ranks=rank_list, max_iter=10_000)
+    W_dict, H_dict = run_nmf(data=accessory_gene_presence_df, ranks=rank_list, max_iter=40_000)
 
     L_norm_dict, A_norm_dict = normalize_nmf_outputs(accessory_gene_presence_df, W_dict, H_dict)
     L_binarized_dict, A_binarized_dict = binarize_nmf_outputs(L_norm_dict, A_norm_dict)
@@ -134,7 +134,7 @@ if __name__ == "__main__":
     extra_ranks = list(set(max(1, i) for i in range(best_rank - 4, best_rank + 5)))
     logger.info(f"Best rank: {best_rank}. Running extra ranks: {extra_ranks}")
 
-    W_dict, H_dict = run_nmf(data=accessory_gene_presence_df, ranks=extra_ranks, max_iter=10_000)
+    W_dict, H_dict = run_nmf(data=accessory_gene_presence_df, ranks=extra_ranks, max_iter=40_000)
 
     L_norm_dict, A_norm_dict = normalize_nmf_outputs(accessory_gene_presence_df, W_dict, H_dict)
     L_binarized_dict, A_binarized_dict = binarize_nmf_outputs(L_norm_dict, A_norm_dict)
@@ -155,7 +155,7 @@ if __name__ == "__main__":
 
     logger.info("Saving L, L(binarized), A and A (binarized) matrices for best rank")
     makedirs(args.output_dir, exist_ok=True)
-    L_best.to_csv(f'{args.output_dir}/NMF_L_best.csv', index=False)
-    L_binarized_best.to_csv(f'{args.output_dir}/NMF_L_binarized_best.csv', index=False)
-    A_best.to_csv(f'{args.output_dir}/NMF_A_best.csv', index=False)
-    A_binarized_best.to_csv(f'{args.output_dir}/NMF_A_binarized_best.csv', index=False)
+    L_best.to_csv(f'{args.output_dir}/NMF_L.csv', index=False)
+    L_binarized_best.to_csv(f'{args.output_dir}/NMF_L_binarized.csv', index=False)
+    A_best.to_csv(f'{args.output_dir}/NMF_A.csv', index=False)
+    A_binarized_best.to_csv(f'{args.output_dir}/NMF_A_binarized.csv', index=False)

@@ -1,0 +1,11 @@
+name: alleleome
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python==3.10
+  - pip
+  - pip:
+    - /data/projects/pankb_data_prep
+    - ratelimiter==1.2.0.post

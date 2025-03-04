@@ -169,6 +169,21 @@ rule pankb_nova_gene:
             -o {output.gene} > {log} 2>&1
         """
 
+rule phylons_all:
+input:
+    fexpand(
+        [
+            "data/processed/{stage}/pankb/web_data/species/{name}/phylons/genome_to_phylon.json",
+            "data/processed/{stage}/pankb/web_data/species/{name}/phylons/phylon_to_genome.json",
+            "data/processed/{stage}/pankb/web_data/species/{name}/phylons/gene_to_phylons.json",
+            "data/processed/{stage}/pankb/web_data/species/{name}/phylons/phylon_to_genes.json",
+            "data/processed/{stage}/pankb/web_data/species/{name}/phylons/phylon_to_gene_weights.json",
+            "data/processed/{stage}/pankb/web_data/species/{name}/phylons/gene_to_phylon_weights.json",
+        ],
+            stage=RULE_FUNCTIONS["pankb_data_prep"]["stages"],
+            name=RULE_FUNCTIONS["pankb_data_prep"]["projects"],
+    ),
+
 rule pankb_minimal_all:
     input:
         fexpand(
