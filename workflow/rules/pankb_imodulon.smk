@@ -7,7 +7,7 @@ checkpoint pankb_imodulon_organism_data:
     log:
         "logs/{stage}/pankb_imodulon/pankb_imodulon_organism_data_{name}.log"
     conda:
-        "../envs/pankb_data_prep_dbg.yaml"
+        "../envs/pankb_data_prep.yaml"
     shell:
         """
         pankb_imodulon organism_data {wildcards.name} \
