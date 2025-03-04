@@ -155,7 +155,7 @@ if __name__ == "__main__":
 
     logger.info("Saving L, L(binarized), A and A (binarized) matrices for best rank")
     makedirs(args.output_dir, exist_ok=True)
-    L_best.to_csv(f'{args.output_dir}/NMF_L.csv', index=False)
-    L_binarized_best.to_csv(f'{args.output_dir}/NMF_L_binarized.csv', index=False)
-    A_best.to_csv(f'{args.output_dir}/NMF_A.csv', index=False)
-    A_binarized_best.to_csv(f'{args.output_dir}/NMF_A_binarized.csv', index=False)
+    L_best.to_csv(f'{args.output_dir}/NMF_L.csv')
+    L_binarized_best.to_csv(f'{args.output_dir}/NMF_L_binarized.csv')
+    A_best.to_csv(f'{args.output_dir}/NMF_A.csv')
+    A_binarized_best.to_csv(f'{args.output_dir}/NMF_A_binarized.csv')

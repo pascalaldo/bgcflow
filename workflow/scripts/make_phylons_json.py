@@ -6,6 +6,7 @@ import argparse
 import json
 from collections import defaultdict
 import pandas as pd
+import os
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -23,10 +24,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Load input files
-    L = pd.read_csv(args.L)
-    L_binarized = pd.read_csv(args.L_binarized)
-    # A = pd.read_csv(args.A)
-    A_binarized = pd.read_csv(args.A_binarized)
+    L = pd.read_csv(args.L, index_col=0)
+    L_binarized = pd.read_csv(args.L_binarized, index_col=0)
+    # A = pd.read_csv(args.A, index_col=0)
+    A_binarized = pd.read_csv(args.A_binarized, index_col=0)
 
 
     genome_to_phylon = {}
@@ -74,20 +75,26 @@ if __name__ == "__main__":
             gene_to_phylons[gene] = phylons.tolist()
     
     # Save output files
+    os.makedirs(os.path.dirname(args.genome_to_phylon), exist_ok=True)
     with open(args.genome_to_phylon, 'w', encoding='utf-8') as f:
         json.dump(genome_to_phylon, f)
 
+    os.makedirs(os.path.dirname(args.phylon_to_genome), exist_ok=True)
     with open(args.phylon_to_genome, 'w', encoding='utf-8') as f:
         json.dump(phylon_to_genomes, f)
 
+    os.makedirs(os.path.dirname(args.phylon_to_genes), exist_ok=True)
     with open(args.phylon_to_genes, 'w', encoding='utf-8') as f:
         json.dump(phylon_to_genes, f)
 
+    os.makedirs(os.path.dirname(args.phylon_to_gene_weights), exist_ok=True)
     with open(args.phylon_to_gene_weights, 'w', encoding='utf-8') as f:
         json.dump(phylon_to_gene_weights, f)
 
+    os.makedirs(os.path.dirname(args.gene_to_phylons), exist_ok=True)
     with open(args.gene_to_phylons, 'w', encoding='utf-8') as f:
         json.dump(gene_to_phylons, f)
 
+    os.makedirs(os.path.dirname(args.gene_to_phylon_weights), exist_ok=True)
     with open(args.gene_to_phylon_weights, 'w', encoding='utf-8') as f:
         json.dump(gene_to_phylon_weights, f)
