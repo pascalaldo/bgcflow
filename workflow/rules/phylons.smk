@@ -30,8 +30,8 @@ rule pankb_phylons:
         A="data/processed/{stage}/{name}/phylons/NMF_A.csv",
         A_binarized="data/processed/{stage}/{name}/phylons/NMF_A_binarized.csv",
     output:
-        genome_to_phylon="data/processed/{stage}/pankb/web_data/species/{name}/phylons/genome_to_phylon.json",
-        phylon_to_genome="data/processed/{stage}/pankb/web_data/species/{name}/phylons/phylon_to_genome.json",
+        genome_to_phylons="data/processed/{stage}/pankb/web_data/species/{name}/phylons/genome_to_phylons.json",
+        phylon_to_genomes="data/processed/{stage}/pankb/web_data/species/{name}/phylons/phylon_to_genomes.json",
         gene_to_phylons="data/processed/{stage}/pankb/web_data/species/{name}/phylons/gene_to_phylons.json",
         phylon_to_genes="data/processed/{stage}/pankb/web_data/species/{name}/phylons/phylon_to_genes.json",
         phylon_to_gene_weights="data/processed/{stage}/pankb/web_data/species/{name}/phylons/phylon_to_gene_weights.json",
@@ -45,8 +45,8 @@ rule pankb_phylons:
             --L_binarized {input.L_binarized} \
             --A {input.A} \
             --A_binarized {input.A_binarized} \
-            --genome_to_phylon {output.genome_to_phylon} \
-            --phylon_to_genome {output.phylon_to_genome} \
+            --genome_to_phylons {output.genome_to_phylons} \
+            --phylon_to_genomes {output.phylon_to_genomes} \
             --phylon_to_genes {output.phylon_to_genes} \
             --phylon_to_gene_weights {output.phylon_to_gene_weights} \
             --gene_to_phylons {output.gene_to_phylons} \
