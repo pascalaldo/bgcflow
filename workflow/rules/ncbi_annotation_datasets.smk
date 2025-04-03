@@ -27,6 +27,8 @@ rule ncbi_annotation_dataset_download_dehydrated:
         project_out_dir="data/interim/{stage}/ncbi_annotation_datasets/datasets/{name}/"
     conda:
         "../envs/ncbi_datasets.yaml"
+    resources:
+        ncbi_api=1  # add --resources ncbi_api=1 to the snakemake command if the rule is failing because of too many requests
     log:
         "logs/{stage}/ncbi_annotation_datasets/ncbi_annotation_dataset_download_dehydrated_{name}.log",
     shell:

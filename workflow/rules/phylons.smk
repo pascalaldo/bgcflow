@@ -40,6 +40,8 @@ rule pankb_phylons:
         phylon_to_genes="data/processed/{stage}/pankb/web_data/species/{name}/phylons/phylon_to_genes.json",
     conda:
         "../envs/pyphylon.yaml"
+    log:
+        "logs/{stage}/{name}/make_phylons_json.log"
     shell:
         """
         python3 workflow/scripts/make_phylons_json.py \
@@ -52,9 +54,10 @@ rule pankb_phylons:
             --phylon_to_genomes {output.phylon_to_genomes} \
             --phylon_to_genome_weights {output.phylon_to_genome_weights} \
             --gene_to_phylons {output.gene_to_phylons} \
-            --gene_to_phylon_weights {output.gene_to_phylon_weights}
+            --gene_to_phylon_weights {output.gene_to_phylon_weights} \
             --phylon_to_genes {output.phylon_to_genes} \
             --phylon_to_gene_weights {output.phylon_to_gene_weights} \
+            &> {log}
         """
 
 rule phylons_all:

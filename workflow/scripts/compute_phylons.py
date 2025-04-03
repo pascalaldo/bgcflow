@@ -113,7 +113,6 @@ if __name__ == "__main__":
         cumulative_variance[85],
         cumulative_variance[90],
     ]
-    print(rank_list)
     rank_list = sorted(set(min(n, MAX_NMF_RANK) for n in rank_list))
 
     ## NMF ##
@@ -159,3 +158,6 @@ if __name__ == "__main__":
     L_binarized_best.to_csv(f'{args.output_dir}/NMF_L_binarized.csv')
     A_best.to_csv(f'{args.output_dir}/NMF_A.csv')
     A_binarized_best.to_csv(f'{args.output_dir}/NMF_A_binarized.csv')
+
+    logger.info("Done")
+    

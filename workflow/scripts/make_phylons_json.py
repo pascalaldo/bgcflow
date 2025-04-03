@@ -7,6 +7,7 @@ import json
 from collections import defaultdict
 import pandas as pd
 import os
+import logging
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -25,14 +26,21 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    logging.basicConfig(level=logging.INFO, format="[%(asctime)s - %(levelname)s] - %(message)s")
+    logger = logging.getLogger()
+    logger.info("Converting phylons to JSON data")
+    logger.info(f"Args: {args}")
+
     PHYLON_WEIGHTS_ROUNDING_DIGITS = 7
 
     # Load input files
+    logger.info("Reading NMF matrices")
     L = pd.read_csv(args.L, index_col=0)
     L_binarized = pd.read_csv(args.L_binarized, index_col=0)
     A = pd.read_csv(args.A, index_col=0)
     A_binarized = pd.read_csv(args.A_binarized, index_col=0)
 
+    logger.info("Making genome to phylons mapping")
     genome_to_phylons = {}
     phylons_all = A_binarized.index
     for genome in A_binarized.columns:
@@ -45,6 +53,7 @@ if __name__ == "__main__":
         genome_phylons = [int(phylon) for phylon in phylons_all[phylon_mask].values]
         genome_to_phylons[genome] = genome_phylons
 
+    logger.info("Making genome to phylon weights mapping")
     genome_to_phylon_weights = {}
     for genome in A.columns:
         A_column = A[genome]
@@ -52,12 +61,14 @@ if __name__ == "__main__":
             phylon: round(weight, PHYLON_WEIGHTS_ROUNDING_DIGITS) for phylon, weight in A_column.items()
         }
 
+    logger.info("Making phylon to genome weights mapping")
     phylon_to_genome_weights = defaultdict(dict)
     for phylon in A.index:
         A_row = A.loc[phylon]
         for genome, weight in A_row.items():
             phylon_to_genome_weights[phylon][genome] = round(weight, PHYLON_WEIGHTS_ROUNDING_DIGITS)
 
+    logger.info("Making phylon to genomes mapping")
     phylon_to_genomes = defaultdict(list)
     for genome, genome_phylons in genome_to_phylons.items():
         if genome_phylons is not None:
@@ -65,6 +76,7 @@ if __name__ == "__main__":
                 phylon_to_genomes[phylon].append(genome)
     phylon_to_genomes = dict(phylon_to_genomes)
 
+    logger.info("Making phylon to gene weights mapping")
     phylon_to_gene_weights = {}
     phylon_to_genes = {}
     genes = L.index
@@ -80,6 +92,7 @@ if __name__ == "__main__":
         }
         phylon_to_genes[phylon] = list(phylon_genes)
 
+    logger.info("Making gene to phylons mapping")
     gene_to_phylons = {}
     gene_to_phylon_weights = {}
     for (_, row), (_, row_bin) in zip(L.iterrows(), L_binarized.iterrows()):
@@ -95,6 +108,7 @@ if __name__ == "__main__":
             gene_to_phylons[gene] = phylons.tolist()
 
     # Save output files
+    logger.info("Saving output files")
     output_files = [
         (args.genome_to_phylons, genome_to_phylons),
         (args.genome_to_phylon_weights, genome_to_phylon_weights),
@@ -111,3 +125,5 @@ if __name__ == "__main__":
         os.makedirs(out_dir, exist_ok=True)
         with open(output_fp, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
+    
+    logger.info("Done")
