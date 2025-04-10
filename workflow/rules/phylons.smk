@@ -30,14 +30,7 @@ rule pankb_phylons:
         A="data/processed/{stage}/{name}/phylons/NMF_A.csv",
         A_binarized="data/processed/{stage}/{name}/phylons/NMF_A_binarized.csv",
     output:
-        genome_to_phylons="data/processed/{stage}/pankb/web_data/species/{name}/phylons/genome_to_phylons.json",
-        genome_to_phylon_weights="data/processed/{stage}/pankb/web_data/species/{name}/phylons/genome_to_phylon_weights.json",
-        phylon_to_genomes="data/processed/{stage}/pankb/web_data/species/{name}/phylons/phylon_to_genomes.json",
-        phylon_to_genome_weights="data/processed/{stage}/pankb/web_data/species/{name}/phylons/phylon_to_genome_weights.json",
-        gene_to_phylons="data/processed/{stage}/pankb/web_data/species/{name}/phylons/gene_to_phylons.json",
-        phylon_to_gene_weights="data/processed/{stage}/pankb/web_data/species/{name}/phylons/phylon_to_gene_weights.json",
-        gene_to_phylon_weights="data/processed/{stage}/pankb/web_data/species/{name}/phylons/gene_to_phylon_weights.json",
-        phylon_to_genes="data/processed/{stage}/pankb/web_data/species/{name}/phylons/phylon_to_genes.json",
+        output="data/processed/{stage}/pankb/web_data/species/{name}/phylons.json",
     conda:
         "../envs/pyphylon.yaml"
     log:
@@ -49,30 +42,14 @@ rule pankb_phylons:
             --L_binarized {input.L_binarized} \
             --A {input.A} \
             --A_binarized {input.A_binarized} \
-            --genome_to_phylons {output.genome_to_phylons} \
-            --genome_to_phylon_weights {output.genome_to_phylon_weights} \
-            --phylon_to_genomes {output.phylon_to_genomes} \
-            --phylon_to_genome_weights {output.phylon_to_genome_weights} \
-            --gene_to_phylons {output.gene_to_phylons} \
-            --gene_to_phylon_weights {output.gene_to_phylon_weights} \
-            --phylon_to_genes {output.phylon_to_genes} \
-            --phylon_to_gene_weights {output.phylon_to_gene_weights} \
+            --output {output.output} \
             &> {log}
         """
 
 rule phylons_all:
     input:
         fexpand(
-            [
-                "data/processed/{stage}/pankb/web_data/species/{name}/phylons/genome_to_phylons.json",
-                "data/processed/{stage}/pankb/web_data/species/{name}/phylons/genome_to_phylon_weights.json",
-                "data/processed/{stage}/pankb/web_data/species/{name}/phylons/phylon_to_genomes.json",
-                "data/processed/{stage}/pankb/web_data/species/{name}/phylons/phylon_to_genome_weights.json",
-                "data/processed/{stage}/pankb/web_data/species/{name}/phylons/gene_to_phylons.json",
-                "data/processed/{stage}/pankb/web_data/species/{name}/phylons/phylon_to_gene_weights.json",
-                "data/processed/{stage}/pankb/web_data/species/{name}/phylons/gene_to_phylon_weights.json",
-                "data/processed/{stage}/pankb/web_data/species/{name}/phylons/phylon_to_genes.json",
-            ],
-                stage=RULE_FUNCTIONS["pankb_data_prep"]["stages"],
-                name=RULE_FUNCTIONS["pankb_data_prep"]["projects"],
-        ),
+            ["data/processed/{stage}/pankb/web_data/species/{name}/phylons.json"],
+            stage=RULE_FUNCTIONS["pankb_data_prep"]["stages"],
+            name=RULE_FUNCTIONS["pankb_data_prep"]["projects"],
+        )

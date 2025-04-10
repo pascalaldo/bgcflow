@@ -57,6 +57,7 @@ if __name__ == "__main__":
     n_genomes = mash_distances_df.shape[0]
 
     ## mash clustering ##
+    logger.info("Clustering on mash distances")
     mash_corr_df = mash_distances_df.corr()
     mash_corr_distances_df = 1 - mash_corr_df
 

@@ -4,7 +4,6 @@ Generate JSON output for PanKB from the phylons results
 
 import argparse
 import json
-from collections import defaultdict
 import pandas as pd
 import os
 import logging
@@ -15,14 +14,7 @@ if __name__ == "__main__":
     parser.add_argument("--L_binarized", required=True, help="Path of L binarized matrix CSV")
     parser.add_argument("--A", required=True, help="Path of A matrix CSV")
     parser.add_argument("--A_binarized", required=True, help="Path of A binarized matrix CSV")
-    parser.add_argument("--genome_to_phylons", required=True, help="Path of output genome to phylons JSON")
-    parser.add_argument("--genome_to_phylon_weights", required=True, help="Path of output genome to phylon weights JSON")
-    parser.add_argument("--phylon_to_genomes", required=True, help="Path of output phylon to genome JSON")
-    parser.add_argument("--phylon_to_genome_weights", required=True, help="Path of output phylon to genome weights JSON")
-    parser.add_argument("--phylon_to_genes", required=True, help="Path of output phylon to genes JSON")
-    parser.add_argument("--phylon_to_gene_weights", required=True, help="Path of output phylon to gene weights JSON")
-    parser.add_argument("--gene_to_phylons", required=True, help="Path of output gene to phylons JSON")
-    parser.add_argument("--gene_to_phylon_weights", required=True, help="Path of output gene to phylon weights JSON")
+    parser.add_argument("--output", required=True, help="Path of the output JSON file")
 
     args = parser.parse_args()
 
@@ -31,7 +23,7 @@ if __name__ == "__main__":
     logger.info("Converting phylons to JSON data")
     logger.info(f"Args: {args}")
 
-    PHYLON_WEIGHTS_ROUNDING_DIGITS = 7
+    N_ROUNDING_DIGITS = 5
 
     # Load input files
     logger.info("Reading NMF matrices")
@@ -58,39 +50,8 @@ if __name__ == "__main__":
     for genome in A.columns:
         A_column = A[genome]
         genome_to_phylon_weights[genome] = {
-            phylon: round(weight, PHYLON_WEIGHTS_ROUNDING_DIGITS) for phylon, weight in A_column.items()
+            phylon: round(weight, N_ROUNDING_DIGITS) for phylon, weight in A_column.items()
         }
-
-    logger.info("Making phylon to genome weights mapping")
-    phylon_to_genome_weights = defaultdict(dict)
-    for phylon in A.index:
-        A_row = A.loc[phylon]
-        for genome, weight in A_row.items():
-            phylon_to_genome_weights[phylon][genome] = round(weight, PHYLON_WEIGHTS_ROUNDING_DIGITS)
-
-    logger.info("Making phylon to genomes mapping")
-    phylon_to_genomes = defaultdict(list)
-    for genome, genome_phylons in genome_to_phylons.items():
-        if genome_phylons is not None:
-            for phylon in genome_phylons:
-                phylon_to_genomes[phylon].append(genome)
-    phylon_to_genomes = dict(phylon_to_genomes)
-
-    logger.info("Making phylon to gene weights mapping")
-    phylon_to_gene_weights = {}
-    phylon_to_genes = {}
-    genes = L.index
-    for phylon in L.columns:
-        column = L[phylon]
-        column_bin = L_binarized[phylon]
-
-        genes_mask = column_bin == 1
-        phylon_genes = genes[genes_mask]
-
-        phylon_to_gene_weights[phylon] = {
-            gene: round(weight, PHYLON_WEIGHTS_ROUNDING_DIGITS) for gene, weight in column.items()
-        }
-        phylon_to_genes[phylon] = list(phylon_genes)
 
     logger.info("Making gene to phylons mapping")
     gene_to_phylons = {}
@@ -103,27 +64,22 @@ if __name__ == "__main__":
 
         for phylon in row.index:
             gene_to_phylon_weights[gene] = {
-                phylon: round(float(weight), PHYLON_WEIGHTS_ROUNDING_DIGITS) for phylon, weight in row.items()
+                phylon: round(float(weight), N_ROUNDING_DIGITS) for phylon, weight in row.items()
             }
             gene_to_phylons[gene] = phylons.tolist()
 
-    # Save output files
-    logger.info("Saving output files")
-    output_files = [
-        (args.genome_to_phylons, genome_to_phylons),
-        (args.genome_to_phylon_weights, genome_to_phylon_weights),
-        (args.phylon_to_genomes, phylon_to_genomes),
-        (args.phylon_to_genome_weights, phylon_to_genome_weights),
-        (args.phylon_to_genes, phylon_to_genes),
-        (args.phylon_to_gene_weights, phylon_to_gene_weights),
-        (args.gene_to_phylons, gene_to_phylons),
-        (args.gene_to_phylon_weights, gene_to_phylon_weights),
-    ]
+    output_data = {
+        "gene_phylons": gene_to_phylons,
+        "gene_phylon_weights": gene_to_phylon_weights,
+        "genome_phylons": genome_to_phylons,
+        "genome_phylon_weights": genome_to_phylon_weights,
+    }
 
-    for output_fp, data in output_files:
-        out_dir = os.path.dirname(output_fp)
-        os.makedirs(out_dir, exist_ok=True)
-        with open(output_fp, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2)
-    
+    # Save output files
+    logger.info("Saving output file")
+    out_dir = os.path.dirname(args.output)
+    os.makedirs(out_dir, exist_ok=True)
+    with open(args.output, "w", encoding="utf-8") as f:
+        json.dump(output_data, f, indent=2)
+
     logger.info("Done")
