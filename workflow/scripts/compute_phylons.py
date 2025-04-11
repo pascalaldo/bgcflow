@@ -35,7 +35,7 @@ if __name__ == "__main__":
 
     # Maximum rank to run NMF with (the algorithm seems to be O(n²) w.r.t. rank and the number of genomes can get 
     # pretty big on popular species)
-    MAX_NMF_RANK = 75
+    MAX_NMF_RANK = 30
 
     parser = argparse.ArgumentParser(description="Compute phylons")
     parser.add_argument("--mash_distances", type=str, required=True, help="Path to the mash distances CSV")
@@ -114,17 +114,20 @@ if __name__ == "__main__":
         cumulative_variance[85],
         cumulative_variance[90],
     ]
-    rank_list = sorted(set(min(n, MAX_NMF_RANK) for n in rank_list))
+    rank_list = sorted(set(min(int(n), MAX_NMF_RANK) for n in rank_list))
 
     ## NMF ##
     logger.info(f"Running NMF with ranks: {rank_list}")
     W_dict, H_dict = run_nmf(data=accessory_gene_presence_df, ranks=rank_list, max_iter=40_000)
 
+    logger.info("Normalizing and binarizing NMF outputs")
     L_norm_dict, A_norm_dict = normalize_nmf_outputs(accessory_gene_presence_df, W_dict, H_dict)
     L_binarized_dict, A_binarized_dict = binarize_nmf_outputs(L_norm_dict, A_norm_dict)
     P_reconstructed_dict, P_error_dict, P_confusion_dict = generate_nmf_reconstructions(
         accessory_gene_presence_df, L_binarized_dict, A_binarized_dict
     )
+
+    logger.info("Computing reconstruction metrics and best rank")
     reconstruction_metrics_df = calculate_nmf_reconstruction_metrics(P_reconstructed_dict, P_confusion_dict)
     reconstruction_metrics_df.sort_values(by="AIC")
 
@@ -136,11 +139,14 @@ if __name__ == "__main__":
 
     W_dict, H_dict = run_nmf(data=accessory_gene_presence_df, ranks=extra_ranks, max_iter=40_000)
 
+    logger.info("Normalizing and binarizing NMF outputs")
     L_norm_dict, A_norm_dict = normalize_nmf_outputs(accessory_gene_presence_df, W_dict, H_dict)
     L_binarized_dict, A_binarized_dict = binarize_nmf_outputs(L_norm_dict, A_norm_dict)
     P_reconstructed_dict, P_error_dict, P_confusion_dict = generate_nmf_reconstructions(
         accessory_gene_presence_df, L_binarized_dict, A_binarized_dict
     )
+
+    logger.info("Computing reconstruction metrics and best rank")
     reconstruction_metrics_extra_df = calculate_nmf_reconstruction_metrics(P_reconstructed_dict, P_confusion_dict)
 
     reconstruction_metrics_all_df = pd.concat([reconstruction_metrics_df, reconstruction_metrics_extra_df]).sort_values(by='AIC')
