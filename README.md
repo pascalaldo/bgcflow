@@ -109,6 +109,8 @@ You can do it easily with `azcopy` (just be wary of the huge log files issue des
 azcopy copy --dry-run --recursive --overwrite=false /data/bgcflow_data/cyanobacteria/data https://pankbpipeline.blob.core.windows.net/runs/cyanobacteria?$SAS
 ```
 
+(assumes you have a `$SAS` variable with a valid [SAS token](https://learn.microsoft.com/en-us/azure/ai-services/translator/document-translation/how-to-guides/create-sas-tokens) for the Azure storage account)
+
 With `azcopy`, alaways first do a `--dry-run` to check that everything will end up in the intended location and use `--overwrite=false` unless you specifically need to. 
 
 ## Storage of PanKB-relevant results
