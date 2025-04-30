@@ -7,4 +7,4 @@ dependencies:
   - python==3.11
   - pip
   - pip:
-    - git+https://github.com/danielromeroy/pyphylon  # TODO: Move to biosustain org
+    - git+https://github.com/biosustain/pyphylon
