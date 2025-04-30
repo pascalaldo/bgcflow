@@ -169,6 +169,7 @@ rule pankb_nova_gene:
             -o {output.gene} > {log} 2>&1
         """
 
+
 rule pankb_minimal_all:
     input:
         fexpand(

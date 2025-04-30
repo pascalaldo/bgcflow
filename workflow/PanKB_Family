@@ -180,8 +180,9 @@ RULE_FUNCTIONS["pankb_data_prep"]["genomes"] = cached_filtered_accessions_for_pr
 RULE_FUNCTIONS["pankb_data_prep"]["stages"] = "species"
 include: "rules/pankb_data_prep.smk"
 include: "rules/pankb_nova.smk"
+include: "rules/phylons.smk"
 
-all_target_rules = ["classification", "pankb", "alleleome", "pankb_minimal", "pankb_nova"]
+all_target_rules = ["classification", "pankb", "alleleome", "pankb_minimal", "pankb_nova", "phylons"]
 def get_targets():
     defined_targets = config.get("rules", {})
     targets = [x for x in all_target_rules if defined_targets.get(x, True)]
